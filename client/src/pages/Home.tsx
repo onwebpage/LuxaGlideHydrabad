@@ -3,20 +3,73 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Shield, Zap } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const vendorsRef = useRef<HTMLDivElement>(null);
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  
+  // Global scroll progress
+  const { scrollYProgress } = useScroll();
+  const scaleProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  // Hero parallax
+  const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
   });
 
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.3]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const heroY = useTransform(heroProgress, [0, 1], ["0%", "50%"]);
+  const heroOpacity = useTransform(heroProgress, [0, 0.5, 1], [1, 0.8, 0.2]);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15]);
+  const heroRotate = useTransform(heroProgress, [0, 1], [0, 2]);
+
+  // Features section parallax
+  const { scrollYProgress: featuresProgress } = useScroll({
+    target: featuresRef,
+    offset: ["start end", "end start"]
+  });
+
+  const featuresY = useTransform(featuresProgress, [0, 1], ["10%", "-10%"]);
+  const featuresOpacity = useTransform(featuresProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const featuresScale = useTransform(featuresProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
+
+  // Vendors section parallax
+  const { scrollYProgress: vendorsProgress } = useScroll({
+    target: vendorsRef,
+    offset: ["start end", "end start"]
+  });
+
+  const vendorsY = useTransform(vendorsProgress, [0, 1], ["5%", "-5%"]);
+  const vendorsRotate = useTransform(vendorsProgress, [0, 0.5, 1], [-3, 0, 3]);
+
+  // Categories section parallax
+  const { scrollYProgress: categoriesProgress } = useScroll({
+    target: categoriesRef,
+    offset: ["start end", "end start"]
+  });
+
+  const categoriesY = useTransform(categoriesProgress, [0, 1], ["8%", "-8%"]);
+  const categoriesScale = useTransform(categoriesProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+
+  // Testimonials section parallax
+  const { scrollYProgress: testimonialsProgress } = useScroll({
+    target: testimonialsRef,
+    offset: ["start end", "end start"]
+  });
+
+  const testimonialsY = useTransform(testimonialsProgress, [0, 1], ["10%", "-10%"]);
+  const testimonialsRotate = useTransform(testimonialsProgress, [0, 1], [5, -5]);
 
   const featuredVendors = [
     { id: "1", name: "Elite Fashion Co.", rating: 4.8, products: 250, logo: "EF" },
@@ -86,19 +139,61 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen overflow-hidden">
-      {/* Hero Section with Parallax */}
+    <div ref={containerRef} className="min-h-screen overflow-hidden">
+      {/* Scroll Progress Indicator */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
+        style={{ scaleX: scaleProgress }}
+      />
+
+      {/* Floating Decorative Elements */}
+      <motion.div
+        className="fixed top-20 right-10 w-32 h-32 rounded-full bg-primary/5 blur-3xl pointer-events-none z-0"
+        style={{
+          y: useTransform(scrollYProgress, [0, 1], [0, -300]),
+          opacity: useTransform(scrollYProgress, [0, 0.5, 1], [0.5, 0.3, 0])
+        }}
+      />
+      <motion.div
+        className="fixed bottom-20 left-10 w-40 h-40 rounded-full bg-primary/5 blur-3xl pointer-events-none z-0"
+        style={{
+          y: useTransform(scrollYProgress, [0, 1], [0, 200]),
+          opacity: useTransform(scrollYProgress, [0, 0.5, 1], [0.5, 0.3, 0])
+        }}
+      />
+
+      {/* Hero Section with Enhanced Parallax */}
       <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden" style={{ position: "relative" }}>
+        {/* Background Image with Multiple Layers */}
         <motion.div
           className="absolute inset-0 bg-cover bg-center"
           style={{ 
             backgroundImage: `url(${heroImage})`,
             y: heroY,
-            scale: heroScale
+            scale: heroScale,
+            rotate: heroRotate
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         </motion.div>
+
+        {/* Floating gradient orbs */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl"
+          style={{
+            y: useTransform(heroProgress, [0, 1], [0, -150]),
+            x: useTransform(heroProgress, [0, 1], [0, 100]),
+            opacity: useTransform(heroProgress, [0, 0.5, 1], [0.3, 0.2, 0])
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-primary/10 blur-3xl"
+          style={{
+            y: useTransform(heroProgress, [0, 1], [0, 150]),
+            x: useTransform(heroProgress, [0, 1], [0, -100]),
+            opacity: useTransform(heroProgress, [0, 0.5, 1], [0.3, 0.2, 0])
+          }}
+        />
 
         <motion.div
           style={{ opacity: heroOpacity }}
@@ -114,6 +209,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
+              whileHover={{ scale: 1.05 }}
             >
               <Badge className="mb-6 bg-primary/20 backdrop-blur-md border border-primary/30 text-white px-6 py-2" data-testid="badge-hero">
                 Premium Wholesale Marketplace
@@ -133,6 +229,10 @@ export default function Home() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8, duration: 0.8 }}
                 className="text-primary"
+                style={{
+                  display: "inline-block",
+                  textShadow: "0 0 30px rgba(212, 175, 55, 0.5)"
+                }}
               >
                 Business
               </motion.span>
@@ -196,12 +296,17 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Stats Section with Stagger Animation */}
+      {/* Stats Section with Advanced Parallax */}
       <section className="py-20 bg-card relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
+        <motion.div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            y: useTransform(scrollYProgress, [0.1, 0.3], ["0%", "50%"])
+          }}
+        >
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
-        </div>
+        </motion.div>
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -217,7 +322,7 @@ export default function Home() {
                   type: "spring",
                   stiffness: 100
                 }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
                 className="text-center"
               >
                 <motion.div
@@ -243,9 +348,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section with Parallax Cards */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="container mx-auto px-6">
+      {/* Features Section with Multi-layer Parallax */}
+      <section ref={featuresRef} className="py-32 relative overflow-hidden" style={{ position: "relative" }}>
+        <motion.div
+          style={{ 
+            y: featuresY,
+            opacity: featuresOpacity,
+            scale: featuresScale
+          }}
+          className="container mx-auto px-6"
+        >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -253,12 +365,22 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
-            <h2 className="font-serif text-5xl md:text-6xl font-semibold mb-6">
+            <motion.h2
+              className="font-serif text-5xl md:text-6xl font-semibold mb-6"
+              style={{
+                y: useTransform(featuresProgress, [0, 1], ["0%", "-20%"])
+              }}
+            >
               Why Choose Us
-            </h2>
-            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p
+              className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed"
+              style={{
+                y: useTransform(featuresProgress, [0, 1], ["0%", "10%"])
+              }}
+            >
               Experience the future of wholesale fashion with our premium platform
-            </p>
+            </motion.p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -273,12 +395,16 @@ export default function Home() {
                   duration: 0.6,
                   type: "spring"
                 }}
-                whileHover={{ y: -10 }}
+                whileHover={{ y: -15, rotateY: 10, scale: 1.05 }}
+                style={{
+                  transformStyle: "preserve-3d",
+                  perspective: 1000
+                }}
               >
                 <Card className="h-full hover-elevate transition-all duration-500 border-2" data-testid={`card-feature-${index}`}>
                   <CardContent className="p-8 text-center">
                     <motion.div
-                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileHover={{ scale: 1.2, rotate: 360 }}
                       transition={{ type: "spring", stiffness: 300 }}
                       className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6"
                     >
@@ -291,12 +417,18 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Featured Vendors with Enhanced Animation */}
-      <section className="py-32 bg-secondary/30 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      {/* Featured Vendors with Rotating Parallax */}
+      <section ref={vendorsRef} className="py-32 bg-secondary/30 relative overflow-hidden" style={{ position: "relative" }}>
+        <motion.div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            y: vendorsY,
+            rotate: vendorsRotate
+          }}
+        >
           <motion.div
             animate={{ 
               scale: [1, 1.2, 1],
@@ -305,7 +437,7 @@ export default function Home() {
             transition={{ repeat: Infinity, duration: 20 }}
             className="absolute -top-48 -left-48 w-96 h-96 bg-primary rounded-full blur-3xl"
           />
-        </div>
+        </motion.div>
         
         <div className="container mx-auto px-6 relative z-10">
           <motion.div
@@ -335,13 +467,22 @@ export default function Home() {
                   duration: 0.8,
                   type: "spring"
                 }}
-                whileHover={{ y: -15, rotateY: 5 }}
-                style={{ transformStyle: "preserve-3d" }}
+                whileHover={{ 
+                  y: -20, 
+                  rotateY: 10,
+                  rotateX: 5,
+                  scale: 1.05,
+                  transition: { duration: 0.3 }
+                }}
+                style={{ 
+                  transformStyle: "preserve-3d",
+                  perspective: 1000
+                }}
               >
                 <Card className="hover-elevate transition-all duration-500 cursor-pointer backdrop-blur-sm" data-testid={`card-vendor-${vendor.id}`}>
                   <CardContent className="p-8 text-center">
                     <motion.div
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.2, rotate: 360 }}
                       transition={{ type: "spring", stiffness: 300 }}
                       className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-6 text-3xl font-serif font-semibold text-primary"
                     >
@@ -366,9 +507,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories with Icon Animation */}
-      <section className="py-32">
-        <div className="container mx-auto px-6">
+      {/* Categories with Scale Parallax */}
+      <section ref={categoriesRef} className="py-32 relative overflow-hidden" style={{ position: "relative" }}>
+        <motion.div
+          style={{ 
+            y: categoriesY,
+            scale: categoriesScale
+          }}
+          className="container mx-auto px-6"
+        >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -397,12 +544,17 @@ export default function Home() {
                   type: "spring",
                   stiffness: 150
                 }}
-                whileHover={{ scale: 1.05, y: -8 }}
+                whileHover={{ 
+                  scale: 1.1, 
+                  y: -10,
+                  rotate: [0, -5, 5, 0],
+                  transition: { duration: 0.3 }
+                }}
               >
                 <Card className="hover-elevate transition-all duration-300 cursor-pointer overflow-hidden group" data-testid={`card-category-${index}`}>
                   <CardContent className="p-6 text-center">
                     <motion.div
-                      whileHover={{ rotate: 360, scale: 1.2 }}
+                      whileHover={{ rotate: 360, scale: 1.3 }}
                       transition={{ duration: 0.6 }}
                       className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4"
                     >
@@ -415,12 +567,18 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Testimonials with Scroll Animation */}
-      <section className="py-32 bg-gradient-to-b from-background to-secondary/20">
-        <div className="container mx-auto px-6">
+      {/* Testimonials with Rotation Parallax */}
+      <section ref={testimonialsRef} className="py-32 bg-gradient-to-b from-background to-secondary/20 relative overflow-hidden" style={{ position: "relative" }}>
+        <motion.div
+          style={{ 
+            y: testimonialsY,
+            rotate: testimonialsRotate
+          }}
+          className="container mx-auto px-6"
+        >
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -448,7 +606,13 @@ export default function Home() {
                   duration: 0.8,
                   type: "spring"
                 }}
-                whileHover={{ y: -10, rotateY: 5 }}
+                whileHover={{ 
+                  y: -15, 
+                  rotateY: 8,
+                  rotateX: 3,
+                  scale: 1.03,
+                  transition: { duration: 0.3 }
+                }}
                 style={{ transformStyle: "preserve-3d" }}
               >
                 <Card className="h-full backdrop-blur-sm border-2 hover-elevate transition-all duration-500" data-testid={`card-testimonial-${index}`}>
@@ -465,6 +629,7 @@ export default function Home() {
                           initial={{ scale: 0, rotate: -180 }}
                           whileInView={{ scale: 1, rotate: 0 }}
                           transition={{ delay: index * 0.2 + 0.4 + i * 0.1, type: "spring" }}
+                          whileHover={{ scale: 1.3, rotate: 360 }}
                         >
                           <Star className="w-5 h-5 fill-primary text-primary" />
                         </motion.div>
@@ -482,10 +647,10 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* CTA Section with Gradient Animation */}
+      {/* CTA Section with Animated Gradient */}
       <section className="py-32 relative overflow-hidden">
         <motion.div
           animate={{
@@ -497,6 +662,26 @@ export default function Home() {
           }}
           transition={{ repeat: Infinity, duration: 8 }}
           className="absolute inset-0"
+        />
+
+        {/* Floating animated shapes */}
+        <motion.div
+          animate={{
+            y: [0, -20, 0],
+            x: [0, 10, 0],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ repeat: Infinity, duration: 15 }}
+          className="absolute top-20 left-20 w-32 h-32 rounded-full bg-primary/10 blur-2xl"
+        />
+        <motion.div
+          animate={{
+            y: [0, 20, 0],
+            x: [0, -10, 0],
+            rotate: [360, 180, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 12 }}
+          className="absolute bottom-20 right-20 w-40 h-40 rounded-full bg-primary/10 blur-2xl"
         />
         
         <div className="container mx-auto px-6 relative z-10">
@@ -533,14 +718,20 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-6 justify-center"
             >
               <Link href="/register?role=buyer">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }} 
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button size="lg" className="text-lg px-12 py-6" data-testid="button-register-buyer">
                     Start Buying Wholesale
                   </Button>
                 </motion.div>
               </Link>
               <Link href="/register?role=vendor">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.05, rotate: [0, 1, -1, 0] }} 
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button size="lg" variant="outline" className="text-lg px-12 py-6" data-testid="button-register-vendor">
                     Start Selling
                   </Button>
