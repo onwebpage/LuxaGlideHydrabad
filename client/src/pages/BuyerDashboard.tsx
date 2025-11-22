@@ -33,8 +33,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateBuyerProfileSchema, type UpdateBuyerProfile } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import type { Order, Address, Product } from "@shared/schema";
+import { useState, useEffect } from "react";
+import type { Order, Address, Product, Buyer } from "@shared/schema";
 
 interface DashboardStats {
   totalOrders: number;
@@ -82,17 +82,33 @@ export default function BuyerDashboard() {
     enabled: !!userId,
   });
 
+  const buyerProfile = profile as Buyer | null;
+  
   const form = useForm<UpdateBuyerProfile>({
     resolver: zodResolver(updateBuyerProfileSchema),
     defaultValues: {
       fullName: user.fullName || "",
       phone: user.phone || "",
-      businessName: (profile as any)?.businessName || "",
-      gstNumber: (profile as any)?.gstNumber || "",
+      businessName: buyerProfile?.businessName || "",
+      gstNumber: buyerProfile?.gstNumber || "",
       currentPassword: "",
       userId: user.id,
     },
   });
+
+  // Reset form when dialog opens with latest user data
+  useEffect(() => {
+    if (isEditDialogOpen) {
+      form.reset({
+        fullName: user.fullName || "",
+        phone: user.phone || "",
+        businessName: buyerProfile?.businessName || "",
+        gstNumber: buyerProfile?.gstNumber || "",
+        currentPassword: "",
+        userId: user.id,
+      });
+    }
+  }, [isEditDialogOpen, user, buyerProfile, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateBuyerProfile) => {
@@ -111,6 +127,8 @@ export default function BuyerDashboard() {
         phone: response.user.phone || "",
         businessName: response.profile?.businessName || "",
         gstNumber: response.profile?.gstNumber || "",
+        currentPassword: "",
+        userId: response.user.id,
       });
     },
     onError: (error: any) => {
