@@ -11,6 +11,8 @@ import { AuthProvider } from "./lib/auth-context";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
 import ProductDetail from "@/pages/ProductDetail";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import BuyerDashboard from "@/pages/BuyerDashboard";
@@ -24,6 +26,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/products" component={Products} />
       <Route path="/products/:id" component={ProductDetail} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
