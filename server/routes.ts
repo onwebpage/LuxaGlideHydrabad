@@ -2,6 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { updateBuyerProfileSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -125,6 +126,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(401).json({ message: "Not authenticated" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Profile Routes ============
+
+  // Update buyer profile
+  app.patch("/api/profile/buyer", async (req, res) => {
+    try {
+      const validation = updateBuyerProfileSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validation.error.errors 
+        });
+      }
+
+      const { fullName, phone, businessName, gstNumber } = validation.data;
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, {
+        fullName,
+        phone,
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      let updatedBuyer = null;
+      if (businessName !== undefined || gstNumber !== undefined) {
+        updatedBuyer = await storage.updateBuyerByUserId(userId, {
+          businessName,
+          gstNumber,
+        });
+      } else {
+        updatedBuyer = await storage.getBuyerByUserId(userId);
+      }
+
+      const { password: _, ...userWithoutPassword } = updatedUser;
+      res.json({
+        user: userWithoutPassword,
+        profile: updatedBuyer,
+        message: "Profile updated successfully"
+      });
+    } catch (error: any) {
+      console.error("Update profile error:", error);
+      res.status(500).json({ message: error.message || "Failed to update profile" });
     }
   });
 
