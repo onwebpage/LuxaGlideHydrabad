@@ -22,6 +22,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import silkSareeImg from "@assets/stock_images/traditional_indian_s_e36fdc62.jpg";
+import kurtiImg from "@assets/stock_images/indian_embroidered_k_8acca6d6.jpg";
+import lehengaImg from "@assets/stock_images/indian_lehenga_brida_96a6faa4.jpg";
+import suitImg from "@assets/stock_images/cotton_dress_materia_e09c3efa.jpg";
+import banarasiImg from "@assets/stock_images/banarasi_silk_fabric_3ae743ef.jpg";
+import anarkaliImg from "@assets/stock_images/designer_anarkali_su_f79548b0.jpg";
+import chiffonImg from "@assets/stock_images/chiffon_saree_fabric_a6935ae9.jpg";
+import churidarImg from "@assets/stock_images/traditional_churidar_513791ee.jpg";
+
 export default function Products() {
   const [location] = useLocation();
   
@@ -72,6 +81,7 @@ export default function Products() {
       colors: ["#DC2626", "#2563EB", "#D4AF37"],
       colorNames: ["Red", "Blue", "Gold"],
       imageColor: "#FEE2E2",
+      image: silkSareeImg,
     },
     {
       id: "2",
@@ -85,6 +95,7 @@ export default function Products() {
       colors: ["#FFFFFF", "#EC4899"],
       colorNames: ["White", "Pink"],
       imageColor: "#FCE7F3",
+      image: kurtiImg,
     },
     {
       id: "3",
@@ -98,6 +109,7 @@ export default function Products() {
       colors: ["#D4AF37", "#EC4899", "#10B981"],
       colorNames: ["Gold", "Pink", "Green"],
       imageColor: "#FEF3C7",
+      image: lehengaImg,
     },
     {
       id: "4",
@@ -111,6 +123,7 @@ export default function Products() {
       colors: ["#DC2626", "#2563EB", "#10B981", "#F59E0B"],
       colorNames: ["Multi"],
       imageColor: "#E0E7FF",
+      image: suitImg,
     },
     {
       id: "5",
@@ -124,19 +137,49 @@ export default function Products() {
       colors: ["#7C3AED", "#D4AF37"],
       colorNames: ["Purple", "Gold"],
       imageColor: "#F3E8FF",
+      image: banarasiImg,
     },
     {
       id: "6",
-      name: "Formal Blazer Set",
+      name: "Designer Anarkali Suit",
       price: 1850,
       moq: 15,
       vendor: "Trends Wholesale",
       rating: 4.5,
-      category: "Western",
+      category: "Suits",
       fabric: "Cotton",
       colors: ["#1F2937", "#6B7280"],
       colorNames: ["Black", "Gray"],
       imageColor: "#F3F4F6",
+      image: anarkaliImg,
+    },
+    {
+      id: "7",
+      name: "Elegant Chiffon Saree",
+      price: 1950,
+      moq: 12,
+      vendor: "Style Studios",
+      rating: 4.7,
+      category: "Sarees",
+      fabric: "Chiffon",
+      colors: ["#EC4899", "#D4AF37", "#10B981"],
+      colorNames: ["Pink", "Gold", "Green"],
+      imageColor: "#FDF4FF",
+      image: chiffonImg,
+    },
+    {
+      id: "8",
+      name: "Traditional Churidar Set",
+      price: 1200,
+      moq: 25,
+      vendor: "Premium Textiles",
+      rating: 4.6,
+      category: "Suits",
+      fabric: "Cotton",
+      colors: ["#DC2626", "#2563EB", "#10B981"],
+      colorNames: ["Red", "Blue", "Green"],
+      imageColor: "#DBEAFE",
+      image: churidarImg,
     },
   ];
 
@@ -456,21 +499,14 @@ export default function Products() {
                   >
                     <Link href={`/products/${product.id}`}>
                       <div
-                        className="relative aspect-[3/4] overflow-hidden transition-all duration-500 group-hover:scale-105"
-                        style={{ backgroundColor: product.imageColor }}
+                        className="relative aspect-[3/4] overflow-hidden transition-all duration-500"
                       >
-                        {/* Image Placeholder */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center p-8">
-                            <Package2
-                              className="w-24 h-24 mx-auto mb-4 text-foreground/20"
-                              strokeWidth={1}
-                            />
-                            <p className="text-sm text-muted-foreground font-medium">
-                              {product.category}
-                            </p>
-                          </div>
-                        </div>
+                        {/* Product Image */}
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
 
                         {/* Wishlist Button */}
                         <div className="absolute top-4 right-4 z-10">
