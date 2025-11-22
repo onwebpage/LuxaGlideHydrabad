@@ -21,15 +21,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-import silkSareeImg from "@assets/stock_images/traditional_indian_s_e36fdc62.jpg";
-import kurtiImg from "@assets/stock_images/indian_embroidered_k_8acca6d6.jpg";
-import lehengaImg from "@assets/stock_images/indian_lehenga_brida_96a6faa4.jpg";
-import suitImg from "@assets/stock_images/cotton_dress_materia_e09c3efa.jpg";
-import banarasiImg from "@assets/stock_images/banarasi_silk_fabric_3ae743ef.jpg";
-import anarkaliImg from "@assets/stock_images/designer_anarkali_su_f79548b0.jpg";
-import chiffonImg from "@assets/stock_images/chiffon_saree_fabric_a6935ae9.jpg";
-import churidarImg from "@assets/stock_images/traditional_churidar_513791ee.jpg";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProducts, type Product } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
 
 export default function Products() {
   const [location] = useLocation();
@@ -67,124 +61,48 @@ export default function Products() {
     });
   };
 
-  // Mock products - will be replaced with API
-  const products = [
-    {
-      id: "1",
-      name: "Designer Silk Saree",
-      price: 2500,
-      moq: 10,
-      vendor: "Elite Fashion Co.",
-      rating: 4.8,
-      category: "Sarees",
-      fabric: "Silk",
-      colors: ["#DC2626", "#2563EB", "#D4AF37"],
-      colorNames: ["Red", "Blue", "Gold"],
-      imageColor: "#FEE2E2",
-      image: silkSareeImg,
-    },
-    {
-      id: "2",
-      name: "Embroidered Kurti Set",
-      price: 850,
-      moq: 20,
-      vendor: "Trends Wholesale",
-      rating: 4.7,
-      category: "Kurtis",
-      fabric: "Cotton",
-      colors: ["#FFFFFF", "#EC4899"],
-      colorNames: ["White", "Pink"],
-      imageColor: "#FCE7F3",
-      image: kurtiImg,
-    },
-    {
-      id: "3",
-      name: "Premium Lehenga",
-      price: 4500,
-      moq: 5,
-      vendor: "Style Studios",
-      rating: 4.9,
-      category: "Lehenga",
-      fabric: "Georgette",
-      colors: ["#D4AF37", "#EC4899", "#10B981"],
-      colorNames: ["Gold", "Pink", "Green"],
-      imageColor: "#FEF3C7",
-      image: lehengaImg,
-    },
-    {
-      id: "4",
-      name: "Cotton Dress Material",
-      price: 650,
-      moq: 50,
-      vendor: "Premium Textiles",
-      rating: 4.6,
-      category: "Suits",
-      fabric: "Cotton",
-      colors: ["#DC2626", "#2563EB", "#10B981", "#F59E0B"],
-      colorNames: ["Multi"],
-      imageColor: "#E0E7FF",
-      image: suitImg,
-    },
-    {
-      id: "5",
-      name: "Luxury Banarasi Silk",
-      price: 3200,
-      moq: 8,
-      vendor: "Elite Fashion Co.",
-      rating: 4.9,
-      category: "Sarees",
-      fabric: "Silk",
-      colors: ["#7C3AED", "#D4AF37"],
-      colorNames: ["Purple", "Gold"],
-      imageColor: "#F3E8FF",
-      image: banarasiImg,
-    },
-    {
-      id: "6",
-      name: "Designer Anarkali Suit",
-      price: 1850,
-      moq: 15,
-      vendor: "Trends Wholesale",
-      rating: 4.5,
-      category: "Suits",
-      fabric: "Cotton",
-      colors: ["#1F2937", "#6B7280"],
-      colorNames: ["Black", "Gray"],
-      imageColor: "#F3F4F6",
-      image: anarkaliImg,
-    },
-    {
-      id: "7",
-      name: "Elegant Chiffon Saree",
-      price: 1950,
-      moq: 12,
-      vendor: "Style Studios",
-      rating: 4.7,
-      category: "Sarees",
-      fabric: "Chiffon",
-      colors: ["#EC4899", "#D4AF37", "#10B981"],
-      colorNames: ["Pink", "Gold", "Green"],
-      imageColor: "#FDF4FF",
-      image: chiffonImg,
-    },
-    {
-      id: "8",
-      name: "Traditional Churidar Set",
-      price: 1200,
-      moq: 25,
-      vendor: "Premium Textiles",
-      rating: 4.6,
-      category: "Suits",
-      fabric: "Cotton",
-      colors: ["#DC2626", "#2563EB", "#10B981"],
-      colorNames: ["Red", "Blue", "Green"],
-      imageColor: "#DBEAFE",
-      image: churidarImg,
-    },
-  ];
+  // Fetch products and categories from API
+  const { data: apiProducts, isLoading: productsLoading } = useProducts();
+  const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
 
-  const categories = ["all", "Sarees", "Kurtis", "Lehenga", "Suits", "Western"];
-  const fabrics = ["all", "Cotton", "Silk", "Georgette", "Chiffon", "Crepe"];
+  // Transform API products to include parsed JSON fields
+  const products = useMemo(() => {
+    if (!apiProducts) return [];
+    
+    return apiProducts.map(product => {
+      const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+      const colors = product.colors ? (typeof product.colors === 'string' ? JSON.parse(product.colors) : product.colors) : [];
+      const sizes = product.sizes ? (typeof product.sizes === 'string' ? JSON.parse(product.sizes) : product.sizes) : [];
+      
+      return {
+        ...product,
+        image: Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg',
+        price: parseFloat(product.price),
+        rating: parseFloat(product.rating || '0'),
+        colors: colors,
+        sizes: sizes,
+      };
+    });
+  }, [apiProducts]);
+
+  // Dynamic categories from API
+  const categories = useMemo(() => {
+    if (!apiCategories) return ["all"];
+    return ["all", ...apiCategories.map(cat => cat.name)];
+  }, [apiCategories]);
+
+  // Dynamic fabrics from products
+  const fabrics = useMemo(() => {
+    if (!products || products.length === 0) return ["all"];
+    const uniqueFabrics = Array.from(new Set(products.map(p => p.fabric).filter(Boolean)));
+    return ["all", ...uniqueFabrics];
+  }, [products]);
+
+  // Create a category name to ID mapping
+  const categoryMap = useMemo(() => {
+    if (!apiCategories) return new Map();
+    return new Map(apiCategories.map(cat => [cat.name, cat.id]));
+  }, [apiCategories]);
 
   // Memoize filtered and sorted products for performance
   const sortedProducts = useMemo(() => {
@@ -196,8 +114,11 @@ export default function Products() {
       }
 
       // Category filter
-      if (selectedCategory !== "all" && product.category !== selectedCategory) {
-        return false;
+      if (selectedCategory !== "all") {
+        const categoryId = categoryMap.get(selectedCategory);
+        if (product.categoryId !== categoryId) {
+          return false;
+        }
       }
 
       // Fabric filter
@@ -223,15 +144,14 @@ export default function Products() {
         case "rating":
           return b.rating - a.rating;
         case "newest":
-          // For now, sort by id (in real app, would use createdAt)
-          return parseInt(b.id) - parseInt(a.id);
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case "featured":
         default:
-          // Featured: sort by rating then price
+          if (a.featured !== b.featured) return b.featured ? 1 : -1;
           return b.rating - a.rating || b.price - a.price;
       }
     });
-  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
+  }, [products, searchQuery, selectedCategory, selectedFabric, priceRange, sortBy, categoryMap]);
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-b from-background to-secondary/20">
@@ -470,7 +390,20 @@ export default function Products() {
 
             {/* Products Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sortedProducts.length === 0 ? (
+              {productsLoading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i} className="overflow-hidden h-full flex flex-col">
+                    <Skeleton className="aspect-[3/4] w-full" />
+                    <CardContent className="p-6 flex-1 flex flex-col space-y-4">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-8 w-24" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                  </Card>
+                ))
+              ) : sortedProducts.length === 0 ? (
                 <div className="col-span-full py-20 text-center">
                   <Package2 className="w-20 h-20 mx-auto mb-4 text-muted-foreground/30" />
                   <h3 className="text-xl font-semibold mb-2">No products found</h3>
@@ -546,11 +479,6 @@ export default function Products() {
                     </Link>
 
                     <CardContent className="p-6 flex-1 flex flex-col">
-                      {/* Vendor */}
-                      <div className="mb-2 text-xs text-muted-foreground uppercase tracking-widest font-medium">
-                        {product.vendor}
-                      </div>
-
                       {/* Product Name */}
                       <Link href={`/products/${product.id}`}>
                         <h3
@@ -569,24 +497,23 @@ export default function Products() {
                         <span className="text-sm text-muted-foreground">/piece</span>
                       </div>
 
-                      {/* Color Swatches */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="flex gap-1.5">
-                          {product.colors.slice(0, 4).map((color, i) => (
-                            <div
-                              key={i}
-                              className="w-6 h-6 rounded-full border-2 border-border shadow-sm cursor-pointer hover:scale-110 transition-transform"
-                              style={{ backgroundColor: color }}
-                              title={product.colorNames[i] || color}
-                            />
-                          ))}
+                      {/* Colors */}
+                      {product.colors && product.colors.length > 0 && (
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="flex gap-2 flex-wrap">
+                            {product.colors.slice(0, 5).map((color, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {color}
+                              </Badge>
+                            ))}
+                          </div>
+                          {product.colors.length > 5 && (
+                            <span className="text-xs text-muted-foreground font-medium">
+                              +{product.colors.length - 5} more
+                            </span>
+                          )}
                         </div>
-                        {product.colors.length > 4 && (
-                          <span className="text-xs text-muted-foreground font-medium">
-                            +{product.colors.length - 4} more
-                          </span>
-                        )}
-                      </div>
+                      )}
 
                       {/* Fabric Badge */}
                       <Badge variant="outline" className="mb-4 w-fit">
