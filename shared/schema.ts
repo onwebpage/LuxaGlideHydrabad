@@ -247,7 +247,7 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   product: one(products, { fields: [orderItems.productId], references: [products.id] }),
 }));
 
-// Zod Schemas
+// Zod Schemas - Insert
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertVendorSchema = createInsertSchema(vendors).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBuyerSchema = createInsertSchema(buyers).omit({ id: true, createdAt: true, updatedAt: true });
@@ -263,13 +263,28 @@ export const insertRfqSchema = createInsertSchema(rfqs).omit({ id: true, created
 export const insertNewsletterSchema = createInsertSchema(newsletter).omit({ id: true, createdAt: true });
 export const insertCmsSettingsSchema = createInsertSchema(cmsSettings).omit({ id: true, updatedAt: true });
 
+// Zod Schemas - Update
+export const updateUserSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  phone: z.string().optional(),
+});
+
+export const updateBuyerProfileSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  phone: z.string().optional(),
+  businessName: z.string().optional(),
+  gstNumber: z.string().optional(),
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type Vendor = typeof vendors.$inferSelect;
 export type InsertVendor = z.infer<typeof insertVendorSchema>;
 export type Buyer = typeof buyers.$inferSelect;
 export type InsertBuyer = z.infer<typeof insertBuyerSchema>;
+export type UpdateBuyerProfile = z.infer<typeof updateBuyerProfileSchema>;
 export type Address = typeof addresses.$inferSelect;
 export type InsertAddress = z.infer<typeof insertAddressSchema>;
 export type Category = typeof categories.$inferSelect;
