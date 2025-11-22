@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 
 // Set up file upload
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -24,6 +25,62 @@ const upload = multer({
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
+
+// In-memory admin session store (for production, use Redis or database)
+const adminSessions = new Map<string, { 
+  username: string; 
+  createdAt: number;
+  lastAccessedAt: number;
+  expiresAt: number;
+}>();
+
+// Session configuration
+const SESSION_MAX_LIFETIME = 8 * 60 * 60 * 1000; // 8 hours max
+const SESSION_IDLE_TIMEOUT = 60 * 60 * 1000; // 1 hour idle timeout
+
+// Cleanup expired sessions periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, session] of adminSessions.entries()) {
+    if (now > session.expiresAt) {
+      adminSessions.delete(token);
+    }
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
+
+// Admin authentication middleware
+function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Admin authentication required" });
+  }
+
+  const token = authHeader.substring(7);
+  const session = adminSessions.get(token);
+
+  if (!session) {
+    return res.status(401).json({ message: "Invalid or expired admin session" });
+  }
+
+  const now = Date.now();
+  const maxLifetimeExpired = now > session.createdAt + SESSION_MAX_LIFETIME;
+  const idleTimeoutExpired = now > session.lastAccessedAt + SESSION_IDLE_TIMEOUT;
+
+  if (maxLifetimeExpired || idleTimeoutExpired) {
+    adminSessions.delete(token);
+    return res.status(401).json({ message: "Admin session expired" });
+  }
+
+  // Update last accessed time but don't extend beyond max lifetime
+  session.lastAccessedAt = now;
+  session.expiresAt = Math.min(
+    session.createdAt + SESSION_MAX_LIFETIME,
+    now + SESSION_IDLE_TIMEOUT
+  );
+  
+  next();
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ============ Authentication Routes ============
@@ -139,13 +196,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid admin credentials" });
       }
 
+      // Generate secure admin session token
+      const token = crypto.randomBytes(32).toString("hex");
+      const now = Date.now();
+
+      adminSessions.set(token, {
+        username: adminUsername,
+        createdAt: now,
+        lastAccessedAt: now,
+        expiresAt: now + SESSION_IDLE_TIMEOUT,
+      });
+
       res.json({ 
         message: "Admin login successful",
-        isAdmin: true
+        isAdmin: true,
+        token,
       });
     } catch (error: any) {
       console.error("Admin login error:", error);
       res.status(500).json({ message: error.message || "Admin login failed" });
+    }
+  });
+
+  // Admin logout
+  app.post("/api/auth/admin-logout", requireAdminAuth, async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        adminSessions.delete(token);
+      }
+      res.json({ message: "Logged out successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
@@ -342,8 +425,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ============ Vendor Routes ============
   
-  // Get all vendors
-  app.get("/api/vendors", async (req, res) => {
+  // Get all vendors (admin only)
+  app.get("/api/vendors", requireAdminAuth, async (req, res) => {
     try {
       const { kycStatus, limit } = req.query;
       const vendors = await storage.getAllVendors({
@@ -357,8 +440,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get vendor by ID
-  app.get("/api/vendors/:id", async (req, res) => {
+  // Get vendor by ID (admin only)
+  app.get("/api/vendors/:id", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.getVendor(req.params.id);
       if (!vendor) {
@@ -371,8 +454,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update vendor (KYC approval/rejection)
-  app.put("/api/vendors/:id", async (req, res) => {
+  // Update vendor (admin only)
+  app.put("/api/vendors/:id", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.updateVendor(req.params.id, req.body);
       if (!vendor) {
@@ -385,8 +468,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get vendor products
-  app.get("/api/vendors/:id/products", async (req, res) => {
+  // Get vendor products (admin only)
+  app.get("/api/vendors/:id/products", requireAdminAuth, async (req, res) => {
     try {
       const products = await storage.getAllProducts({
         vendorId: req.params.id,
@@ -397,8 +480,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get vendor stats/earnings
-  app.get("/api/vendors/:id/stats", async (req, res) => {
+  // Get vendor stats/earnings (admin only)
+  app.get("/api/vendors/:id/stats", requireAdminAuth, async (req, res) => {
     try {
       const stats = await storage.getVendorDashboardStats(req.params.id);
       res.json(stats);
@@ -407,8 +490,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Approve vendor KYC
-  app.post("/api/vendors/:id/approve", async (req, res) => {
+  // Approve vendor KYC (admin only)
+  app.post("/api/vendors/:id/approve", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.updateVendor(req.params.id, {
         kycStatus: "approved",
@@ -422,8 +505,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Reject vendor KYC
-  app.post("/api/vendors/:id/reject", async (req, res) => {
+  // Reject vendor KYC (admin only)
+  app.post("/api/vendors/:id/reject", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.updateVendor(req.params.id, {
         kycStatus: "rejected",
@@ -437,8 +520,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Suspend vendor account
-  app.post("/api/vendors/:id/suspend", async (req, res) => {
+  // Suspend vendor account (admin only)
+  app.post("/api/vendors/:id/suspend", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.updateVendor(req.params.id, {
         isActive: false,
@@ -452,8 +535,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Activate vendor account
-  app.post("/api/vendors/:id/activate", async (req, res) => {
+  // Activate vendor account (admin only)
+  app.post("/api/vendors/:id/activate", requireAdminAuth, async (req, res) => {
     try {
       const vendor = await storage.updateVendor(req.params.id, {
         isActive: true,
@@ -817,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/dashboard/admin", async (req, res) => {
+  app.get("/api/dashboard/admin", requireAdminAuth, async (req, res) => {
     try {
       const stats = await storage.getAdminDashboardStats();
       res.json(stats);
@@ -827,7 +910,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/monthly-sales", async (req, res) => {
+  app.get("/api/analytics/monthly-sales", requireAdminAuth, async (req, res) => {
     try {
       const data = await storage.getMonthlySalesData();
       res.json(data);
@@ -837,7 +920,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/vendor-performance", async (req, res) => {
+  app.get("/api/analytics/vendor-performance", requireAdminAuth, async (req, res) => {
     try {
       const data = await storage.getVendorPerformance();
       res.json(data);
@@ -847,7 +930,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/low-stock", async (req, res) => {
+  app.get("/api/analytics/low-stock", requireAdminAuth, async (req, res) => {
     try {
       const threshold = req.query.threshold ? parseInt(req.query.threshold as string) : 10;
       const products = await storage.getLowStockProducts(threshold);
@@ -858,7 +941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/recent-orders", async (req, res) => {
+  app.get("/api/analytics/recent-orders", requireAdminAuth, async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       const orders = await storage.getRecentOrders(limit);

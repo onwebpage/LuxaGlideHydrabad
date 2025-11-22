@@ -30,6 +30,7 @@ export default function AdminLogin() {
       if (response.ok) {
         localStorage.setItem("adminAuth", "true");
         localStorage.setItem("adminAuthTime", Date.now().toString());
+        localStorage.setItem("adminToken", data.token);
         toast({
           title: "Login Successful",
           description: "Welcome to the admin panel",

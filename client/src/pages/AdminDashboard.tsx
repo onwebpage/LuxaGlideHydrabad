@@ -74,14 +74,28 @@ export default function AdminDashboard() {
     }
   }, [setLocation, toast]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminAuthTime");
-    toast({
-      title: "Logged Out",
-      description: "You have been logged out successfully",
-    });
-    setLocation("/admin-login");
+  const handleLogout = async () => {
+    try {
+      // Call server logout endpoint to invalidate session
+      await fetch("/api/auth/admin-logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Clear local storage regardless of API call success
+      localStorage.removeItem("adminAuth");
+      localStorage.removeItem("adminAuthTime");
+      localStorage.removeItem("adminToken");
+      toast({
+        title: "Logged Out",
+        description: "You have been logged out successfully",
+      });
+      setLocation("/admin-login");
+    }
   };
 
   const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
