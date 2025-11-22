@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { apiRequest } from "./queryClient";
+import type { Buyer, Vendor } from "@shared/schema";
 
 export interface User {
   id: string;
@@ -10,9 +11,11 @@ export interface User {
   createdAt: string;
 }
 
+type UserProfile = Buyer | Vendor | null;
+
 interface AuthContextType {
   user: User | null;
-  profile: any | null;
+  profile: UserProfile;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (data: any) => Promise<void>;
@@ -23,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<UserProfile>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,7 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await apiRequest("POST", "/api/auth/login", { email, password });
+      const res = await apiRequest("POST", "/api/auth/login", { email, password });
+      const response = await res.json() as {
+        user: User;
+        profile: UserProfile;
+        message: string;
+      };
       
       if (response.user) {
         setUser(response.user);

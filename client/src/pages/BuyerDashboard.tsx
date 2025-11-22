@@ -22,7 +22,7 @@ import {
   User,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import type { Order, Address, Product } from "@shared/schema";
@@ -43,21 +43,12 @@ interface WishlistItem {
 
 export default function BuyerDashboard() {
   const { user, profile } = useAuth();
+  const [, setLocation] = useLocation();
   const userId = user?.id;
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="p-8 max-w-md">
-          <CardContent className="text-center">
-            <p className="text-muted-foreground mb-4">Please log in to view your dashboard.</p>
-            <Link href="/login">
-              <Button>Go to Login</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    setLocation("/login");
+    return null;
   }
 
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
@@ -231,7 +222,7 @@ export default function BuyerDashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {wishlistData.map((item: any) => (
+                {wishlistData.map((item) => (
                   <WishlistProductCard key={item.id} item={item} />
                 ))}
               </div>
@@ -360,8 +351,8 @@ function Label({ children, className }: { children: React.ReactNode; className?:
   return <div className={className}>{children}</div>;
 }
 
-// Wishlist product card component
-function WishlistProductCard({ item }: { item: any }) {
+// Wishlist product card component - fetches real product data for each wishlist item
+function WishlistProductCard({ item }: { item: WishlistItem }) {
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: [`/api/products/${item.productId}`],
     enabled: !!item.productId,
@@ -393,7 +384,9 @@ function WishlistProductCard({ item }: { item: any }) {
             {firstImage && !firstImage.includes('🌸') ? (
               <img src={firstImage} alt={product.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="text-6xl">🌸</div>
+              <div className="flex items-center justify-center h-full">
+                <Package className="w-16 h-16 text-muted-foreground" />
+              </div>
             )}
           </div>
         </Link>
