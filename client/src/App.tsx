@@ -19,6 +19,7 @@ import Register from "@/pages/Register";
 import BuyerDashboard from "@/pages/BuyerDashboard";
 import VendorDashboard from "@/pages/VendorDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import AdminLogin from "@/pages/AdminLogin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/admin-login" component={AdminLogin} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
       <Route path="/dashboard/vendor" component={VendorDashboard} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
@@ -44,7 +46,7 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
-  const isAuthPage = location.includes("/login") || location.includes("/register");
+  const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/admin-login");
 
   return (
     <TooltipProvider>

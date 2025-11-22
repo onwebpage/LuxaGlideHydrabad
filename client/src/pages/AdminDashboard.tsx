@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +23,13 @@ import {
   ShoppingCart,
   AlertTriangle,
   DollarSign,
+  LogOut,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Vendor, Product } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminStats {
   totalVendors: number;
@@ -35,6 +39,45 @@ interface AdminStats {
 }
 
 export default function AdminDashboard() {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const adminAuth = localStorage.getItem("adminAuth");
+    const authTime = localStorage.getItem("adminAuthTime");
+    
+    if (!adminAuth || adminAuth !== "true") {
+      setLocation("/admin-login");
+      return;
+    }
+    
+    if (authTime) {
+      const timeSinceAuth = Date.now() - parseInt(authTime);
+      const oneHour = 60 * 60 * 1000;
+      
+      if (timeSinceAuth > oneHour) {
+        localStorage.removeItem("adminAuth");
+        localStorage.removeItem("adminAuthTime");
+        toast({
+          title: "Session Expired",
+          description: "Please login again",
+          variant: "destructive",
+        });
+        setLocation("/admin-login");
+      }
+    }
+  }, [setLocation, toast]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminAuthTime");
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully",
+    });
+    setLocation("/admin-login");
+  };
+
   const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ["/api/dashboard/admin"],
   });
@@ -115,11 +158,21 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-6">
-        <div className="mb-8">
-          <h1 className="font-serif text-4xl font-semibold mb-2" data-testid="text-title">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Platform overview and management controls
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="font-serif text-4xl font-semibold mb-2" data-testid="text-title">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              Platform overview and management controls
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
