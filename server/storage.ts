@@ -15,6 +15,7 @@ import {
   cmsSettings,
   type User,
   type InsertUser,
+  type UpdateUser,
   type Vendor,
   type InsertVendor,
   type Buyer,
@@ -64,6 +65,7 @@ export interface IStorage {
   getBuyerByUserId(userId: string): Promise<Buyer | undefined>;
   createBuyer(buyer: InsertBuyer): Promise<Buyer>;
   updateBuyer(id: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined>;
+  updateBuyerByUserId(userId: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined>;
 
   // Addresses
   getAddress(id: string): Promise<Address | undefined>;
@@ -235,6 +237,11 @@ export class DatabaseStorage implements IStorage {
 
   async updateBuyer(id: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined> {
     const [buyer] = await db.update(buyers).set(data).where(eq(buyers.id, id)).returning();
+    return buyer || undefined;
+  }
+
+  async updateBuyerByUserId(userId: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined> {
+    const [buyer] = await db.update(buyers).set(data).where(eq(buyers.userId, userId)).returning();
     return buyer || undefined;
   }
 
