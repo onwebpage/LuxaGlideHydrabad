@@ -714,6 +714,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/analytics/monthly-sales", async (req, res) => {
+    try {
+      const data = await storage.getMonthlySalesData();
+      res.json(data);
+    } catch (error: any) {
+      console.error("Get monthly sales data error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/analytics/vendor-performance", async (req, res) => {
+    try {
+      const data = await storage.getVendorPerformance();
+      res.json(data);
+    } catch (error: any) {
+      console.error("Get vendor performance error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/analytics/low-stock", async (req, res) => {
+    try {
+      const threshold = req.query.threshold ? parseInt(req.query.threshold as string) : 10;
+      const products = await storage.getLowStockProducts(threshold);
+      res.json(products);
+    } catch (error: any) {
+      console.error("Get low stock products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/analytics/recent-orders", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const orders = await storage.getRecentOrders(limit);
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Get recent orders error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ File Upload Routes ============
   
   app.post("/api/upload", upload.single("file"), (req, res) => {
