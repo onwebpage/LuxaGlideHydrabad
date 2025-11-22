@@ -27,8 +27,15 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Vendor, Product } from "@shared/schema";
 
+interface AdminStats {
+  totalVendors: number;
+  totalOrders: number;
+  totalRevenue: number;
+  activeProducts: number;
+}
+
 export default function AdminDashboard() {
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ["/api/dashboard/admin"],
   });
 
