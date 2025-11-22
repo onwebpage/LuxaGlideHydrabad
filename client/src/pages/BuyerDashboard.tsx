@@ -24,13 +24,44 @@ import {
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/lib/auth-context";
 import type { Order, Address, Product } from "@shared/schema";
 
-export default function BuyerDashboard() {
-  const userId = localStorage.getItem("userId") || "demo-user-id";
+interface DashboardStats {
+  totalOrders: number;
+  pendingOrders: number;
+  wishlistCount: number;
+  totalSpent: number;
+}
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/dashboard/buyer", userId],
+interface WishlistItem {
+  id: string;
+  userId: string;
+  productId: string;
+  createdAt: string;
+}
+
+export default function BuyerDashboard() {
+  const { user, profile } = useAuth();
+  const userId = user?.id;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="p-8 max-w-md">
+          <CardContent className="text-center">
+            <p className="text-muted-foreground mb-4">Please log in to view your dashboard.</p>
+            <Link href="/login">
+              <Button>Go to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
+    queryKey: [`/api/dashboard/buyer/${userId}`],
     enabled: !!userId,
   });
 
@@ -44,7 +75,7 @@ export default function BuyerDashboard() {
     enabled: !!userId,
   });
 
-  const { data: wishlistData = [], isLoading: wishlistLoading } = useQuery({
+  const { data: wishlistData = [], isLoading: wishlistLoading } = useQuery<WishlistItem[]>({
     queryKey: [`/api/wishlist/${userId}`],
     enabled: !!userId,
   });
@@ -201,18 +232,7 @@ export default function BuyerDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wishlistData.map((item: any) => (
-                  <Card key={item.id} className="hover-elevate transition-all">
-                    <CardContent className="p-6">
-                      <div className="aspect-square bg-secondary rounded-lg flex items-center justify-center text-6xl mb-4">
-                        🌸
-                      </div>
-                      <h3 className="font-semibold mb-2">Wishlist Item</h3>
-                      <p className="text-2xl font-serif font-semibold mb-4">₹-</p>
-                      <Button className="w-full" data-testid={`button-add-to-cart-${item.id}`}>
-                        Add to Cart
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <WishlistProductCard key={item.id} item={item} />
                 ))}
               </div>
             )}
@@ -283,12 +303,12 @@ export default function BuyerDashboard() {
                   <div className="flex items-center gap-6 mb-6">
                     <Avatar className="w-20 h-20">
                       <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                        JD
+                        {user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">John Doe</h3>
-                      <p className="text-muted-foreground">john.doe@example.com</p>
+                      <h3 className="font-semibold text-lg mb-1">{user?.fullName || 'User'}</h3>
+                      <p className="text-muted-foreground">{user?.email || ''}</p>
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -296,25 +316,27 @@ export default function BuyerDashboard() {
                       <Label className="text-xs uppercase tracking-wider mb-2 block text-muted-foreground">
                         Phone
                       </Label>
-                      <p className="font-medium">+91 98765 43210</p>
+                      <p className="font-medium">{user?.phone || 'Not provided'}</p>
                     </div>
                     <div>
                       <Label className="text-xs uppercase tracking-wider mb-2 block text-muted-foreground">
                         Business Name
                       </Label>
-                      <p className="font-medium">Fashion Boutique</p>
+                      <p className="font-medium">{profile?.businessName || 'Not provided'}</p>
                     </div>
                     <div>
                       <Label className="text-xs uppercase tracking-wider mb-2 block text-muted-foreground">
                         GST Number
                       </Label>
-                      <p className="font-medium">22AAAAA0000A1Z5</p>
+                      <p className="font-medium">{profile?.gstNumber || 'Not provided'}</p>
                     </div>
                     <div>
                       <Label className="text-xs uppercase tracking-wider mb-2 block text-muted-foreground">
                         Member Since
                       </Label>
-                      <p className="font-medium">January 2024</p>
+                      <p className="font-medium">
+                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A'}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-6">
@@ -333,7 +355,56 @@ export default function BuyerDashboard() {
   );
 }
 
-// Add missing Label import
+// Label component for profile section
 function Label({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={className}>{children}</div>;
+}
+
+// Wishlist product card component
+function WishlistProductCard({ item }: { item: any }) {
+  const { data: product, isLoading } = useQuery<Product>({
+    queryKey: [`/api/products/${item.productId}`],
+    enabled: !!item.productId,
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="hover-elevate transition-all">
+        <CardContent className="p-6">
+          <div className="aspect-square bg-secondary rounded-lg animate-pulse mb-4" />
+          <div className="h-6 bg-secondary rounded animate-pulse mb-2" />
+          <div className="h-8 bg-secondary rounded animate-pulse mb-4" />
+          <div className="h-10 bg-secondary rounded animate-pulse" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!product) return null;
+
+  const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+  const firstImage = Array.isArray(images) ? images[0] : null;
+
+  return (
+    <Card className="hover-elevate transition-all">
+      <CardContent className="p-6">
+        <Link href={`/products/${product.slug}`}>
+          <div className="aspect-square bg-secondary rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+            {firstImage && !firstImage.includes('🌸') ? (
+              <img src={firstImage} alt={product.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-6xl">🌸</div>
+            )}
+          </div>
+        </Link>
+        <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
+        <p className="text-2xl font-serif font-semibold mb-4">
+          ₹{Number(product.price).toLocaleString()}
+        </p>
+        <Button className="w-full" data-testid={`button-add-to-cart-${item.id}`}>
+          Add to Cart
+        </Button>
+      </CardContent>
+    </Card>
+  );
 }
