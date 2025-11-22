@@ -1,7 +1,9 @@
 import { Link } from "wouter";
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -21,141 +23,198 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-card border-t border-border mt-24">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand */}
-          <div>
-            <h3 className="font-serif text-2xl font-semibold mb-4">LuxeWholesale</h3>
-            <p className="text-muted-foreground text-sm mb-6">
-              Premium wholesale marketplace for women's fashion. Connect with verified vendors and grow your business.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="ghost" size="icon" className="hover-elevate" data-testid="button-facebook">
-                <Facebook className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover-elevate" data-testid="button-instagram">
-                <Instagram className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover-elevate" data-testid="button-twitter">
-                <Twitter className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover-elevate" data-testid="button-linkedin">
-                <Linkedin className="w-4 h-4" />
-              </Button>
+    <footer className="relative mt-32">
+      {/* Decorative Top Border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+      
+      {/* Main Footer Content */}
+      <div className="bg-gradient-to-b from-secondary/30 via-background to-card">
+        <div className="container mx-auto px-6 pt-20 pb-12">
+          {/* Top Section - Brand & Newsletter */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            {/* Brand Section */}
+            <div>
+              <h3 className="font-serif text-3xl font-semibold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                LuxeWholesale
+              </h3>
+              <p className="text-muted-foreground text-lg mb-8 max-w-md leading-relaxed">
+                India's premier B2B wholesale marketplace for women's fashion. Connect with verified vendors and grow your retail business.
+              </p>
+              <div className="flex gap-3">
+                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-facebook">
+                  <Facebook className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-instagram">
+                  <Instagram className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-twitter">
+                  <Twitter className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-linkedin">
+                  <Linkedin className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Newsletter Card */}
+            <div>
+              <Card className="border-2 shadow-lg">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+                      <Send className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-xl">Stay Updated</h4>
+                      <p className="text-sm text-muted-foreground">Subscribe to our newsletter</p>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-6">
+                    Get exclusive wholesale deals, new arrivals, and industry insights delivered to your inbox.
+                  </p>
+                  <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="flex-1"
+                      data-testid="input-newsletter-email"
+                    />
+                    <Button type="submit" data-testid="button-newsletter-submit">
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/products" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-products">
-                  Collections
-                </Link>
-              </li>
-              <li>
-                <Link href="/vendors" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-vendors">
-                  Vendors
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-about">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-contact">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Links Section */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+            {/* Quick Links */}
+            <div>
+              <h4 className="font-semibold mb-6 text-foreground">Quick Links</h4>
+              <ul className="space-y-4">
+                <li>
+                  <Link href="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-products">
+                    Collections
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/vendors" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-vendors">
+                    Vendors
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-about">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-contact">
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* For Business */}
-          <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">For Business</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/register?role=vendor" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-become-vendor">
-                  Become a Vendor
-                </Link>
-              </li>
-              <li>
-                <Link href="/register?role=buyer" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-wholesale-buyer">
-                  Wholesale Buyer
-                </Link>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Bulk Orders
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Partnership
-                </a>
-              </li>
-            </ul>
-          </div>
+            {/* For Business */}
+            <div>
+              <h4 className="font-semibold mb-6 text-foreground">For Business</h4>
+              <ul className="space-y-4">
+                <li>
+                  <Link href="/register?role=vendor" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-become-vendor">
+                    Become a Vendor
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/register?role=buyer" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-wholesale-buyer">
+                    Wholesale Buyer
+                  </Link>
+                </li>
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Bulk Orders
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Partnership
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Newsletter</h4>
-            <p className="text-sm text-muted-foreground mb-4">
-              Subscribe to get special offers and updates.
-            </p>
-            <form onSubmit={handleNewsletterSubmit} className="space-y-3">
-              <Input
-                type="email"
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-background border-border"
-                data-testid="input-newsletter-email"
-              />
-              <Button type="submit" className="w-full" data-testid="button-newsletter-submit">
-                Subscribe
-              </Button>
-            </form>
-          </div>
-        </div>
+            {/* Support */}
+            <div>
+              <h4 className="font-semibold mb-6 text-foreground">Support</h4>
+              <ul className="space-y-4">
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Shipping Info
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Returns
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                    Track Order
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-        {/* Contact Info */}
-        <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex flex-col md:flex-row gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <span>support@luxewholesale.com</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span>+91 98765 43210</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>Mumbai, India</span>
-              </div>
+            {/* Contact Info */}
+            <div>
+              <h4 className="font-semibold mb-6 text-foreground">Contact Us</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-2">
+                  <Mail className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-muted-foreground">support@luxewholesale.com</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Phone className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-muted-foreground">+91 98765 43210</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-muted-foreground">Mumbai, Maharashtra, India</span>
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
 
-        {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} LuxeWholesale. All rights reserved.</p>
-          <div className="flex justify-center gap-6 mt-4">
-            <a href="#" className="hover:text-primary transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
-              Refund Policy
-            </a>
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-border">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                &copy; {new Date().getFullYear()} LuxeWholesale. All rights reserved.
+              </p>
+              <div className="flex flex-wrap justify-center gap-6">
+                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Privacy Policy
+                </a>
+                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Terms of Service
+                </a>
+                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Refund Policy
+                </a>
+                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Cookie Policy
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
