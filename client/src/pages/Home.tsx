@@ -783,6 +783,100 @@ export default function Home() {
         </div>
       </motion.section>
 
+      {/* Why Choose Us Section */}
+      <section className="py-32 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="font-serif text-5xl md:text-6xl font-semibold mb-6">
+              Why Choose LuxeWholesale?
+            </h2>
+            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
+              India's most trusted B2B fashion marketplace for wholesale buyers
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Benefit 1 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-pricing">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <TrendingUp className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Competitive Wholesale Prices</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Access the best wholesale rates directly from verified manufacturers and suppliers. Save up to 40% on bulk orders.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Benefit 2 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-quality">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <Shield className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Quality Guaranteed</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Every product is quality-checked before dispatch. 100% authentic fabrics and materials with easy returns.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Benefit 3 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-delivery">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <Zap className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Fast Delivery</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Pan-India delivery within 3-7 days. Real-time tracking and dedicated logistics support for bulk orders.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Benefit 4 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-vendors">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <CheckCircle className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Verified Vendors</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Work with trusted, background-verified suppliers. Every vendor is thoroughly vetted for reliability and quality.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Benefit 5 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-selection">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <Package className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Wide Selection</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Over 5,000+ products across all categories. From traditional to contemporary fashion, find everything in one place.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Benefit 6 */}
+            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-ordering">
+              <CardContent className="p-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
+                  <Users className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-2xl mb-4">Easy Ordering</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Simple bulk ordering process with flexible MOQs. Dedicated account manager for personalized support.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials - 3D Rotating Cards */}
       <motion.section 
         ref={testimonialsRef}
