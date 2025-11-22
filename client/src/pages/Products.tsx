@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Heart, ShoppingCart, Search, SlidersHorizontal, Star, Package2 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Sheet,
   SheetContent,
@@ -23,11 +23,26 @@ import {
 } from "@/components/ui/sheet";
 
 export default function Products() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [location] = useLocation();
+  
+  // Get search query from URL params
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const initialSearch = urlParams.get('search') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFabric, setSelectedFabric] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+
+  // Update search query when URL changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const searchParam = urlParams.get('search') || '';
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [location]);
 
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
 

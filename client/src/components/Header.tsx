@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 
 export function Header() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
@@ -23,6 +23,13 @@ export function Header() {
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      setLocation(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenuOpen(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -63,6 +70,7 @@ export function Header() {
                 placeholder="Search products, vendors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 className="pl-10 bg-secondary border-0"
                 data-testid="input-search"
               />
@@ -130,6 +138,7 @@ export function Header() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
               className="pl-10 bg-secondary border-0"
               data-testid="input-search-mobile"
             />
