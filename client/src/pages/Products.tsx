@@ -37,6 +37,8 @@ export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFabric, setSelectedFabric] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
 
   // Update search query when URL changes
   useEffect(() => {
@@ -46,6 +48,11 @@ export default function Products() {
       setSearchQuery(searchParam);
     }
   }, [location]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
 
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
 
@@ -152,6 +159,33 @@ export default function Products() {
       }
     });
   }, [products, searchQuery, selectedCategory, selectedFabric, priceRange, sortBy, categoryMap]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 3; i++) pages.push(i);
+      } else if (currentPage >= totalPages - 2) {
+        for (let i = totalPages - 2; i <= totalPages; i++) pages.push(i);
+      } else {
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+      }
+    }
+    return pages;
+  };
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-b from-background to-secondary/20">
@@ -424,7 +458,7 @@ export default function Products() {
                   </Button>
                 </div>
               ) : (
-                sortedProducts.map((product, index) => (
+                paginatedProducts.map((product, index) => (
                 <div key={product.id}>
                   <Card
                     className="group hover-elevate active-elevate-2 transition-all duration-500 overflow-hidden h-full flex flex-col border-2"
@@ -538,37 +572,65 @@ export default function Products() {
             </div>
 
             {/* Pagination */}
-            <div className="mt-16 flex justify-center items-center gap-2">
-              <Button
-                variant="outline"
-                disabled
-                data-testid="button-prev-page"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-              >
-                1
-              </Button>
-              <Button
-                variant="outline"
-              >
-                2
-              </Button>
-              <Button
-                variant="outline"
-              >
-                3
-              </Button>
-              <Button
-                variant="outline"
-                data-testid="button-next-page"
-              >
-                Next
-              </Button>
-            </div>
+            {totalPages > 1 && (
+              <div className="mt-16 flex justify-center items-center gap-2">
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  data-testid="button-prev-page"
+                >
+                  Previous
+                </Button>
+                
+                {currentPage > 3 && totalPages > 5 && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(1)}
+                      data-testid="button-page-1"
+                    >
+                      1
+                    </Button>
+                    <span className="text-muted-foreground">...</span>
+                  </>
+                )}
+                
+                {getPageNumbers().map((pageNum) => (
+                  <Button
+                    key={pageNum}
+                    variant="outline"
+                    className={currentPage === pageNum ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90" : ""}
+                    onClick={() => setCurrentPage(pageNum)}
+                    data-testid={`button-page-${pageNum}`}
+                  >
+                    {pageNum}
+                  </Button>
+                ))}
+                
+                {currentPage < totalPages - 2 && totalPages > 5 && (
+                  <>
+                    <span className="text-muted-foreground">...</span>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(totalPages)}
+                      data-testid={`button-page-${totalPages}`}
+                    >
+                      {totalPages}
+                    </Button>
+                  </>
+                )}
+                
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  data-testid="button-next-page"
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
