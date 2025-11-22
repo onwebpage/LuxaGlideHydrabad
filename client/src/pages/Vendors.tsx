@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Star, MapPin, Package, Award, TrendingUp, Shield, Search, Filter, CheckCircle, Users, Sparkles, ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Vendor } from "@shared/schema";
 
 export default function Vendors() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,99 +59,15 @@ export default function Vendors() {
   const vendorsY = useTransform(vendorsProgress, [0, 1], ["10%", "-10%"]);
   const vendorsRotateX = useTransform(vendorsProgress, [0, 0.5, 1], [10, 0, -10]);
 
-  // Mock vendor data
-  const vendors = [
-    {
-      id: "1",
-      name: "Elite Fashion Co.",
-      businessName: "Elite Fashion Private Limited",
-      logo: "EF",
-      rating: 4.8,
-      reviewCount: 245,
-      products: 250,
-      location: "Mumbai, Maharashtra",
-      description: "Premium women's ethnic wear manufacturer with 15+ years of experience in crafting exquisite traditional garments",
-      tags: ["Ethnic Wear", "Premium Quality", "Fast Delivery"],
-      verified: true,
-      featured: true,
-      minOrder: "₹25,000"
-    },
-    {
-      id: "2",
-      name: "Trends Wholesale",
-      businessName: "Trends Wholesale Hub",
-      logo: "TW",
-      rating: 4.9,
-      reviewCount: 312,
-      products: 180,
-      location: "Delhi, NCR",
-      description: "Leading supplier of contemporary fashion and western wear with nationwide delivery network",
-      tags: ["Western Wear", "Bulk Orders", "Nationwide Shipping"],
-      verified: true,
-      featured: true,
-      minOrder: "₹20,000"
-    },
-    {
-      id: "3",
-      name: "Premium Textiles",
-      businessName: "Premium Textiles & Fabrics",
-      logo: "PT",
-      rating: 4.7,
-      reviewCount: 198,
-      products: 320,
-      location: "Surat, Gujarat",
-      description: "Specialized in sarees, lehengas and traditional Indian wear with custom design options",
-      tags: ["Sarees", "Lehengas", "Custom Orders"],
-      verified: true,
-      featured: false,
-      minOrder: "₹30,000"
-    },
-    {
-      id: "4",
-      name: "Style Studios",
-      businessName: "Style Studios International",
-      logo: "SS",
-      rating: 4.9,
-      reviewCount: 276,
-      products: 195,
-      location: "Bangalore, Karnataka",
-      description: "Modern fusion wear and party collections for boutique owners seeking unique designs",
-      tags: ["Party Wear", "Designer Collection", "Quick Turnaround"],
-      verified: true,
-      featured: true,
-      minOrder: "₹18,000"
-    },
-    {
-      id: "5",
-      name: "Royal Garments",
-      businessName: "Royal Garments Pvt Ltd",
-      logo: "RG",
-      rating: 4.6,
-      reviewCount: 167,
-      products: 210,
-      location: "Jaipur, Rajasthan",
-      description: "Traditional Rajasthani wear and bridal collections with authentic handcrafted details",
-      tags: ["Bridal Wear", "Handcrafted", "Traditional"],
-      verified: true,
-      featured: false,
-      minOrder: "₹35,000"
-    },
-    {
-      id: "6",
-      name: "Urban Styles",
-      businessName: "Urban Styles Fashion House",
-      logo: "US",
-      rating: 4.8,
-      reviewCount: 289,
-      products: 165,
-      location: "Pune, Maharashtra",
-      description: "Contemporary casual wear and office wear collections at competitive wholesale prices",
-      tags: ["Casual Wear", "Office Wear", "Affordable"],
-      verified: true,
-      featured: false,
-      minOrder: "₹15,000"
+  // Fetch real vendors from database
+  const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
+    queryKey: ['/api/vendors'],
+    queryFn: async () => {
+      const response = await fetch('/api/vendors?kycStatus=approved');
+      if (!response.ok) throw new Error('Failed to fetch vendors');
+      return response.json();
     }
-  ];
+  });
 
   const stats = [
     { icon: Shield, value: "500+", label: "Verified Vendors", color: "from-blue-500/20 to-blue-500/5" },
@@ -593,147 +511,167 @@ export default function Vendors() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate={vendorsInView ? "visible" : "hidden"}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {vendors.map((vendor, index) => (
-              <motion.div
-                key={vendor.id}
-                variants={fadeInUp}
-                whileHover={{ 
-                  y: -25,
-                  rotateY: 10,
-                  rotateX: 5,
-                  scale: 1.03,
-                  transition: { duration: 0.4, ease: "easeOut" }
-                }}
-                style={{
-                  transformStyle: "preserve-3d",
-                  perspective: 1200
-                }}
-              >
-                <Card className="h-full hover-elevate transition-all duration-500 cursor-pointer backdrop-blur-sm bg-card/90 shadow-xl hover:shadow-2xl border-2 relative overflow-hidden" data-testid={`card-vendor-${vendor.id}`}>
-                  {/* Featured Badge */}
-                  {vendor.featured && (
-                    <motion.div
-                      initial={{ x: 100, rotate: 45 }}
-                      animate={{ x: 0, rotate: 45 }}
-                      className="absolute top-8 -right-12 bg-primary text-primary-foreground px-16 py-1 text-xs font-semibold shadow-lg z-10"
-                    >
-                      FEATURED
-                    </motion.div>
-                  )}
+          {vendorsLoading ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="text-center py-12"
+            >
+              <p className="text-muted-foreground text-xl">Loading vendors...</p>
+            </motion.div>
+          ) : vendors.length === 0 ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="text-center py-12"
+            >
+              <p className="text-muted-foreground text-xl mb-6">No verified vendors available yet.</p>
+              <Link href="/register?role=vendor">
+                <Button size="lg" data-testid="button-become-first-vendor">
+                  Become Our First Vendor
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {vendors.map((vendor, index) => {
+                const logoInitials = vendor.businessName
+                  .split(' ')
+                  .map(word => word[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2);
 
-                  <CardContent className="p-8">
-                    {/* Vendor Logo and Verification */}
-                    <div className="flex items-start justify-between mb-6">
-                      <motion.div
-                        whileHover={{ 
-                          scale: 1.2, 
-                          rotate: 360,
-                          transition: { duration: 0.8 }
-                        }}
-                        className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center text-3xl font-serif font-semibold text-primary shadow-lg border-2 border-primary/20"
-                      >
-                        {vendor.logo}
-                      </motion.div>
-                      {vendor.verified && (
-                        <motion.div
-                          whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <Badge className="bg-primary/10 text-primary border-2 border-primary/30 shadow-lg">
-                            <Award className="w-4 h-4 mr-1" />
-                            Verified
-                          </Badge>
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {/* Vendor Name */}
-                    <h3 className="font-serif text-2xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                      {vendor.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">{vendor.businessName}</p>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 mb-6">
-                      <div className="flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-full">
-                        <Star className="w-5 h-5 fill-primary text-primary" />
-                        <span className="font-semibold text-lg">{vendor.rating}</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">({vendor.reviewCount} reviews)</span>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-2">
-                      {vendor.description}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {vendor.tags.map((tag, i) => (
-                        <motion.div
-                          key={i}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Badge variant="secondary" className="text-xs shadow-sm">
-                            <Sparkles className="w-3 h-3 mr-1" />
-                            {tag}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Stats Row */}
-                    <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t-2">
-                      <div className="text-center">
-                        <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-                          <MapPin className="w-4 h-4" />
+                return (
+                  <motion.div
+                    key={vendor.id}
+                    variants={fadeInUp}
+                    whileHover={{ 
+                      y: -25,
+                      rotateY: 10,
+                      rotateX: 5,
+                      scale: 1.03,
+                      transition: { duration: 0.4, ease: "easeOut" }
+                    }}
+                    style={{
+                      transformStyle: "preserve-3d",
+                      perspective: 1200
+                    }}
+                  >
+                    <Card className="h-full hover-elevate transition-all duration-500 cursor-pointer backdrop-blur-sm bg-card/90 shadow-xl hover:shadow-2xl border-2 relative overflow-hidden" data-testid={`card-vendor-${vendor.id}`}>
+                      <CardContent className="p-8">
+                        {/* Vendor Logo and Verification */}
+                        <div className="flex items-start justify-between mb-6">
+                          {vendor.logo ? (
+                            <motion.div
+                              whileHover={{ 
+                                scale: 1.2, 
+                                rotate: 360,
+                                transition: { duration: 0.8 }
+                              }}
+                              className="w-24 h-24 rounded-full overflow-hidden shadow-lg border-2 border-primary/20"
+                            >
+                              <img src={vendor.logo} alt={vendor.businessName} className="w-full h-full object-cover" />
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              whileHover={{ 
+                                scale: 1.2, 
+                                rotate: 360,
+                                transition: { duration: 0.8 }
+                              }}
+                              className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center text-3xl font-serif font-semibold text-primary shadow-lg border-2 border-primary/20"
+                            >
+                              {logoInitials}
+                            </motion.div>
+                          )}
+                          {vendor.kycStatus === 'approved' && (
+                            <motion.div
+                              whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+                              transition={{ duration: 0.5 }}
+                            >
+                              <Badge className="bg-primary/10 text-primary border-2 border-primary/30 shadow-lg">
+                                <Award className="w-4 h-4 mr-1" />
+                                Verified
+                              </Badge>
+                            </motion.div>
+                          )}
                         </div>
-                        <p className="text-sm font-medium line-clamp-1">{vendor.location}</p>
-                      </div>
-                      <div className="text-center">
-                        <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-                          <Package className="w-4 h-4" />
+
+                        {/* Vendor Name */}
+                        <h3 className="font-serif text-2xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                          {vendor.businessName}
+                        </h3>
+                        {vendor.gstNumber && (
+                          <p className="text-sm text-muted-foreground mb-4">GST: {vendor.gstNumber}</p>
+                        )}
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-2 mb-6">
+                          <div className="flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-full">
+                            <Star className="w-5 h-5 fill-primary text-primary" />
+                            <span className="font-semibold text-lg">{Number(vendor.rating).toFixed(1)}</span>
+                          </div>
                         </div>
-                        <p className="text-sm font-medium">{vendor.products} products</p>
-                      </div>
-                    </div>
 
-                    {/* Min Order */}
-                    <div className="mb-6 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                      <p className="text-xs text-muted-foreground mb-1">Minimum Order</p>
-                      <p className="text-lg font-serif font-semibold text-primary">{vendor.minOrder}</p>
-                    </div>
+                        {/* Description */}
+                        {vendor.description && (
+                          <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3">
+                            {vendor.description}
+                          </p>
+                        )}
 
-                    {/* Action Button */}
-                    <Link href={`/vendor/${vendor.id}`}>
-                      <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Button className="w-full group" data-testid={`button-view-vendor-${vendor.id}`}>
-                          View Store
+                        {/* Stats Row */}
+                        <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t-2">
+                          {vendor.businessAddress && (
+                            <div className="text-center">
+                              <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+                                <MapPin className="w-4 h-4" />
+                              </div>
+                              <p className="text-sm font-medium line-clamp-1">{vendor.businessAddress}</p>
+                            </div>
+                          )}
+                          <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
+                              <TrendingUp className="w-4 h-4" />
+                            </div>
+                            <p className="text-sm font-medium">{vendor.totalSales || 0} Sales</p>
+                          </div>
+                        </div>
+
+                        {/* Action Button */}
+                        <Link href={`/vendors/${vendor.id}`}>
                           <motion.div
-                            className="ml-2"
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                           >
-                            <ArrowRight className="w-4 h-4" />
+                            <Button className="w-full group" data-testid={`button-view-vendor-${vendor.id}`}>
+                              View Store
+                              <motion.div
+                                className="ml-2"
+                                animate={{ x: [0, 5, 0] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                              >
+                                <ArrowRight className="w-4 h-4" />
+                              </motion.div>
+                            </Button>
                           </motion.div>
-                        </Button>
-                      </motion.div>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
         </div>
       </motion.section>
 
