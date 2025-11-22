@@ -51,31 +51,23 @@ export function Footer() {
             <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/products">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-products">
-                    Collections
-                  </a>
+                <Link href="/products" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-products">
+                  Collections
                 </Link>
               </li>
               <li>
-                <Link href="/vendors">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-vendors">
-                    Vendors
-                  </a>
+                <Link href="/vendors" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-vendors">
+                  Vendors
                 </Link>
               </li>
               <li>
-                <Link href="/about">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-about">
-                    About Us
-                  </a>
+                <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-about">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-contact">
-                    Contact
-                  </a>
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-contact">
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -86,17 +78,13 @@ export function Footer() {
             <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider">For Business</h4>
             <ul className="space-y-3">
               <li>
-                <Link href="/register?role=vendor">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-become-vendor">
-                    Become a Vendor
-                  </a>
+                <Link href="/register?role=vendor" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-become-vendor">
+                  Become a Vendor
                 </Link>
               </li>
               <li>
-                <Link href="/register?role=buyer">
-                  <a className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-wholesale-buyer">
-                    Wholesale Buyer
-                  </a>
+                <Link href="/register?role=buyer" className="text-sm text-muted-foreground hover:text-primary transition-colors" data-testid="link-footer-wholesale-buyer">
+                  Wholesale Buyer
                 </Link>
               </li>
               <li>

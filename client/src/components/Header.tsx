@@ -30,28 +30,26 @@ export function Header() {
         {/* Top bar */}
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/">
-            <a className="flex items-center gap-2 hover-elevate rounded-lg px-4 py-2 -ml-4" data-testid="link-home">
-              <h1 className="font-serif text-2xl font-semibold tracking-tight">
-                LuxeWholesale
-              </h1>
-            </a>
+          <Link href="/" className="flex items-center gap-2 hover-elevate rounded-lg px-4 py-2 -ml-4" data-testid="link-home">
+            <h1 className="font-serif text-2xl font-semibold tracking-tight">
+              LuxeWholesale
+            </h1>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <a
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate ${
-                    location === link.href
-                      ? "text-primary"
-                      : "text-foreground/70"
-                  }`}
-                  data-testid={`link-${link.label.toLowerCase()}`}
-                >
-                  {link.label}
-                </a>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate ${
+                  location === link.href
+                    ? "text-primary"
+                    : "text-foreground/70"
+                }`}
+                data-testid={`link-${link.label.toLowerCase()}`}
+              >
+                {link.label}
               </Link>
             ))}
           </nav>
@@ -91,7 +89,7 @@ export function Header() {
                     </Badge>
                   )}
                 </Button>
-                <Link href="/dashboard">
+                <Link href="/dashboard" asChild>
                   <Button variant="ghost" size="icon" data-testid="button-profile">
                     <User className="w-5 h-5" />
                   </Button>
@@ -99,12 +97,12 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href="/login">
+                <Link href="/login" asChild>
                   <Button variant="ghost" data-testid="button-login">
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/register">
+                <Link href="/register" asChild>
                   <Button data-testid="button-register">Get Started</Button>
                 </Link>
               </>
@@ -150,18 +148,18 @@ export function Header() {
           >
             <nav className="container mx-auto px-6 py-6 flex flex-col gap-2">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href}>
-                  <a
-                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors hover-elevate ${
-                      location === link.href
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/70"
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    data-testid={`link-mobile-${link.label.toLowerCase()}`}
-                  >
-                    {link.label}
-                  </a>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors hover-elevate ${
+                    location === link.href
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground/70"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  data-testid={`link-mobile-${link.label.toLowerCase()}`}
+                >
+                  {link.label}
                 </Link>
               ))}
             </nav>
