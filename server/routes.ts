@@ -385,6 +385,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get vendor products
+  app.get("/api/vendors/:id/products", async (req, res) => {
+    try {
+      const products = await storage.getAllProducts({
+        vendorId: req.params.id,
+      });
+      res.json(products);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get vendor stats/earnings
+  app.get("/api/vendors/:id/stats", async (req, res) => {
+    try {
+      const stats = await storage.getVendorDashboardStats(req.params.id);
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Approve vendor KYC
+  app.post("/api/vendors/:id/approve", async (req, res) => {
+    try {
+      const vendor = await storage.updateVendor(req.params.id, {
+        kycStatus: "approved",
+      });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Reject vendor KYC
+  app.post("/api/vendors/:id/reject", async (req, res) => {
+    try {
+      const vendor = await storage.updateVendor(req.params.id, {
+        kycStatus: "rejected",
+      });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Suspend vendor account
+  app.post("/api/vendors/:id/suspend", async (req, res) => {
+    try {
+      const vendor = await storage.updateVendor(req.params.id, {
+        isActive: false,
+      });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Activate vendor account
+  app.post("/api/vendors/:id/activate", async (req, res) => {
+    try {
+      const vendor = await storage.updateVendor(req.params.id, {
+        isActive: true,
+      });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.json(vendor);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ Category Routes ============
   
   app.get("/api/categories", async (req, res) => {

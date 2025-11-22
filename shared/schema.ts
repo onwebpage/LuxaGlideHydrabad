@@ -36,6 +36,7 @@ export const vendors = pgTable("vendors", {
   logo: text("logo"),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   totalSales: integer("total_sales").default(0),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

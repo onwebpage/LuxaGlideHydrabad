@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,12 +24,16 @@ import {
   AlertTriangle,
   DollarSign,
   LogOut,
+  Eye,
+  Ban,
+  CheckCheck,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Vendor, Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { VendorManagementDialog } from "@/components/VendorManagementDialog";
 
 interface AdminStats {
   totalVendors: number;
@@ -41,6 +45,8 @@ interface AdminStats {
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const adminAuth = localStorage.getItem("adminAuth");
@@ -103,6 +109,13 @@ export default function AdminDashboard() {
   });
 
   const pendingVendors = vendors.filter(v => v.kycStatus === "pending");
+  const approvedVendors = vendors.filter(v => v.kycStatus === "approved");
+  const rejectedVendors = vendors.filter(v => v.kycStatus === "rejected");
+
+  const handleViewVendor = (vendor: Vendor) => {
+    setSelectedVendor(vendor);
+    setDialogOpen(true);
+  };
   
   const statsCards = [
     { 
@@ -416,13 +429,99 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="vendors" className="space-y-6">
+        <Tabs defaultValue="vendor-management" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="vendors" data-testid="tab-vendors">Pending KYC</TabsTrigger>
+            <TabsTrigger value="vendor-management" data-testid="tab-vendor-management">Vendor Management</TabsTrigger>
+            <TabsTrigger value="pending-kyc" data-testid="tab-pending-kyc">Pending KYC</TabsTrigger>
             <TabsTrigger value="all-orders" data-testid="tab-all-orders">All Orders</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="vendors">
+          <TabsContent value="vendor-management">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Vendors</CardTitle>
+                <CardDescription>Manage all vendors in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {vendorsLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading vendors...</div>
+                ) : vendors.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No vendors registered yet.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Business Name</TableHead>
+                          <TableHead>GST Number</TableHead>
+                          <TableHead>KYC Status</TableHead>
+                          <TableHead>Account Status</TableHead>
+                          <TableHead>Rating</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {vendors.map((vendor) => (
+                          <TableRow key={vendor.id} data-testid={`row-vendor-${vendor.id}`}>
+                            <TableCell className="font-medium" data-testid={`text-vendor-business-${vendor.id}`}>
+                              {vendor.businessName}
+                            </TableCell>
+                            <TableCell>{vendor.gstNumber || "N/A"}</TableCell>
+                            <TableCell>
+                              {vendor.kycStatus === "approved" && (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                                  Approved
+                                </Badge>
+                              )}
+                              {vendor.kycStatus === "pending" && (
+                                <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                                  Pending
+                                </Badge>
+                              )}
+                              {vendor.kycStatus === "rejected" && (
+                                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                                  Rejected
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {vendor.isActive ? (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                                  Active
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                                  Suspended
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell data-testid={`text-vendor-rating-${vendor.id}`}>
+                              {Number(vendor.rating).toFixed(2)} ⭐
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewVendor(vendor)}
+                                data-testid={`button-view-vendor-${vendor.id}`}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pending-kyc">
             <Card>
               <CardHeader>
                 <CardTitle>Pending Vendor KYC Approvals</CardTitle>
@@ -456,17 +555,14 @@ export default function AdminDashboard() {
                             <TableCell>{new Date(vendor.createdAt).toLocaleDateString()}</TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button size="sm" variant="default" data-testid={`button-approve-${vendor.id}`}>
-                                  <CheckCircle className="w-4 h-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button size="sm" variant="destructive" data-testid={`button-reject-${vendor.id}`}>
-                                  <XCircle className="w-4 h-4 mr-1" />
-                                  Reject
-                                </Button>
-                                <Button size="sm" variant="outline" data-testid={`button-view-docs-${vendor.id}`}>
-                                  <FileText className="w-4 h-4 mr-1" />
-                                  View Docs
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleViewVendor(vendor)}
+                                  data-testid={`button-view-pending-${vendor.id}`}
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View & Approve
                                 </Button>
                               </div>
                             </TableCell>
@@ -531,6 +627,12 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <VendorManagementDialog
+          vendor={selectedVendor}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
       </div>
     </div>
   );
