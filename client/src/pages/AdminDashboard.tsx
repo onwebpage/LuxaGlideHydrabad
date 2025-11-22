@@ -41,6 +41,24 @@ export default function AdminDashboard() {
 
   const pendingVendors = vendors.filter(v => v.kycStatus === "pending");
   
+  // Monthly data for charts
+  const monthlyData = [
+    { month: "Jan", orders: 45 },
+    { month: "Feb", orders: 52 },
+    { month: "Mar", orders: 61 },
+    { month: "Apr", orders: 58 },
+    { month: "May", orders: 70 },
+    { month: "Jun", orders: 65 },
+  ];
+
+  // Category data for pie chart
+  const categoryData = [
+    { name: "Ethnic Wear", value: 35, color: "hsl(var(--primary))" },
+    { name: "Western Wear", value: 25, color: "#8b5cf6" },
+    { name: "Party Wear", value: 20, color: "#06b6d4" },
+    { name: "Casual Wear", value: 20, color: "#10b981" },
+  ];
+  
   const statsCards = [
     { 
       label: "Total Users", 
