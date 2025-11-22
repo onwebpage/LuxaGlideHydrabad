@@ -153,11 +153,17 @@ export interface IStorage {
     avgRating: number;
   }>;
   getAdminDashboardStats(): Promise<{
-    totalUsers: number;
-    activeVendors: number;
-    totalProducts: number;
-    monthlyRevenue: number;
+    totalVendors: number;
+    totalOrders: number;
+    totalRevenue: number;
+    activeProducts: number;
   }>;
+
+  // Admin Analytics
+  getMonthlySalesData(): Promise<Array<{ month: string; revenue: number; orders: number }>>;
+  getVendorPerformance(): Promise<Array<{ vendorName: string; totalSales: number; orderCount: number }>>;
+  getLowStockProducts(threshold?: number): Promise<Product[]>;
+  getRecentOrders(limit?: number): Promise<Order[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -592,34 +598,94 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAdminDashboardStats(): Promise<{
-    totalUsers: number;
-    activeVendors: number;
-    totalProducts: number;
-    monthlyRevenue: number;
+    totalVendors: number;
+    totalOrders: number;
+    totalRevenue: number;
+    activeProducts: number;
   }> {
-    const allUsers = await db.select().from(users);
-    const totalUsers = allUsers.length;
+    const allVendors = await db.select().from(vendors);
+    const totalVendors = allVendors.length;
     
-    const allVendors = await db.select().from(vendors).where(eq(vendors.kycStatus, 'approved'));
-    const activeVendors = allVendors.length;
+    const allOrders = await db.select().from(orders);
+    const totalOrders = allOrders.length;
     
-    const allProducts = await db.select().from(products).where(eq(products.isActive, true));
-    const totalProducts = allProducts.length;
-    
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    const monthlyOrders = await db.select().from(orders).where(gte(orders.createdAt, startOfMonth));
-    const monthlyRevenue = monthlyOrders.reduce((sum, order) => 
+    const totalRevenue = allOrders.reduce((sum, order) => 
       sum + Number(order.totalAmount), 0
     );
     
+    const activeProducts = await db.select().from(products).where(eq(products.isActive, true));
+    
     return {
-      totalUsers,
-      activeVendors,
-      totalProducts,
-      monthlyRevenue,
+      totalVendors,
+      totalOrders,
+      totalRevenue,
+      activeProducts: activeProducts.length,
     };
+  }
+
+  async getMonthlySalesData(): Promise<Array<{ month: string; revenue: number; orders: number }>> {
+    const allOrders = await db.select().from(orders).orderBy(orders.createdAt);
+    
+    const monthlyData = new Map<string, { revenue: number; orders: number }>();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    allOrders.forEach(order => {
+      const date = new Date(order.createdAt);
+      const monthKey = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      
+      if (!monthlyData.has(monthKey)) {
+        monthlyData.set(monthKey, { revenue: 0, orders: 0 });
+      }
+      
+      const data = monthlyData.get(monthKey)!;
+      data.revenue += Number(order.totalAmount);
+      data.orders += 1;
+    });
+    
+    return Array.from(monthlyData.entries())
+      .map(([month, data]) => ({ month, ...data }))
+      .slice(-12);
+  }
+
+  async getVendorPerformance(): Promise<Array<{ vendorName: string; totalSales: number; orderCount: number }>> {
+    const allVendors = await db.select().from(vendors);
+    const allOrders = await db.select().from(orders);
+    
+    const performanceMap = new Map<string, { vendorName: string; totalSales: number; orderCount: number }>();
+    
+    for (const vendor of allVendors) {
+      const vendorOrders = allOrders.filter(o => o.vendorId === vendor.id);
+      const totalSales = vendorOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+      
+      performanceMap.set(vendor.id, {
+        vendorName: vendor.businessName,
+        totalSales,
+        orderCount: vendorOrders.length,
+      });
+    }
+    
+    return Array.from(performanceMap.values())
+      .sort((a, b) => b.totalSales - a.totalSales)
+      .slice(0, 10);
+  }
+
+  async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
+    return await db.select()
+      .from(products)
+      .where(
+        and(
+          eq(products.isActive, true),
+          lte(products.stock, threshold)
+        )
+      )
+      .orderBy(products.stock);
+  }
+
+  async getRecentOrders(limit: number = 10): Promise<Order[]> {
+    return await db.select()
+      .from(orders)
+      .orderBy(desc(orders.createdAt))
+      .limit(limit);
   }
 }
 
