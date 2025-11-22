@@ -23,42 +23,45 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import type { Order, Vendor } from "@shared/schema";
 
 export default function AdminDashboard() {
-  // Mock data
-  const stats = [
-    { label: "Total Users", value: "1,234", icon: Users, change: "+12%" },
-    { label: "Active Vendors", value: "156", icon: Store, change: "+8" },
-    { label: "Total Products", value: "5,678", icon: Package, change: "+15%" },
-    { label: "Revenue (MTD)", value: "₹12,45,000", icon: TrendingUp, change: "+23%" },
-  ];
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/dashboard/admin"],
+  });
 
-  const pendingVendors = [
-    { id: "1", name: "Fashion Hub Ltd", email: "info@fashionhub.com", gst: "22AAAAA0000A1Z5", submitted: "2024-01-20" },
-    { id: "2", name: "Textile Trends Co.", email: "contact@textilet rends.com", gst: "22BBBBB0000B2Z6", submitted: "2024-01-21" },
-    { id: "3", name: "Ethnic Wearhouse", email: "hello@ethnicwear.com", gst: "22CCCCC0000C3Z7", submitted: "2024-01-22" },
-  ];
+  const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
+    queryKey: ["/api/vendors"],
+  });
 
-  const recentOrders = [
-    { id: "ORD101", buyer: "Fashion Boutique", vendor: "Elite Fashion Co.", amount: 125000, status: "delivered" },
-    { id: "ORD102", buyer: "Style Store", vendor: "Trends Wholesale", amount: 25500, status: "shipped" },
-    { id: "ORD103", buyer: "Trendy Retail", vendor: "Style Studios", amount: 65000, status: "processing" },
-  ];
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: ["/api/orders"],
+  });
 
-  const categoryData = [
-    { name: "Sarees", value: 1200, color: "hsl(var(--chart-1))" },
-    { name: "Kurtis", value: 850, color: "hsl(var(--chart-2))" },
-    { name: "Lehengas", value: 640, color: "hsl(var(--chart-3))" },
-    { name: "Western", value: 520, color: "hsl(var(--chart-4))" },
-  ];
-
-  const monthlyData = [
-    { month: "Jan", orders: 145, revenue: 320000 },
-    { month: "Feb", orders: 168, revenue: 380000 },
-    { month: "Mar", orders: 152, revenue: 350000 },
-    { month: "Apr", orders: 195, revenue: 450000 },
-    { month: "May", orders: 178, revenue: 410000 },
-    { month: "Jun", orders: 210, revenue: 490000 },
+  const pendingVendors = vendors.filter(v => v.kycStatus === "pending");
+  
+  const statsCards = [
+    { 
+      label: "Total Users", 
+      value: statsLoading ? "..." : stats?.totalUsers?.toString() || "0", 
+      icon: Users 
+    },
+    { 
+      label: "Active Vendors", 
+      value: statsLoading ? "..." : stats?.activeVendors?.toString() || "0", 
+      icon: Store 
+    },
+    { 
+      label: "Total Products", 
+      value: statsLoading ? "..." : stats?.totalProducts?.toString() || "0", 
+      icon: Package 
+    },
+    { 
+      label: "Total Revenue", 
+      value: statsLoading ? "..." : `₹${stats?.totalRevenue?.toLocaleString() || "0"}`, 
+      icon: TrendingUp 
+    },
   ];
 
   const getStatusBadge = (status: string) => {
@@ -84,7 +87,7 @@ export default function AdminDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
@@ -97,7 +100,6 @@ export default function AdminDashboard() {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <stat.icon className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-sm text-green-600">{stat.change}</span>
                   </div>
                   <div className="text-3xl font-serif font-semibold mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground uppercase tracking-wider">
@@ -178,43 +180,51 @@ export default function AdminDashboard() {
                 <CardTitle>Pending Vendor KYC Approvals</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Business Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>GST Number</TableHead>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingVendors.map((vendor) => (
-                      <TableRow key={vendor.id}>
-                        <TableCell className="font-medium">{vendor.name}</TableCell>
-                        <TableCell>{vendor.email}</TableCell>
-                        <TableCell>{vendor.gst}</TableCell>
-                        <TableCell>{vendor.submitted}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="default" data-testid={`button-approve-${vendor.id}`}>
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button size="sm" variant="destructive" data-testid={`button-reject-${vendor.id}`}>
-                              <XCircle className="w-4 h-4 mr-1" />
-                              Reject
-                            </Button>
-                            <Button size="sm" variant="outline" data-testid={`button-view-docs-${vendor.id}`}>
-                              <FileText className="w-4 h-4 mr-1" />
-                              View Docs
-                            </Button>
-                          </div>
-                        </TableCell>
+                {vendorsLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading vendors...</div>
+                ) : pendingVendors.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No pending KYC approvals at the moment.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Business Name</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>GST Number</TableHead>
+                        <TableHead>Submitted</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingVendors.map((vendor) => (
+                        <TableRow key={vendor.id}>
+                          <TableCell className="font-medium" data-testid={`text-vendor-${vendor.id}`}>{vendor.businessName}</TableCell>
+                          <TableCell>{vendor.contactPerson || vendor.email}</TableCell>
+                          <TableCell>{vendor.gstNumber || "N/A"}</TableCell>
+                          <TableCell>{new Date(vendor.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="default" data-testid={`button-approve-${vendor.id}`}>
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button size="sm" variant="destructive" data-testid={`button-reject-${vendor.id}`}>
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Reject
+                              </Button>
+                              <Button size="sm" variant="outline" data-testid={`button-view-docs-${vendor.id}`}>
+                                <FileText className="w-4 h-4 mr-1" />
+                                View Docs
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -234,34 +244,46 @@ export default function AdminDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Buyer</TableHead>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.buyer}</TableCell>
-                        <TableCell>{order.vendor}</TableCell>
-                        <TableCell>₹{order.amount.toLocaleString()}</TableCell>
-                        <TableCell>{getStatusBadge(order.status)}</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" data-testid={`button-view-order-${order.id}`}>
-                            View Details
-                          </Button>
-                        </TableCell>
+                {ordersLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading orders...</div>
+                ) : orders.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No orders found in the system.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order Number</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium" data-testid={`text-order-${order.id}`}>{order.orderNumber}</TableCell>
+                          <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>₹{Number(order.totalAmount).toLocaleString()}</TableCell>
+                          <TableCell>{getStatusBadge(order.status)}</TableCell>
+                          <TableCell>
+                            <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                              {order.paymentStatus}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="outline" size="sm" data-testid={`button-view-order-${order.id}`}>
+                              View Details
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
