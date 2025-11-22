@@ -129,6 +129,50 @@ export default function Products() {
   const categories = ["all", "Sarees", "Kurtis", "Lehenga", "Suits", "Western"];
   const fabrics = ["all", "Cotton", "Silk", "Georgette", "Chiffon", "Crepe"];
 
+  // Filter products based on selected filters
+  const filteredProducts = products.filter((product) => {
+    // Search filter
+    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    // Category filter
+    if (selectedCategory !== "all" && product.category !== selectedCategory) {
+      return false;
+    }
+
+    // Fabric filter
+    if (selectedFabric !== "all" && product.fabric !== selectedFabric) {
+      return false;
+    }
+
+    // Price range filter
+    if (product.price < priceRange[0] || product.price > priceRange[1]) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Sort filtered products based on selected sort option
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return a.price - b.price;
+      case "price-high":
+        return b.price - a.price;
+      case "rating":
+        return b.rating - a.rating;
+      case "newest":
+        // For now, sort by id (in real app, would use createdAt)
+        return parseInt(b.id) - parseInt(a.id);
+      case "featured":
+      default:
+        // Featured: sort by rating then price
+        return b.rating - a.rating || b.price - a.price;
+    }
+  });
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -328,9 +372,9 @@ export default function Products() {
                 <p className="text-muted-foreground">
                   Showing{" "}
                   <span className="font-semibold text-foreground text-lg">
-                    {products.length}
+                    {sortedProducts.length}
                   </span>{" "}
-                  premium products
+                  {sortedProducts.length === products.length ? "premium products" : `of ${products.length} products`}
                 </p>
               </div>
 
@@ -440,8 +484,30 @@ export default function Products() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
+              key={`${searchQuery}-${selectedCategory}-${selectedFabric}-${priceRange[0]}-${priceRange[1]}-${sortBy}`}
             >
-              {products.map((product, index) => (
+              {sortedProducts.length === 0 ? (
+                <div className="col-span-full py-20 text-center">
+                  <Package2 className="w-20 h-20 mx-auto mb-4 text-muted-foreground/30" />
+                  <h3 className="text-xl font-semibold mb-2">No products found</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Try adjusting your filters to see more results
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setPriceRange([0, 10000]);
+                      setSelectedCategory("all");
+                      setSelectedFabric("all");
+                    }}
+                    data-testid="button-clear-filters"
+                  >
+                    Clear All Filters
+                  </Button>
+                </div>
+              ) : (
+                sortedProducts.map((product, index) => (
                 <motion.div key={product.id} variants={itemVariants}>
                   <Card
                     className="group hover-elevate active-elevate-2 transition-all duration-500 overflow-hidden h-full flex flex-col border-2"
@@ -570,7 +636,7 @@ export default function Products() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+              )))}
             </motion.div>
 
             {/* Pagination */}
