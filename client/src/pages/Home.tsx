@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Shield, Zap } from "lucide-react";
 import { motion, useScroll, useTransform, useSpring, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Vendor } from "@shared/schema";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
 
 export default function Home() {
@@ -84,12 +86,15 @@ export default function Home() {
   const testimonialsY = useTransform(testimonialsProgress, [0, 1], ["15%", "-15%"]);
   const testimonialsRotateY = useTransform(testimonialsProgress, [0, 0.5, 1], [10, 0, -10]);
 
-  const featuredVendors = [
-    { id: "1", name: "Elite Fashion Co.", rating: 4.8, products: 250, logo: "EF" },
-    { id: "2", name: "Trends Wholesale", rating: 4.9, products: 180, logo: "TW" },
-    { id: "3", name: "Premium Textiles", rating: 4.7, products: 320, logo: "PT" },
-    { id: "4", name: "Style Studios", rating: 4.9, products: 195, logo: "SS" },
-  ];
+  // Fetch real vendors from database
+  const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
+    queryKey: ['/api/vendors'],
+    queryFn: async () => {
+      const response = await fetch('/api/vendors?kycStatus=approved&limit=4');
+      if (!response.ok) throw new Error('Failed to fetch vendors');
+      return response.json();
+    }
+  });
 
   const categories = [
     { name: "Sarees & Lehengas", count: 1200, icon: Sparkles },
@@ -660,59 +665,110 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate={vendorsInView ? "visible" : "hidden"}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-          >
-            {featuredVendors.map((vendor, index) => (
-              <motion.div
-                key={vendor.id}
-                variants={slideInLeft}
-                whileHover={{ 
-                  y: -25, 
-                  rotateY: 15,
-                  rotateZ: 2,
-                  scale: 1.08,
-                  transition: { duration: 0.4, ease: "easeOut" }
-                }}
-                style={{ 
-                  transformStyle: "preserve-3d",
-                  perspective: 1200
-                }}
-              >
-                <Card className="hover-elevate transition-all duration-500 cursor-pointer backdrop-blur-sm bg-card/80 shadow-xl hover:shadow-2xl" data-testid={`card-vendor-${vendor.id}`}>
-                  <CardContent className="p-8 text-center">
-                    <motion.div
-                      whileHover={{ 
-                        scale: 1.3, 
-                        rotate: 360,
-                        boxShadow: "0 20px 40px rgba(212, 175, 55, 0.4)"
-                      }}
-                      transition={{ duration: 0.8 }}
-                      className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center mx-auto mb-6 text-4xl font-serif font-semibold text-primary shadow-lg"
-                    >
-                      {vendor.logo}
-                    </motion.div>
-                    <h3 className="font-serif text-2xl font-semibold mb-3">{vendor.name}</h3>
-                    <div className="flex items-center justify-center gap-1 mb-3">
-                      <Star className="w-6 h-6 fill-primary text-primary" />
-                      <span className="text-xl font-medium">{vendor.rating}</span>
-                    </div>
-                    <p className="text-muted-foreground mb-6 text-lg">
-                      {vendor.products} Products
-                    </p>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button variant="outline" className="w-full" data-testid={`button-view-vendor-${vendor.id}`}>
-                        View Store
-                      </Button>
-                    </motion.div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+          {vendorsLoading ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="text-center py-12"
+            >
+              <p className="text-muted-foreground text-xl">Loading vendors...</p>
+            </motion.div>
+          ) : vendors.length === 0 ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="text-center py-12"
+            >
+              <p className="text-muted-foreground text-xl mb-6">No verified vendors available yet.</p>
+              <Link href="/register?role=vendor">
+                <Button size="lg" data-testid="button-become-first-vendor">
+                  Become Our First Vendor
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate={vendorsInView ? "visible" : "hidden"}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            >
+              {vendors.map((vendor, index) => {
+                const logoInitials = vendor.businessName
+                  .split(' ')
+                  .map(word => word[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2);
+
+                return (
+                  <motion.div
+                    key={vendor.id}
+                    variants={slideInLeft}
+                    whileHover={{ 
+                      y: -25, 
+                      rotateY: 15,
+                      rotateZ: 2,
+                      scale: 1.08,
+                      transition: { duration: 0.4, ease: "easeOut" }
+                    }}
+                    style={{ 
+                      transformStyle: "preserve-3d",
+                      perspective: 1200
+                    }}
+                  >
+                    <Card className="hover-elevate transition-all duration-500 cursor-pointer backdrop-blur-sm bg-card/80 shadow-xl hover:shadow-2xl" data-testid={`card-vendor-${vendor.id}`}>
+                      <CardContent className="p-8 text-center">
+                        {vendor.logo ? (
+                          <motion.div
+                            whileHover={{ 
+                              scale: 1.3, 
+                              rotate: 360,
+                              boxShadow: "0 20px 40px rgba(212, 175, 55, 0.4)"
+                            }}
+                            transition={{ duration: 0.8 }}
+                            className="w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden shadow-lg"
+                          >
+                            <img src={vendor.logo} alt={vendor.businessName} className="w-full h-full object-cover" />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            whileHover={{ 
+                              scale: 1.3, 
+                              rotate: 360,
+                              boxShadow: "0 20px 40px rgba(212, 175, 55, 0.4)"
+                            }}
+                            transition={{ duration: 0.8 }}
+                            className="w-28 h-28 rounded-full bg-gradient-to-br from-primary/30 via-primary/15 to-primary/5 flex items-center justify-center mx-auto mb-6 text-4xl font-serif font-semibold text-primary shadow-lg"
+                          >
+                            {logoInitials}
+                          </motion.div>
+                        )}
+                        <h3 className="font-serif text-2xl font-semibold mb-3">{vendor.businessName}</h3>
+                        <div className="flex items-center justify-center gap-1 mb-3">
+                          <Star className="w-6 h-6 fill-primary text-primary" />
+                          <span className="text-xl font-medium">{Number(vendor.rating).toFixed(1)}</span>
+                        </div>
+                        <p className="text-muted-foreground mb-6 text-lg">
+                          {vendor.totalSales || 0} Sales
+                        </p>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                          <Link href={`/vendors/${vendor.id}`}>
+                            <Button variant="outline" className="w-full" data-testid={`button-view-vendor-${vendor.id}`}>
+                              View Store
+                            </Button>
+                          </Link>
+                        </motion.div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
         </div>
       </motion.section>
 
