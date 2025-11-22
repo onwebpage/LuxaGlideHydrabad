@@ -619,6 +619,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ Dashboard Statistics Routes ============
+  
+  app.get("/api/dashboard/buyer/:userId", async (req, res) => {
+    try {
+      const stats = await storage.getBuyerDashboardStats(req.params.userId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get buyer dashboard stats error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/dashboard/vendor/:vendorId", async (req, res) => {
+    try {
+      const stats = await storage.getVendorDashboardStats(req.params.vendorId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get vendor dashboard stats error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/dashboard/admin", async (req, res) => {
+    try {
+      const stats = await storage.getAdminDashboardStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get admin dashboard stats error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ File Upload Routes ============
   
   app.post("/api/upload", upload.single("file"), (req, res) => {
