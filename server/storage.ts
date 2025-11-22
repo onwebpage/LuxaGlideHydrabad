@@ -136,6 +136,26 @@ export interface IStorage {
   // CMS
   getCmsSetting(key: string): Promise<CmsSetting | undefined>;
   upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting>;
+
+  // Dashboard Statistics
+  getBuyerDashboardStats(userId: string): Promise<{
+    totalOrders: number;
+    pendingOrders: number;
+    wishlistCount: number;
+    totalSpent: number;
+  }>;
+  getVendorDashboardStats(vendorId: string): Promise<{
+    totalProducts: number;
+    activeOrders: number;
+    totalRevenue: number;
+    avgRating: number;
+  }>;
+  getAdminDashboardStats(): Promise<{
+    totalUsers: number;
+    activeVendors: number;
+    totalProducts: number;
+    monthlyRevenue: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -504,6 +524,95 @@ export class DatabaseStorage implements IStorage {
     
     const [created] = await db.insert(cmsSettings).values(setting).returning();
     return created;
+  }
+
+  // Dashboard Statistics
+  async getBuyerDashboardStats(userId: string): Promise<{
+    totalOrders: number;
+    pendingOrders: number;
+    wishlistCount: number;
+    totalSpent: number;
+  }> {
+    const userOrders = await db.select().from(orders).where(eq(orders.userId, userId));
+    
+    const totalOrders = userOrders.length;
+    const pendingOrders = userOrders.filter(o => 
+      o.status === 'pending' || o.status === 'processing'
+    ).length;
+    
+    const totalSpent = userOrders.reduce((sum, order) => 
+      sum + Number(order.totalAmount), 0
+    );
+    
+    const wishlistItems = await db.select().from(wishlist).where(eq(wishlist.userId, userId));
+    const wishlistCount = wishlistItems.length;
+    
+    return {
+      totalOrders,
+      pendingOrders,
+      wishlistCount,
+      totalSpent,
+    };
+  }
+
+  async getVendorDashboardStats(vendorId: string): Promise<{
+    totalProducts: number;
+    activeOrders: number;
+    totalRevenue: number;
+    avgRating: number;
+  }> {
+    const vendorProducts = await db.select().from(products).where(eq(products.vendorId, vendorId));
+    const totalProducts = vendorProducts.length;
+    
+    const vendorOrders = await db.select().from(orders).where(eq(orders.vendorId, vendorId));
+    const activeOrders = vendorOrders.filter(o => 
+      o.status === 'pending' || o.status === 'processing' || o.status === 'confirmed' || o.status === 'shipped'
+    ).length;
+    
+    const totalRevenue = vendorOrders.reduce((sum, order) => 
+      sum + Number(order.totalAmount), 0
+    );
+    
+    const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId));
+    const avgRating = vendor ? Number(vendor.rating) : 0;
+    
+    return {
+      totalProducts,
+      activeOrders,
+      totalRevenue,
+      avgRating,
+    };
+  }
+
+  async getAdminDashboardStats(): Promise<{
+    totalUsers: number;
+    activeVendors: number;
+    totalProducts: number;
+    monthlyRevenue: number;
+  }> {
+    const allUsers = await db.select().from(users);
+    const totalUsers = allUsers.length;
+    
+    const allVendors = await db.select().from(vendors).where(eq(vendors.kycStatus, 'approved'));
+    const activeVendors = allVendors.length;
+    
+    const allProducts = await db.select().from(products).where(eq(products.isActive, true));
+    const totalProducts = allProducts.length;
+    
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const monthlyOrders = await db.select().from(orders).where(gte(orders.createdAt, startOfMonth));
+    const monthlyRevenue = monthlyOrders.reduce((sum, order) => 
+      sum + Number(order.totalAmount), 0
+    );
+    
+    return {
+      totalUsers,
+      activeVendors,
+      totalProducts,
+      monthlyRevenue,
+    };
   }
 }
 
