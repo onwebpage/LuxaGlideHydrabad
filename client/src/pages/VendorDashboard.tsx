@@ -37,53 +37,36 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import type { Order, Product, Vendor } from "@shared/schema";
 
 export default function VendorDashboard() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  
+  const vendorId = localStorage.getItem("vendorId") || "demo-vendor-id";
 
-  // Mock data
-  const stats = [
-    { label: "Total Products", value: "156", icon: Package, change: "+8" },
-    { label: "Active Orders", value: "23", icon: ShoppingBag, change: "+5" },
-    { label: "Total Revenue", value: "₹4,25,000", icon: IndianRupee, change: "+18%" },
-    { label: "Avg Rating", value: "4.8", icon: Star, change: "+0.2" },
-  ];
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/dashboard/vendor", vendorId],
+    enabled: !!vendorId,
+  });
 
-  const products = [
-    { id: "1", name: "Designer Silk Saree", price: 2500, stock: 250, status: "active", sales: 120 },
-    { id: "2", name: "Embroidered Kurti", price: 850, stock: 0, status: "out of stock", sales: 85 },
-    { id: "3", name: "Premium Lehenga", price: 4500, stock: 50, status: "active", sales: 45 },
-  ];
+  const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
+    queryKey: [`/api/products`],
+    select: (data) => data.filter((p: Product) => p.vendorId === vendorId),
+    enabled: !!vendorId,
+  });
 
-  const orders = [
-    {
-      id: "ORD101",
-      buyer: "Fashion Boutique",
-      product: "Designer Silk Saree",
-      quantity: 50,
-      amount: 125000,
-      status: "pending",
-    },
-    {
-      id: "ORD102",
-      buyer: "Style Store",
-      product: "Embroidered Kurti",
-      quantity: 30,
-      amount: 25500,
-      status: "shipped",
-    },
-  ];
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: [`/api/orders/vendor/${vendorId}`],
+    enabled: !!vendorId,
+  });
 
-  const salesData = [
-    { month: "Jan", sales: 45000 },
-    { month: "Feb", sales: 52000 },
-    { month: "Mar", sales: 48000 },
-    { month: "Apr", sales: 61000 },
-    { month: "May", sales: 55000 },
-    { month: "Jun", sales: 67000 },
-  ];
+  const { data: vendorData } = useQuery<Vendor>({
+    queryKey: [`/api/vendors/${vendorId}`],
+    enabled: !!vendorId,
+  });
 
-  const kycStatus = "pending"; // pending, approved, rejected
+  const kycStatus = vendorData?.kycStatus || "pending";
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
@@ -93,9 +76,36 @@ export default function VendorDashboard() {
       shipped: "bg-blue-100 text-blue-700",
       approved: "bg-green-100 text-green-700",
       rejected: "bg-red-100 text-red-700",
+      delivered: "bg-green-100 text-green-700",
+      processing: "bg-yellow-100 text-yellow-700",
+      confirmed: "bg-blue-100 text-blue-700",
+      cancelled: "bg-red-100 text-red-700",
     };
     return <Badge className={variants[status] || ""}>{status}</Badge>;
   };
+
+  const statsCards = [
+    { 
+      label: "Total Products", 
+      value: statsLoading ? "..." : stats?.totalProducts?.toString() || "0", 
+      icon: Package 
+    },
+    { 
+      label: "Active Orders", 
+      value: statsLoading ? "..." : stats?.activeOrders?.toString() || "0", 
+      icon: ShoppingBag 
+    },
+    { 
+      label: "Total Revenue", 
+      value: statsLoading ? "..." : `₹${stats?.totalRevenue?.toLocaleString() || "0"}`, 
+      icon: IndianRupee 
+    },
+    { 
+      label: "Avg Rating", 
+      value: statsLoading ? "..." : stats?.avgRating?.toFixed(1) || "0.0", 
+      icon: Star 
+    },
+  ];
 
   return (
     <div className="min-h-screen py-8">
@@ -123,7 +133,7 @@ export default function VendorDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
@@ -136,7 +146,6 @@ export default function VendorDashboard() {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <stat.icon className="w-6 h-6 text-primary" />
                     </div>
-                    <span className="text-sm text-green-600">{stat.change}</span>
                   </div>
                   <div className="text-3xl font-serif font-semibold mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground uppercase tracking-wider">
@@ -244,39 +253,49 @@ export default function VendorDashboard() {
                 </Dialog>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Stock</TableHead>
-                      <TableHead>Sales</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {products.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell>₹{product.price}</TableCell>
-                        <TableCell>{product.stock} pcs</TableCell>
-                        <TableCell>{product.sales}</TableCell>
-                        <TableCell>{getStatusBadge(product.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" data-testid={`button-edit-${product.id}`}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" data-testid={`button-delete-${product.id}`}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                {productsLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading products...</div>
+                ) : products.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No products yet. Add your first product to start selling!
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Stock</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {products.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell className="font-medium" data-testid={`text-product-${product.id}`}>{product.name}</TableCell>
+                          <TableCell>₹{Number(product.price).toLocaleString()}</TableCell>
+                          <TableCell>{product.stock} pcs</TableCell>
+                          <TableCell>
+                            <Badge className={product.isActive && product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+                              {product.isActive && product.stock > 0 ? "Active" : "Out of Stock"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" data-testid={`button-edit-${product.id}`}>
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" data-testid={`button-delete-${product.id}`}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -288,36 +307,46 @@ export default function VendorDashboard() {
                 <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Buyer</TableHead>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.buyer}</TableCell>
-                        <TableCell>{order.product}</TableCell>
-                        <TableCell>{order.quantity} pcs</TableCell>
-                        <TableCell>₹{order.amount.toLocaleString()}</TableCell>
-                        <TableCell>{getStatusBadge(order.status)}</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" data-testid={`button-process-${order.id}`}>
-                            Process
-                          </Button>
-                        </TableCell>
+                {ordersLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading orders...</div>
+                ) : orders.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No orders yet. Once customers place orders, they will appear here.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order Number</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium" data-testid={`text-order-${order.id}`}>{order.orderNumber}</TableCell>
+                          <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>₹{Number(order.totalAmount).toLocaleString()}</TableCell>
+                          <TableCell>{getStatusBadge(order.status)}</TableCell>
+                          <TableCell>
+                            <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                              {order.paymentStatus}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="outline" size="sm" data-testid={`button-process-${order.id}`}>
+                              Process
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
