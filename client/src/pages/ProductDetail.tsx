@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,11 +29,35 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import redSaree1 from "@assets/stock_images/red_silk_saree_india_274954fe.jpg";
+import redSaree2 from "@assets/stock_images/red_silk_saree_india_cb81e8d8.jpg";
+import redSaree3 from "@assets/stock_images/red_silk_saree_india_0a093fd6.jpg";
+import blueSaree1 from "@assets/stock_images/blue_silk_saree_indi_03d2ff84.jpg";
+import blueSaree2 from "@assets/stock_images/blue_silk_saree_indi_a49ea2a4.jpg";
+import blueSaree3 from "@assets/stock_images/blue_silk_saree_indi_1fd841f8.jpg";
+import goldSaree1 from "@assets/stock_images/gold_silk_saree_indi_b188128e.jpg";
+import goldSaree2 from "@assets/stock_images/gold_silk_saree_indi_67bb39b1.jpg";
+import goldSaree3 from "@assets/stock_images/gold_silk_saree_indi_76bd41d5.jpg";
+import pinkSaree1 from "@assets/stock_images/pink_silk_saree_indi_ab617266.jpg";
+import pinkSaree2 from "@assets/stock_images/pink_silk_saree_indi_373d4cfa.jpg";
+import pinkSaree3 from "@assets/stock_images/pink_silk_saree_indi_f09954ad.jpg";
+import greenSaree1 from "@assets/stock_images/green_silk_saree_ind_054b34aa.jpg";
+import greenSaree2 from "@assets/stock_images/green_silk_saree_ind_3a3335d8.jpg";
+import greenSaree3 from "@assets/stock_images/green_silk_saree_ind_e24af193.jpg";
+
+const colorImageMap: Record<string, string[]> = {
+  Red: [redSaree1, redSaree2, redSaree3],
+  Blue: [blueSaree1, blueSaree2, blueSaree3],
+  Gold: [goldSaree1, goldSaree2, goldSaree3],
+  Pink: [pinkSaree1, pinkSaree2, pinkSaree3],
+  Green: [greenSaree1, greenSaree2, greenSaree3],
+};
+
 export default function ProductDetail() {
   const [, params] = useRoute("/products/:id");
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(10);
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColor, setSelectedColor] = useState("Red");
   const [selectedSize, setSelectedSize] = useState("");
 
   // Mock product data - will be replaced with API
@@ -54,7 +78,6 @@ export default function ProductDetail() {
     description: "Premium quality silk saree with intricate embroidery work. Perfect for weddings and special occasions. Handcrafted by skilled artisans.",
     fabric: "Pure Silk",
     category: "Sarees",
-    images: ["🌸", "✨", "🎨", "💐"],
     colors: ["Red", "Blue", "Gold", "Pink", "Green"],
     sizes: ["Free Size"],
     bulkPricing: [
@@ -70,6 +93,14 @@ export default function ProductDetail() {
       "Comes with Blouse Piece",
     ],
   };
+
+  // Get current color images - fallback to Red color if selected color not found
+  const currentColorImages = colorImageMap[selectedColor] || colorImageMap.Red || [redSaree1];
+
+  // Reset image selection when color changes
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [selectedColor]);
 
   const reviews = [
     {
@@ -95,43 +126,51 @@ export default function ProductDetail() {
       <div className="container mx-auto px-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-          <Link href="/">
-            <a className="hover:text-primary">Home</a>
-          </Link>
+          <Link href="/" className="hover:text-primary">Home</Link>
           <span>/</span>
-          <Link href="/products">
-            <a className="hover:text-primary">Products</a>
-          </Link>
+          <Link href="/products" className="hover:text-primary">Products</Link>
           <span>/</span>
           <span className="text-foreground">{product.name}</span>
         </div>
 
-        <Button variant="ghost" className="mb-6 -ml-4" data-testid="button-back">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Products
-        </Button>
+        <Link href="/products">
+          <Button variant="ghost" className="mb-6 -ml-4" data-testid="button-back">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Products
+          </Button>
+        </Link>
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           {/* Images */}
           <div>
             <motion.div
+              key={selectedColor + selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="aspect-[3/4] bg-secondary rounded-2xl flex items-center justify-center text-9xl mb-4 overflow-hidden"
+              transition={{ duration: 0.3 }}
+              className="aspect-[3/4] bg-secondary rounded-2xl mb-4 overflow-hidden"
             >
-              {product.images[selectedImage]}
+              <img 
+                src={currentColorImages[selectedImage]} 
+                alt={`${product.name} - ${selectedColor}`}
+                className="w-full h-full object-cover"
+              />
             </motion.div>
-            <div className="grid grid-cols-4 gap-4">
-              {product.images.map((img, index) => (
+            <div className="grid grid-cols-3 gap-4">
+              {currentColorImages.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square bg-secondary rounded-lg flex items-center justify-center text-4xl transition-all hover-elevate ${
+                  className={`aspect-square bg-secondary rounded-lg overflow-hidden transition-all hover-elevate ${
                     selectedImage === index ? "ring-2 ring-primary" : ""
                   }`}
                   data-testid={`button-image-${index}`}
                 >
-                  {img}
+                  <img 
+                    src={img} 
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -161,10 +200,12 @@ export default function ProductDetail() {
                   </span>
                 </div>
               </div>
-              <Link href={`/vendors/${product.vendor.id}`}>
-                <a className="text-sm text-muted-foreground hover:text-primary" data-testid="link-vendor">
-                  by {product.vendor.name}
-                </a>
+              <Link 
+                href={`/vendors/${product.vendor.id}`}
+                className="text-sm text-muted-foreground hover:text-primary" 
+                data-testid="link-vendor"
+              >
+                by {product.vendor.name}
               </Link>
             </div>
 
