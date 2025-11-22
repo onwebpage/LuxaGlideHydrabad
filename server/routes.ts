@@ -142,11 +142,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { fullName, phone, businessName, gstNumber } = validation.data;
-      const { userId } = req.body;
+      const { fullName, phone, businessName, gstNumber, currentPassword, userId } = validation.data;
 
-      if (!userId) {
-        return res.status(400).json({ message: "User ID is required" });
+      // Verify user exists and is a buyer
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.role !== "buyer") {
+        return res.status(403).json({ message: "Unauthorized: Only buyers can update buyer profiles" });
+      }
+
+      // Verify password for security (since we don't have sessions)
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid password" });
       }
 
       const updatedUser = await storage.updateUser(userId, {
@@ -155,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Failed to update user" });
       }
 
       let updatedBuyer = null;

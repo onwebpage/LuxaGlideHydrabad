@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -23,8 +26,14 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateBuyerProfileSchema, type UpdateBuyerProfile } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import type { Order, Address, Product } from "@shared/schema";
 
 interface DashboardStats {
@@ -42,8 +51,10 @@ interface WishlistItem {
 }
 
 export default function BuyerDashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [, setLocation] = useLocation();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { toast } = useToast();
   const userId = user?.id;
 
   if (!user) {
@@ -70,6 +81,50 @@ export default function BuyerDashboard() {
     queryKey: [`/api/wishlist/${userId}`],
     enabled: !!userId,
   });
+
+  const form = useForm<UpdateBuyerProfile>({
+    resolver: zodResolver(updateBuyerProfileSchema),
+    defaultValues: {
+      fullName: user.fullName || "",
+      phone: user.phone || "",
+      businessName: (profile as any)?.businessName || "",
+      gstNumber: (profile as any)?.gstNumber || "",
+      currentPassword: "",
+      userId: user.id,
+    },
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: UpdateBuyerProfile) => {
+      const res = await apiRequest("PATCH", "/api/profile/buyer", data);
+      return await res.json();
+    },
+    onSuccess: (response) => {
+      refreshProfile(response.user, response.profile);
+      toast({
+        title: "Success",
+        description: "Your profile has been updated successfully",
+      });
+      setIsEditDialogOpen(false);
+      form.reset({
+        fullName: response.user.fullName,
+        phone: response.user.phone || "",
+        businessName: response.profile?.businessName || "",
+        gstNumber: response.profile?.gstNumber || "",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: UpdateBuyerProfile) => {
+    updateProfileMutation.mutate(data);
+  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
@@ -331,7 +386,7 @@ export default function BuyerDashboard() {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <Button data-testid="button-edit-profile">
+                    <Button onClick={() => setIsEditDialogOpen(true)} data-testid="button-edit-profile">
                       <User className="w-4 h-4 mr-2" />
                       Edit Profile
                     </Button>
@@ -342,6 +397,104 @@ export default function BuyerDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your personal information and business details
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your full name" {...field} data-testid="input-fullname" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your phone number" {...field} data-testid="input-phone" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="businessName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Name (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your business name" {...field} data-testid="input-business-name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gstNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>GST Number (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your GST number" {...field} data-testid="input-gst-number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Current Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter your password to confirm" {...field} data-testid="input-current-password" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  data-testid="button-cancel-edit"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  data-testid="button-save-profile"
+                >
+                  {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -274,6 +274,8 @@ export const updateBuyerProfileSchema = z.object({
   phone: z.string().optional(),
   businessName: z.string().optional(),
   gstNumber: z.string().optional(),
+  currentPassword: z.string().min(1, "Password is required for security"),
+  userId: z.string().min(1, "User ID is required"),
 });
 
 // Types
