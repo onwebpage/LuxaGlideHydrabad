@@ -1,0 +1,77 @@
+Create a complete full-stack B2B Multi-Vendor Ecommerce website project for a women's clothing wholesale platform with modern UI/UX.
+
+Tech stack requirements:
+- Frontend: React + Vite + Tailwind CSS + TypeScript + Framer Motion animations
+- Backend: Node.js + Express.js
+- Database: neon Database
+- Authentication: clerk email authentication
+- File Upload: Cloudinary
+- Payments: Razorpay Integration
+- Admin Dashboard: React Admin Panel protected by role based access
+- Vendor Dashboard
+- Buyer Dashboard
+
+Website Features:
+1. Homepage
+   - Modern aesthetic UI for women's clothing brand
+   - Hero banner with animation and CTA buttons: "Explore Collection" & "Become Vendor"
+   - Featured vendors list
+   - Trending categories
+   - Testimonials carousel
+   - Newsletter subscription
+
+2. Product Catalog Page
+   - Filters: category, fabric, color, price, MOQ
+   - Pagination
+   - Bulk wholesale pricing tiers visible after login
+   - Search + sorting options
+
+3. Single Product Page
+   - Multiple images + zoom + 360 view
+   - Bulk price table
+   - Size & Color variations
+   - Add to Cart & Add to RFQ (Request for Quote)
+   - Vendor details section
+   - Reviews & ratings
+
+User Roles:
+A. Buyer / Client Dashboard
+   - Profile details with GST & Business KYC uploads
+   - Order history
+   - Download invoices as PDF
+   - Track shipment status
+   - Wishlist
+   - Saved vendors
+   - Email and SMS notification settings
+   - Address manager
+
+B. Vendor Dashboard
+   - Register & KYC verification flow
+   - Add / Edit / Delete product listings with images & variations
+   - Manage stock, pricing, and MOQ
+   - Orders received panel
+   - Payment settlements
+   - Analytics chart (weekly / monthly sales graph)
+   - PDF shipping labels + invoices
+
+C. Admin Dashboard (Owner Panel)
+   - Manage buyers, vendors, products
+   - Approve vendor KYC
+   - Order management panel
+   - Refund requests & payment settlement system
+   - CMS settings (homepage content, banners)
+   - Reports & analytics
+
+Email + Documents
+- Nodemailer email notifications for order updates and vendor approval
+- Auto-generated invoices and shipping labels in PDF
+
+Global Requirements:
+- Fully responsive UI
+- Protected routes based on roles
+- Centralized state management (Redux Toolkit)
+- SEO optimization
+- Clean code structure with services & controllers
+- Project should include a README explaining setup instructions
+
+Please generate the full working folder structure, routes, API endpoints, models, pages, components, UI, and sample seed data.
