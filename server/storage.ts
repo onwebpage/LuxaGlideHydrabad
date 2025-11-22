@@ -624,49 +624,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMonthlySalesData(): Promise<Array<{ month: string; revenue: number; orders: number }>> {
-    const allOrders = await db.select().from(orders).orderBy(orders.createdAt);
+    const result = await db.execute(sql`
+      SELECT 
+        TO_CHAR(created_at, 'Mon YYYY') as month,
+        EXTRACT(YEAR FROM created_at) as year,
+        EXTRACT(MONTH FROM created_at) as month_num,
+        SUM(CAST(total_amount AS DECIMAL)) as revenue,
+        COUNT(*) as orders
+      FROM orders
+      GROUP BY year, month_num, TO_CHAR(created_at, 'Mon YYYY')
+      ORDER BY year DESC, month_num DESC
+      LIMIT 12
+    `);
     
-    const monthlyData = new Map<string, { revenue: number; orders: number }>();
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    allOrders.forEach(order => {
-      const date = new Date(order.createdAt);
-      const monthKey = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-      
-      if (!monthlyData.has(monthKey)) {
-        monthlyData.set(monthKey, { revenue: 0, orders: 0 });
-      }
-      
-      const data = monthlyData.get(monthKey)!;
-      data.revenue += Number(order.totalAmount);
-      data.orders += 1;
-    });
-    
-    return Array.from(monthlyData.entries())
-      .map(([month, data]) => ({ month, ...data }))
-      .slice(-12);
+    return (result.rows as any[])
+      .reverse()
+      .map(row => ({
+        month: row.month,
+        revenue: Number(row.revenue),
+        orders: Number(row.orders)
+      }));
   }
 
   async getVendorPerformance(): Promise<Array<{ vendorName: string; totalSales: number; orderCount: number }>> {
-    const allVendors = await db.select().from(vendors);
-    const allOrders = await db.select().from(orders);
+    const result = await db.execute(sql`
+      SELECT 
+        v.business_name as vendor_name,
+        COALESCE(SUM(CAST(o.total_amount AS DECIMAL)), 0) as total_sales,
+        COUNT(o.id) as order_count
+      FROM vendors v
+      LEFT JOIN orders o ON v.id = o.vendor_id
+      GROUP BY v.id, v.business_name
+      ORDER BY total_sales DESC
+      LIMIT 10
+    `);
     
-    const performanceMap = new Map<string, { vendorName: string; totalSales: number; orderCount: number }>();
-    
-    for (const vendor of allVendors) {
-      const vendorOrders = allOrders.filter(o => o.vendorId === vendor.id);
-      const totalSales = vendorOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
-      
-      performanceMap.set(vendor.id, {
-        vendorName: vendor.businessName,
-        totalSales,
-        orderCount: vendorOrders.length,
-      });
-    }
-    
-    return Array.from(performanceMap.values())
-      .sort((a, b) => b.totalSales - a.totalSales)
-      .slice(0, 10);
+    return (result.rows as any[]).map(row => ({
+      vendorName: row.vendor_name,
+      totalSales: Number(row.total_sales),
+      orderCount: Number(row.order_count)
+    }));
   }
 
   async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
