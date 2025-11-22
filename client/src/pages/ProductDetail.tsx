@@ -1,0 +1,424 @@
+import { useState } from "react";
+import { useRoute, Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Heart,
+  ShoppingCart,
+  Star,
+  MessageSquare,
+  Package,
+  Truck,
+  Shield,
+  ArrowLeft,
+  Plus,
+  Minus,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+export default function ProductDetail() {
+  const [, params] = useRoute("/products/:id");
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [quantity, setQuantity] = useState(10);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+
+  // Mock product data - will be replaced with API
+  const product = {
+    id: params?.id || "1",
+    name: "Designer Silk Saree Collection",
+    vendor: {
+      id: "v1",
+      name: "Elite Fashion Co.",
+      rating: 4.8,
+      totalSales: 5000,
+    },
+    price: 2500,
+    moq: 10,
+    stock: 500,
+    rating: 4.7,
+    reviewCount: 142,
+    description: "Premium quality silk saree with intricate embroidery work. Perfect for weddings and special occasions. Handcrafted by skilled artisans.",
+    fabric: "Pure Silk",
+    category: "Sarees",
+    images: ["🌸", "✨", "🎨", "💐"],
+    colors: ["Red", "Blue", "Gold", "Pink", "Green"],
+    sizes: ["Free Size"],
+    bulkPricing: [
+      { quantity: 10, price: 2500 },
+      { quantity: 50, price: 2300 },
+      { quantity: 100, price: 2100 },
+      { quantity: 200, price: 1900 },
+    ],
+    features: [
+      "100% Pure Silk",
+      "Hand Embroidered",
+      "Dry Clean Only",
+      "Comes with Blouse Piece",
+    ],
+  };
+
+  const reviews = [
+    {
+      id: "1",
+      user: "Priya S.",
+      rating: 5,
+      comment: "Excellent quality! My customers loved these sarees.",
+      date: "2 weeks ago",
+      verified: true,
+    },
+    {
+      id: "2",
+      user: "Rajesh K.",
+      rating: 4,
+      comment: "Good product, timely delivery. Will order again.",
+      date: "1 month ago",
+      verified: true,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen py-8">
+      <div className="container mx-auto px-6">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+          <Link href="/">
+            <a className="hover:text-primary">Home</a>
+          </Link>
+          <span>/</span>
+          <Link href="/products">
+            <a className="hover:text-primary">Products</a>
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{product.name}</span>
+        </div>
+
+        <Button variant="ghost" className="mb-6 -ml-4" data-testid="button-back">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Products
+        </Button>
+
+        <div className="grid lg:grid-cols-2 gap-12 mb-16">
+          {/* Images */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="aspect-[3/4] bg-secondary rounded-2xl flex items-center justify-center text-9xl mb-4 overflow-hidden"
+            >
+              {product.images[selectedImage]}
+            </motion.div>
+            <div className="grid grid-cols-4 gap-4">
+              {product.images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`aspect-square bg-secondary rounded-lg flex items-center justify-center text-4xl transition-all hover-elevate ${
+                    selectedImage === index ? "ring-2 ring-primary" : ""
+                  }`}
+                  data-testid={`button-image-${index}`}
+                >
+                  {img}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div>
+            <div className="mb-4">
+              <Badge className="mb-2">{product.category}</Badge>
+              <h1 className="font-serif text-4xl font-semibold mb-2">
+                {product.name}
+              </h1>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < Math.floor(product.rating)
+                          ? "fill-primary text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  ))}
+                  <span className="text-sm ml-1">
+                    {product.rating} ({product.reviewCount} reviews)
+                  </span>
+                </div>
+              </div>
+              <Link href={`/vendors/${product.vendor.id}`}>
+                <a className="text-sm text-muted-foreground hover:text-primary" data-testid="link-vendor">
+                  by {product.vendor.name}
+                </a>
+              </Link>
+            </div>
+
+            <div className="mb-6 pb-6 border-b border-border">
+              <div className="flex items-baseline gap-3 mb-2">
+                <span className="text-4xl font-serif font-semibold">
+                  ₹{product.price}
+                </span>
+                <span className="text-muted-foreground">/piece</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Minimum Order Quantity: {product.moq} pieces
+              </p>
+              <p className="text-sm text-green-600 mt-1">
+                {product.stock} pieces in stock
+              </p>
+            </div>
+
+            {/* Color Selection */}
+            <div className="mb-6">
+              <Label className="text-sm uppercase tracking-wider mb-3 block">
+                Select Color
+              </Label>
+              <div className="flex flex-wrap gap-3">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-4 py-2 rounded-lg border-2 transition-all hover-elevate ${
+                      selectedColor === color
+                        ? "border-primary bg-primary/10"
+                        : "border-border"
+                    }`}
+                    data-testid={`button-color-${color}`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="mb-6">
+              <Label className="text-sm uppercase tracking-wider mb-3 block">
+                Quantity (Min: {product.moq})
+              </Label>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(Math.max(product.moq, quantity - 10))}
+                  data-testid="button-decrease-quantity"
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(product.moq, parseInt(e.target.value) || product.moq))}
+                  className="w-24 text-center"
+                  data-testid="input-quantity"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity(quantity + 10)}
+                  data-testid="button-increase-quantity"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Total: ₹{(product.price * quantity).toLocaleString()}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mb-8">
+              <Button className="flex-1" size="lg" data-testid="button-add-to-cart">
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                Add to Cart
+              </Button>
+              <Button variant="outline" size="lg" data-testid="button-request-quote">
+                <MessageSquare className="w-5 h-5 mr-2" />
+                RFQ
+              </Button>
+              <Button variant="outline" size="icon" className="shrink-0" data-testid="button-add-wishlist">
+                <Heart className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Features */}
+            <div className="grid grid-cols-3 gap-4 p-6 bg-secondary/50 rounded-xl">
+              <div className="text-center">
+                <Package className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-xs text-muted-foreground">Bulk Pricing</p>
+              </div>
+              <div className="text-center">
+                <Truck className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-xs text-muted-foreground">Fast Delivery</p>
+              </div>
+              <div className="text-center">
+                <Shield className="w-6 h-6 mx-auto mb-2 text-primary" />
+                <p className="text-xs text-muted-foreground">Quality Assured</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs defaultValue="description" className="mb-16">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
+            <TabsTrigger value="description" data-testid="tab-description">Description</TabsTrigger>
+            <TabsTrigger value="pricing" data-testid="tab-pricing">Bulk Pricing</TabsTrigger>
+            <TabsTrigger value="reviews" data-testid="tab-reviews">Reviews ({product.reviewCount})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="description" className="mt-8">
+            <Card>
+              <CardContent className="p-8">
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  {product.description}
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3">Specifications</h3>
+                    <dl className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Fabric:</dt>
+                        <dd className="font-medium">{product.fabric}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Category:</dt>
+                        <dd className="font-medium">{product.category}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">MOQ:</dt>
+                        <dd className="font-medium">{product.moq} pieces</dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-3">Features</h3>
+                    <ul className="space-y-2 text-sm">
+                      {product.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pricing" className="mt-8">
+            <Card>
+              <CardContent className="p-8">
+                <h3 className="font-semibold mb-6">Bulk Purchase Pricing</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Price per Piece</TableHead>
+                      <TableHead>Total Amount</TableHead>
+                      <TableHead>Savings</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {product.bulkPricing.map((tier, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{tier.quantity}+ pieces</TableCell>
+                        <TableCell>₹{tier.price}</TableCell>
+                        <TableCell>₹{(tier.price * tier.quantity).toLocaleString()}</TableCell>
+                        <TableCell className="text-green-600">
+                          {index === 0
+                            ? "-"
+                            : `${Math.round(((product.bulkPricing[0].price - tier.price) / product.bulkPricing[0].price) * 100)}%`}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-8">
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <Card key={review.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold">{review.user}</span>
+                          {review.verified && (
+                            <Badge variant="secondary" className="text-xs">
+                              Verified Purchase
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3 h-3 ${
+                                i < review.rating
+                                  ? "fill-primary text-primary"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-sm text-muted-foreground">{review.date}</span>
+                    </div>
+                    <p className="text-muted-foreground">{review.comment}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Vendor Info */}
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">About the Vendor</h3>
+                <p className="text-muted-foreground mb-4">{product.vendor.name}</p>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-primary text-primary" />
+                    <span>{product.vendor.rating} Rating</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Package className="w-4 h-4 text-muted-foreground" />
+                    <span>{product.vendor.totalSales}+ Sales</span>
+                  </div>
+                </div>
+              </div>
+              <Link href={`/vendors/${product.vendor.id}`}>
+                <Button variant="outline" data-testid="button-visit-store">
+                  Visit Store
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

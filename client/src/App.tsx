@@ -1,28 +1,61 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { AuthProvider } from "./lib/auth-context";
+
+// Pages
+import Home from "@/pages/Home";
+import Products from "@/pages/Products";
+import ProductDetail from "@/pages/ProductDetail";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import BuyerDashboard from "@/pages/BuyerDashboard";
+import VendorDashboard from "@/pages/VendorDashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
+      <Route path="/" component={Home} />
+      <Route path="/products" component={Products} />
+      <Route path="/products/:id" component={ProductDetail} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/dashboard/buyer" component={BuyerDashboard} />
+      <Route path="/dashboard/vendor" component={VendorDashboard} />
+      <Route path="/dashboard/admin" component={AdminDashboard} />
+      {/* Redirect /dashboard to role-specific dashboard - will be dynamic based on user role */}
+      <Route path="/dashboard" component={BuyerDashboard} />
       <Route component={NotFound} />
     </Switch>
+  );
+}
+
+function AppContent() {
+  const [location] = useLocation();
+  const isAuthPage = location.includes("/login") || location.includes("/register");
+
+  return (
+    <TooltipProvider>
+      {!isAuthPage && <Header />}
+      <Router />
+      {!isAuthPage && <Footer />}
+      <Toaster />
+    </TooltipProvider>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
