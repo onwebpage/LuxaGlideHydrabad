@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Heart, ShoppingCart, Search, SlidersHorizontal, Star, Package2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import {
   Sheet,
@@ -129,111 +128,69 @@ export default function Products() {
   const categories = ["all", "Sarees", "Kurtis", "Lehenga", "Suits", "Western"];
   const fabrics = ["all", "Cotton", "Silk", "Georgette", "Chiffon", "Crepe"];
 
-  // Filter products based on selected filters
-  const filteredProducts = products.filter((product) => {
-    // Search filter
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
+  // Memoize filtered and sorted products for performance
+  const sortedProducts = useMemo(() => {
+    // Filter products based on selected filters
+    const filteredProducts = products.filter((product) => {
+      // Search filter
+      if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
 
-    // Category filter
-    if (selectedCategory !== "all" && product.category !== selectedCategory) {
-      return false;
-    }
+      // Category filter
+      if (selectedCategory !== "all" && product.category !== selectedCategory) {
+        return false;
+      }
 
-    // Fabric filter
-    if (selectedFabric !== "all" && product.fabric !== selectedFabric) {
-      return false;
-    }
+      // Fabric filter
+      if (selectedFabric !== "all" && product.fabric !== selectedFabric) {
+        return false;
+      }
 
-    // Price range filter
-    if (product.price < priceRange[0] || product.price > priceRange[1]) {
-      return false;
-    }
+      // Price range filter
+      if (product.price < priceRange[0] || product.price > priceRange[1]) {
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
 
-  // Sort filtered products based on selected sort option
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return b.rating - a.rating;
-      case "newest":
-        // For now, sort by id (in real app, would use createdAt)
-        return parseInt(b.id) - parseInt(a.id);
-      case "featured":
-      default:
-        // Featured: sort by rating then price
-        return b.rating - a.rating || b.price - a.price;
-    }
-  });
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 12,
-      },
-    },
-  };
-
-  const headerVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
-  };
+    // Sort filtered products based on selected sort option
+    return [...filteredProducts].sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        case "newest":
+          // For now, sort by id (in real app, would use createdAt)
+          return parseInt(b.id) - parseInt(a.id);
+        case "featured":
+        default:
+          // Featured: sort by rating then price
+          return b.rating - a.rating || b.price - a.price;
+      }
+    });
+  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-b from-background to-secondary/20">
       <div className="container mx-auto px-6 max-w-7xl">
-        {/* Animated Header */}
-        <motion.div
-          className="mb-12"
-          variants={headerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        {/* Header */}
+        <div className="mb-12">
           <h1 className="font-serif text-5xl md:text-6xl font-semibold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Premium Collections
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
             Discover our exquisite wholesale collection of designer wear
           </p>
-        </motion.div>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Desktop Filters */}
-          <motion.aside
-            className="hidden lg:block w-80 shrink-0"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+          <aside className="hidden lg:block w-80 shrink-0">
             <Card className="sticky top-24 border-2 shadow-lg">
               <CardContent className="p-8 space-y-8">
                 <div>
@@ -245,11 +202,7 @@ export default function Products() {
                 </div>
 
                 {/* Search */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
+                <div>
                   <Label className="text-xs uppercase tracking-widest mb-3 block font-medium">
                     Search Products
                   </Label>
@@ -259,23 +212,19 @@ export default function Products() {
                       placeholder="Search by name..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                      className="pl-10"
                       data-testid="input-product-search"
                     />
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Category */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
+                <div>
                   <Label className="text-xs uppercase tracking-widest mb-3 block font-medium">
                     Category
                   </Label>
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger data-testid="select-category" className="transition-all duration-300">
+                    <SelectTrigger data-testid="select-category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -286,19 +235,15 @@ export default function Products() {
                       ))}
                     </SelectContent>
                   </Select>
-                </motion.div>
+                </div>
 
                 {/* Fabric */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
+                <div>
                   <Label className="text-xs uppercase tracking-widest mb-3 block font-medium">
                     Fabric Type
                   </Label>
                   <Select value={selectedFabric} onValueChange={setSelectedFabric}>
-                    <SelectTrigger data-testid="select-fabric" className="transition-all duration-300">
+                    <SelectTrigger data-testid="select-fabric">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -309,14 +254,10 @@ export default function Products() {
                       ))}
                     </SelectContent>
                   </Select>
-                </motion.div>
+                </div>
 
                 {/* Price Range */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
+                <div>
                   <Label className="text-xs uppercase tracking-widest mb-4 block font-medium">
                     Price Range
                   </Label>
@@ -333,13 +274,9 @@ export default function Products() {
                     onValueChange={setPriceRange}
                     className="mb-2"
                   />
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                >
+                <div>
                   <Button
                     className="w-full"
                     variant="outline"
@@ -353,20 +290,15 @@ export default function Products() {
                   >
                     Reset All Filters
                   </Button>
-                </motion.div>
+                </div>
               </CardContent>
             </Card>
-          </motion.aside>
+          </aside>
 
           {/* Main Content */}
           <div className="flex-1">
             {/* Toolbar */}
-            <motion.div
-              className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div className="flex items-center gap-3">
                 <Package2 className="w-5 h-5 text-primary" />
                 <p className="text-muted-foreground">
@@ -462,7 +394,7 @@ export default function Products() {
 
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger
-                    className="w-[200px] transition-all duration-300"
+                    className="w-[200px]"
                     data-testid="select-sort"
                   >
                     <SelectValue placeholder="Sort by" />
@@ -476,16 +408,10 @@ export default function Products() {
                   </SelectContent>
                 </Select>
               </div>
-            </motion.div>
+            </div>
 
             {/* Products Grid */}
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              key={`${searchQuery}-${selectedCategory}-${selectedFabric}-${priceRange[0]}-${priceRange[1]}-${sortBy}`}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {sortedProducts.length === 0 ? (
                 <div className="col-span-full py-20 text-center">
                   <Package2 className="w-20 h-20 mx-auto mb-4 text-muted-foreground/30" />
@@ -508,7 +434,7 @@ export default function Products() {
                 </div>
               ) : (
                 sortedProducts.map((product, index) => (
-                <motion.div key={product.id} variants={itemVariants}>
+                <div key={product.id}>
                   <Card
                     className="group hover-elevate active-elevate-2 transition-all duration-500 overflow-hidden h-full flex flex-col border-2"
                     data-testid={`card-product-${product.id}`}
@@ -532,15 +458,11 @@ export default function Products() {
                         </div>
 
                         {/* Wishlist Button */}
-                        <motion.div
-                          className="absolute top-4 right-4 z-10"
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
+                        <div className="absolute top-4 right-4 z-10">
                           <Button
                             size="icon"
                             variant="secondary"
-                            className={`backdrop-blur-md shadow-lg transition-all duration-300 ${
+                            className={`backdrop-blur-md shadow-lg transition-all ${
                               wishlist.has(product.id)
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-white/90"
@@ -557,7 +479,7 @@ export default function Products() {
                               }`}
                             />
                           </Button>
-                        </motion.div>
+                        </div>
 
                         {/* MOQ Badge */}
                         <Badge className="absolute top-4 left-4 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-md">
@@ -600,13 +522,11 @@ export default function Products() {
                       <div className="flex items-center gap-3 mb-6">
                         <div className="flex gap-1.5">
                           {product.colors.slice(0, 4).map((color, i) => (
-                            <motion.div
+                            <div
                               key={i}
                               className="w-6 h-6 rounded-full border-2 border-border shadow-sm cursor-pointer hover:scale-110 transition-transform"
                               style={{ backgroundColor: color }}
                               title={product.colorNames[i] || color}
-                              whileHover={{ scale: 1.15 }}
-                              whileTap={{ scale: 0.95 }}
                             />
                           ))}
                         </div>
@@ -625,7 +545,7 @@ export default function Products() {
                       {/* Add to Cart Button */}
                       <div className="mt-auto">
                         <Button
-                          className="w-full font-semibold transition-all duration-300"
+                          className="w-full font-semibold"
                           size="lg"
                           data-testid={`button-add-cart-${product.id}`}
                         >
@@ -635,22 +555,16 @@ export default function Products() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )))}
-            </motion.div>
+            </div>
 
             {/* Pagination */}
-            <motion.div
-              className="mt-16 flex justify-center items-center gap-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
+            <div className="mt-16 flex justify-center items-center gap-2">
               <Button
                 variant="outline"
                 disabled
                 data-testid="button-prev-page"
-                className="transition-all duration-300"
               >
                 Previous
               </Button>
@@ -662,24 +576,21 @@ export default function Products() {
               </Button>
               <Button
                 variant="outline"
-                className="transition-all duration-300"
               >
                 2
               </Button>
               <Button
                 variant="outline"
-                className="transition-all duration-300"
               >
                 3
               </Button>
               <Button
                 variant="outline"
                 data-testid="button-next-page"
-                className="transition-all duration-300"
               >
                 Next
               </Button>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
