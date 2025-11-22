@@ -19,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (data: any) => Promise<void>;
+  refreshProfile: (updatedUser: User, updatedProfile: UserProfile) => void;
   isLoading: boolean;
 }
 
@@ -84,8 +85,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("profile");
   };
 
+  const refreshProfile = (updatedUser: User, updatedProfile: UserProfile) => {
+    setUser(updatedUser);
+    setProfile(updatedProfile);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    if (updatedProfile) {
+      localStorage.setItem("profile", JSON.stringify(updatedProfile));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, login, logout, register, isLoading }}>
+    <AuthContext.Provider value={{ user, profile, login, logout, register, refreshProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
