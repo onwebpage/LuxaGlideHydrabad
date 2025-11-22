@@ -23,61 +23,31 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Order, Address, Product } from "@shared/schema";
 
 export default function BuyerDashboard() {
-  // Mock data - will be replaced with API
-  const stats = [
-    { label: "Total Orders", value: "24", icon: ShoppingBag, change: "+12%" },
-    { label: "Pending Orders", value: "3", icon: Package, change: "-" },
-    { label: "Wishlist Items", value: "12", icon: Heart, change: "+2" },
-    { label: "Total Spent", value: "₹1,24,500", icon: TrendingUp, change: "+23%" },
-  ];
+  const userId = localStorage.getItem("userId") || "demo-user-id";
 
-  const recentOrders = [
-    {
-      id: "ORD001",
-      date: "2024-01-15",
-      vendor: "Elite Fashion Co.",
-      items: 50,
-      amount: 25000,
-      status: "delivered",
-    },
-    {
-      id: "ORD002",
-      date: "2024-01-20",
-      vendor: "Trends Wholesale",
-      items: 30,
-      amount: 18000,
-      status: "shipped",
-    },
-    {
-      id: "ORD003",
-      date: "2024-01-22",
-      vendor: "Style Studios",
-      items: 20,
-      amount: 12000,
-      status: "processing",
-    },
-  ];
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/dashboard/buyer", userId],
+    enabled: !!userId,
+  });
 
-  const addresses = [
-    {
-      id: "1",
-      label: "Office",
-      name: "John Doe",
-      phone: "+91 98765 43210",
-      address: "123 Fashion Street, Mumbai, Maharashtra 400001",
-      isDefault: true,
-    },
-    {
-      id: "2",
-      label: "Warehouse",
-      name: "John Doe",
-      phone: "+91 98765 43210",
-      address: "456 Wholesale Avenue, Delhi, Delhi 110001",
-      isDefault: false,
-    },
-  ];
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: [`/api/orders/user/${userId}`],
+    enabled: !!userId,
+  });
+
+  const { data: addresses = [], isLoading: addressesLoading } = useQuery<Address[]>({
+    queryKey: [`/api/addresses/${userId}`],
+    enabled: !!userId,
+  });
+
+  const { data: wishlistData = [], isLoading: wishlistLoading } = useQuery({
+    queryKey: [`/api/wishlist/${userId}`],
+    enabled: !!userId,
+  });
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
@@ -85,9 +55,34 @@ export default function BuyerDashboard() {
       shipped: "bg-blue-100 text-blue-700",
       processing: "bg-yellow-100 text-yellow-700",
       pending: "bg-gray-100 text-gray-700",
+      confirmed: "bg-blue-100 text-blue-700",
+      cancelled: "bg-red-100 text-red-700",
     };
     return <Badge className={variants[status] || ""}>{status}</Badge>;
   };
+
+  const statsCards = [
+    { 
+      label: "Total Orders", 
+      value: statsLoading ? "..." : stats?.totalOrders?.toString() || "0", 
+      icon: ShoppingBag 
+    },
+    { 
+      label: "Pending Orders", 
+      value: statsLoading ? "..." : stats?.pendingOrders?.toString() || "0", 
+      icon: Package 
+    },
+    { 
+      label: "Wishlist Items", 
+      value: statsLoading ? "..." : stats?.wishlistCount?.toString() || "0", 
+      icon: Heart 
+    },
+    { 
+      label: "Total Spent", 
+      value: statsLoading ? "..." : `₹${stats?.totalSpent?.toLocaleString() || "0"}`, 
+      icon: TrendingUp 
+    },
+  ];
 
   return (
     <div className="min-h-screen py-8">
@@ -102,7 +97,7 @@ export default function BuyerDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
@@ -115,9 +110,6 @@ export default function BuyerDashboard() {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <stat.icon className="w-6 h-6 text-primary" />
                     </div>
-                    {stat.change !== "-" && (
-                      <span className="text-sm text-green-600">{stat.change}</span>
-                    )}
                   </div>
                   <div className="text-3xl font-serif font-semibold mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground uppercase tracking-wider">
@@ -145,99 +137,134 @@ export default function BuyerDashboard() {
                 <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Vendor</TableHead>
-                      <TableHead>Items</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.date}</TableCell>
-                        <TableCell>{order.vendor}</TableCell>
-                        <TableCell>{order.items} pcs</TableCell>
-                        <TableCell>₹{order.amount.toLocaleString()}</TableCell>
-                        <TableCell>{getStatusBadge(order.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" data-testid={`button-view-order-${order.id}`}>
-                              View
-                            </Button>
-                            <Button variant="ghost" size="sm" data-testid={`button-download-invoice-${order.id}`}>
-                              <Download className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                {ordersLoading ? (
+                  <div className="py-8 text-center text-muted-foreground">Loading orders...</div>
+                ) : orders.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No orders yet. Start shopping to place your first order!
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order Number</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium" data-testid={`text-order-${order.id}`}>
+                            {order.orderNumber}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>₹{Number(order.totalAmount).toLocaleString()}</TableCell>
+                          <TableCell>{getStatusBadge(order.status)}</TableCell>
+                          <TableCell>
+                            <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                              {order.paymentStatus}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" data-testid={`button-view-order-${order.id}`}>
+                                View
+                              </Button>
+                              <Button variant="ghost" size="sm" data-testid={`button-download-invoice-${order.id}`}>
+                                <Download className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Wishlist Tab */}
           <TabsContent value="wishlist">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="hover-elevate transition-all">
-                <CardContent className="p-6">
-                  <div className="aspect-square bg-secondary rounded-lg flex items-center justify-center text-6xl mb-4">
-                    🌸
-                  </div>
-                  <h3 className="font-semibold mb-2">Designer Silk Saree</h3>
-                  <p className="text-2xl font-serif font-semibold mb-4">₹2,500</p>
-                  <Button className="w-full" data-testid="button-add-to-cart-wishlist">
-                    Add to Cart
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            {wishlistLoading ? (
+              <div className="py-8 text-center text-muted-foreground">Loading wishlist...</div>
+            ) : wishlistData.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                Your wishlist is empty. Browse products to add items!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {wishlistData.map((item: any) => (
+                  <Card key={item.id} className="hover-elevate transition-all">
+                    <CardContent className="p-6">
+                      <div className="aspect-square bg-secondary rounded-lg flex items-center justify-center text-6xl mb-4">
+                        🌸
+                      </div>
+                      <h3 className="font-semibold mb-2">Wishlist Item</h3>
+                      <p className="text-2xl font-serif font-semibold mb-4">₹-</p>
+                      <Button className="w-full" data-testid={`button-add-to-cart-${item.id}`}>
+                        Add to Cart
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Addresses Tab */}
           <TabsContent value="addresses">
             <div className="space-y-4">
-              {addresses.map((address) => (
-                <Card key={address.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <Badge variant={address.isDefault ? "default" : "secondary"}>
-                            {address.label}
-                          </Badge>
-                          {address.isDefault && (
-                            <Badge variant="outline">Default</Badge>
+              {addressesLoading ? (
+                <div className="py-8 text-center text-muted-foreground">Loading addresses...</div>
+              ) : addresses.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground">
+                  No addresses saved. Add your first address!
+                </div>
+              ) : (
+                addresses.map((address) => (
+                  <Card key={address.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Badge variant={address.isDefault ? "default" : "secondary"}>
+                              {address.label}
+                            </Badge>
+                            {address.isDefault && (
+                              <Badge variant="outline">Default</Badge>
+                            )}
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <p className="font-semibold">{address.fullName}</p>
+                            <p className="text-muted-foreground">{address.phone}</p>
+                            <p className="text-muted-foreground">
+                              {address.addressLine1}, {address.addressLine2 && `${address.addressLine2}, `}
+                              {address.city}, {address.state} {address.postalCode}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" data-testid={`button-edit-address-${address.id}`}>
+                            Edit
+                          </Button>
+                          {!address.isDefault && (
+                            <Button variant="ghost" size="sm" data-testid={`button-delete-address-${address.id}`}>
+                              Delete
+                            </Button>
                           )}
                         </div>
-                        <div className="space-y-1 text-sm">
-                          <p className="font-semibold">{address.name}</p>
-                          <p className="text-muted-foreground">{address.phone}</p>
-                          <p className="text-muted-foreground">{address.address}</p>
-                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" data-testid={`button-edit-address-${address.id}`}>
-                          Edit
-                        </Button>
-                        {!address.isDefault && (
-                          <Button variant="ghost" size="sm" data-testid={`button-delete-address-${address.id}`}>
-                            Delete
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
               <Button variant="outline" className="w-full" data-testid="button-add-address">
                 <MapPin className="w-4 h-4 mr-2" />
                 Add New Address
