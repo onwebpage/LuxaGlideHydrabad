@@ -7,6 +7,7 @@ import { z } from "zod";
 // Enums
 export const userRoleEnum = pgEnum("user_role", ["buyer", "vendor", "admin"]);
 export const kycStatusEnum = pgEnum("kyc_status", ["pending", "approved", "rejected"]);
+export const productStatusEnum = pgEnum("product_status", ["pending", "approved", "published"]);
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed", "refunded"]);
 export const rfqStatusEnum = pgEnum("rfq_status", ["pending", "quoted", "accepted", "rejected"]);
@@ -96,6 +97,7 @@ export const products = pgTable("products", {
   colors: jsonb("colors"), // Array of available colors
   sizes: jsonb("sizes"), // Array of available sizes
   bulkPricing: jsonb("bulk_pricing"), // Array of {quantity, price} tiers
+  status: productStatusEnum("status").notNull().default("pending"),
   isActive: boolean("is_active").default(true),
   featured: boolean("featured").default(false),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),

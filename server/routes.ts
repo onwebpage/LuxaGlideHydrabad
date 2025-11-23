@@ -8,6 +8,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import Papa from "papaparse";
 
 // Set up file upload
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -561,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/categories", async (req, res) => {
+  app.post("/api/categories", requireAdminAuth, async (req, res) => {
     try {
       const { name, description, image, parentId } = req.body;
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -576,6 +577,232 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(category);
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/categories/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const { name, description, image, parentId } = req.body;
+      const updates: any = {};
+      
+      if (name) {
+        updates.name = name;
+        updates.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      }
+      if (description !== undefined) updates.description = description;
+      if (image !== undefined) updates.image = image;
+      if (parentId !== undefined) updates.parentId = parentId;
+
+      const category = await storage.updateCategory(req.params.id, updates);
+      
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      res.json(category);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/categories/:id", requireAdminAuth, async (req, res) => {
+    try {
+      await storage.deleteCategory(req.params.id);
+      res.json({ message: "Category deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Admin Product Management Routes ============
+
+  // Get all products for admin (with status filtering)
+  app.get("/api/admin/products", requireAdminAuth, async (req, res) => {
+    try {
+      const { status, categoryId, vendorId, search, limit, offset } = req.query;
+      
+      const products = await storage.getAllProductsForAdmin({
+        status: status as string,
+        categoryId: categoryId as string,
+        vendorId: vendorId as string,
+        search: search as string,
+        limit: limit ? Number(limit) : 100,
+        offset: offset ? Number(offset) : 0,
+      });
+
+      res.json(products);
+    } catch (error: any) {
+      console.error("Get admin products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Approve product
+  app.post("/api/admin/products/:id/approve", requireAdminAuth, async (req, res) => {
+    try {
+      const product = await storage.updateProductStatus(req.params.id, "approved");
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Approve product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Publish product
+  app.post("/api/admin/products/:id/publish", requireAdminAuth, async (req, res) => {
+    try {
+      const product = await storage.updateProductStatus(req.params.id, "published");
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Publish product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update product status
+  app.put("/api/admin/products/:id/status", requireAdminAuth, async (req, res) => {
+    try {
+      const { status } = req.body;
+      
+      if (!["pending", "approved", "published"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+
+      const product = await storage.updateProductStatus(req.params.id, status);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Update product status error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update product (admin can edit any product)
+  app.put("/api/admin/products/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const product = await storage.updateProduct(req.params.id, req.body);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Update product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete product (admin only)
+  app.delete("/api/admin/products/:id", requireAdminAuth, async (req, res) => {
+    try {
+      await storage.deleteProduct(req.params.id);
+      res.json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Bulk upload products via CSV
+  app.post("/api/admin/products/bulk-upload", requireAdminAuth, upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const fileContent = fs.readFileSync(req.file.path, "utf-8");
+      
+      const parseResult = Papa.parse(fileContent, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim(),
+      });
+
+      if (parseResult.errors.length > 0) {
+        return res.status(400).json({ 
+          message: "CSV parsing error", 
+          errors: parseResult.errors 
+        });
+      }
+
+      const rows = parseResult.data as any[];
+      const products = [];
+      const errors = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        try {
+          const slug = row.name ? row.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "";
+          
+          if (!row.name || !row.description || !row.price || !row.vendorId) {
+            errors.push({ row: i + 1, error: "Missing required fields (name, description, price, vendorId)" });
+            continue;
+          }
+
+          const product = {
+            vendorId: row.vendorId?.trim(),
+            name: row.name?.trim(),
+            slug: slug,
+            description: row.description?.trim(),
+            categoryId: row.categoryId?.trim() || null,
+            fabric: row.fabric?.trim() || null,
+            price: row.price?.toString(),
+            moq: row.moq ? parseInt(row.moq) : 10,
+            stock: row.stock ? parseInt(row.stock) : 0,
+            images: row.images ? JSON.parse(row.images) : [],
+            colors: row.colors ? JSON.parse(row.colors) : null,
+            sizes: row.sizes ? JSON.parse(row.sizes) : null,
+            bulkPricing: row.bulkPricing ? JSON.parse(row.bulkPricing) : null,
+            status: "pending" as any,
+            isActive: true,
+            featured: false,
+          };
+
+          products.push(product);
+        } catch (error: any) {
+          errors.push({ row: i + 1, error: error.message });
+        }
+      }
+
+      if (products.length === 0) {
+        return res.status(400).json({ 
+          message: "No valid products to upload", 
+          errors 
+        });
+      }
+
+      const createdProducts = await storage.bulkCreateProducts(products);
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      res.json({ 
+        message: `Successfully uploaded ${createdProducts.length} products`,
+        created: createdProducts.length,
+        errors: errors.length > 0 ? errors : undefined,
+        products: createdProducts
+      });
+    } catch (error: any) {
+      console.error("Bulk upload error:", error);
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       res.status(500).json({ message: error.message });
     }
   });

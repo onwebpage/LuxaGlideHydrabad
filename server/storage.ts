@@ -79,6 +79,7 @@ export interface IStorage {
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, data: Partial<InsertCategory>): Promise<Category | undefined>;
+  deleteCategory(id: string): Promise<void>;
 
   // Products
   getProduct(id: string): Promise<Product | undefined>;
@@ -93,9 +94,19 @@ export interface IStorage {
     limit?: number;
     offset?: number;
   }): Promise<Product[]>;
+  getAllProductsForAdmin(filters?: {
+    status?: string;
+    categoryId?: string;
+    vendorId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, data: Partial<InsertProduct>): Promise<Product | undefined>;
+  updateProductStatus(id: string, status: string): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<void>;
+  bulkCreateProducts(products: InsertProduct[]): Promise<Product[]>;
 
   // Reviews
   getProductReviews(productId: string): Promise<Review[]>;
@@ -295,6 +306,10 @@ export class DatabaseStorage implements IStorage {
     return category || undefined;
   }
 
+  async deleteCategory(id: string): Promise<void> {
+    await db.delete(categories).where(eq(categories.id, id));
+  }
+
   // Products
   async getProduct(id: string): Promise<Product | undefined> {
     const [product] = await db.select().from(products).where(eq(products.id, id));
@@ -372,6 +387,71 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: string): Promise<void> {
     await db.delete(products).where(eq(products.id, id));
+  }
+
+  async getAllProductsForAdmin(filters?: {
+    status?: string;
+    categoryId?: string;
+    vendorId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Product[]> {
+    let query = db.select().from(products);
+    
+    const conditions = [];
+    
+    if (filters?.status) {
+      conditions.push(eq(products.status, filters.status as any));
+    }
+    
+    if (filters?.categoryId) {
+      conditions.push(eq(products.categoryId, filters.categoryId));
+    }
+    
+    if (filters?.vendorId) {
+      conditions.push(eq(products.vendorId, filters.vendorId));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        or(
+          like(products.name, `%${filters.search}%`),
+          like(products.description, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(products.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async updateProductStatus(id: string, status: string): Promise<Product | undefined> {
+    const [product] = await db.update(products)
+      .set({ status: status as any, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    return product || undefined;
+  }
+
+  async bulkCreateProducts(productsList: InsertProduct[]): Promise<Product[]> {
+    if (productsList.length === 0) {
+      return [];
+    }
+    return await db.insert(products).values(productsList).returning();
   }
 
   // Reviews

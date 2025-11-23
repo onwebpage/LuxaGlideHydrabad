@@ -20,6 +20,9 @@ import BuyerDashboard from "@/pages/BuyerDashboard";
 import VendorDashboard from "@/pages/VendorDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminProducts from "@/pages/AdminProducts";
+import AdminProductsBulkUpload from "@/pages/AdminProductsBulkUpload";
+import AdminCategories from "@/pages/AdminCategories";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +39,9 @@ function Router() {
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
       <Route path="/dashboard/vendor" component={VendorDashboard} />
+      <Route path="/dashboard/admin/products/bulk-upload" component={AdminProductsBulkUpload} />
+      <Route path="/dashboard/admin/products" component={AdminProducts} />
+      <Route path="/dashboard/admin/categories" component={AdminCategories} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
       {/* Redirect /dashboard to role-specific dashboard - will be dynamic based on user role */}
       <Route path="/dashboard" component={BuyerDashboard} />

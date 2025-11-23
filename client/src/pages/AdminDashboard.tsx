@@ -227,6 +227,32 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/products")} data-testid="card-product-management">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Product Management</h3>
+                  <p className="text-muted-foreground text-sm">Approve and manage all products</p>
+                </div>
+                <Package className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/categories")} data-testid="card-category-management">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Category Management</h3>
+                  <p className="text-muted-foreground text-sm">Manage product categories and tags</p>
+                </div>
+                <FileText className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {lowStockProducts.length > 0 && (
           <Alert className="mb-8 border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950" data-testid="alert-low-stock">
             <AlertTriangle className="h-5 w-5 text-orange-600" />
