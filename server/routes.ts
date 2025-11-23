@@ -944,7 +944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all orders (admin)
-  app.get("/api/orders", async (req, res) => {
+  app.get("/api/orders", requireAdminAuth, async (req, res) => {
     try {
       const { status, limit } = req.query;
       const orders = await storage.getAllOrders({
@@ -973,7 +973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get order items
-  app.get("/api/orders/:id/items", async (req, res) => {
+  app.get("/api/orders/:id/items", requireAdminAuth, async (req, res) => {
     try {
       const items = await storage.getOrderItems(req.params.id);
       res.json(items);
@@ -1035,7 +1035,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.updateOrder(req.params.id, { 
         status: status as any,
-        updatedAt: new Date(),
       });
 
       if (!order) {
@@ -1059,7 +1058,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.updateOrder(req.params.id, { 
         trackingNumber,
-        updatedAt: new Date(),
       });
 
       if (!order) {
@@ -1089,7 +1087,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.updateOrder(req.params.id, { 
         vendorId,
-        updatedAt: new Date(),
       });
 
       if (!order) {
@@ -1117,10 +1114,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(order.userId);
       const vendor = await storage.getVendor(order.vendorId);
 
+      // Validate required data
+      if (!items || items.length === 0) {
+        return res.status(400).json({ message: "Order has no items" });
+      }
+
       // Create PDF
       const doc = new PDFDocument({ margin: 50 });
 
-      // Set response headers
+      // Set response headers before piping
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
 
@@ -1142,22 +1144,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Customer details
       doc.fontSize(12).text("Bill To:", { underline: true });
       doc.fontSize(10);
-      doc.text(user?.fullName || "N/A");
-      doc.text(user?.email || "N/A");
+      doc.text(user?.fullName || "Customer Name Not Available");
+      doc.text(user?.email || "Email Not Available");
       if (address) {
-        doc.text(`${address.addressLine1}`);
-        if (address.addressLine2) doc.text(`${address.addressLine2}`);
-        doc.text(`${address.city}, ${address.state} ${address.postalCode}`);
-        doc.text(address.country);
+        doc.text(address.addressLine1 || "");
+        if (address.addressLine2) doc.text(address.addressLine2);
+        doc.text(`${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`);
+        doc.text(address.country || "");
+      } else {
+        doc.text("Address Not Available");
       }
       doc.moveDown();
 
       // Vendor details
       doc.fontSize(12).text("Sold By:", { underline: true });
       doc.fontSize(10);
-      doc.text(vendor?.businessName || "N/A");
+      doc.text(vendor?.businessName || "Vendor Not Assigned");
       if (vendor?.businessAddress) {
         doc.text(vendor.businessAddress);
+      } else {
+        doc.text("Vendor Address Not Available");
       }
       doc.moveDown();
 
@@ -1181,11 +1187,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       for (const item of items) {
         const product = await storage.getProduct(item.productId);
-        const itemTotal = Number(item.price) * item.quantity;
+        const itemTotal = Number(item.price || 0) * item.quantity;
 
-        doc.text(product?.name || "Product", 50, yPosition, { width: 240 });
+        doc.text(product?.name || `Product ID: ${item.productId}`, 50, yPosition, { width: 240 });
         doc.text(item.quantity.toString(), 300, yPosition);
-        doc.text(`₹${Number(item.price).toFixed(2)}`, 380, yPosition);
+        doc.text(`₹${Number(item.price || 0).toFixed(2)}`, 380, yPosition);
         doc.text(`₹${itemTotal.toFixed(2)}`, 460, yPosition);
 
         yPosition += 20;
@@ -1234,7 +1240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create PDF (4x6 shipping label size)
       const doc = new PDFDocument({ size: [288, 432], margin: 20 });
 
-      // Set response headers
+      // Set response headers before piping
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename=label-${order.orderNumber}.pdf`);
 
@@ -1256,24 +1262,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ship From
       doc.fontSize(12).font("Helvetica-Bold").text("FROM:");
       doc.fontSize(10).font("Helvetica");
-      doc.text(vendor?.businessName || "Vendor");
+      doc.text(vendor?.businessName || "Vendor Not Assigned");
       if (vendor?.businessAddress) {
         doc.text(vendor.businessAddress, { width: 250 });
+      } else {
+        doc.text("Vendor Address Not Available");
       }
       doc.moveDown();
 
       // Ship To
       doc.fontSize(14).font("Helvetica-Bold").text("SHIP TO:");
       doc.fontSize(12).font("Helvetica-Bold");
-      doc.text(address.fullName);
+      doc.text(address.fullName || "Recipient Name Not Available");
       doc.fontSize(10).font("Helvetica");
-      doc.text(address.phone);
-      doc.text(address.addressLine1, { width: 250 });
+      doc.text(address.phone || "Phone Not Available");
+      doc.text(address.addressLine1 || "", { width: 250 });
       if (address.addressLine2) {
         doc.text(address.addressLine2, { width: 250 });
       }
-      doc.text(`${address.city}, ${address.state} ${address.postalCode}`);
-      doc.text(address.country);
+      doc.text(`${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`);
+      doc.text(address.country || "");
 
       // Barcode placeholder (order number)
       doc.moveDown();

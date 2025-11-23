@@ -38,7 +38,6 @@ import {
   Truck, 
   Eye,
   Edit,
-  ExternalLink,
 } from "lucide-react";
 import type { Order, Vendor } from "@shared/schema";
 
@@ -70,10 +69,7 @@ export default function AdminOrders() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
-      const token = localStorage.getItem("adminToken");
-      return await apiRequest("PUT", `/api/admin/orders/${orderId}/status`, { status }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await apiRequest("PUT", `/api/admin/orders/${orderId}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
@@ -95,10 +91,7 @@ export default function AdminOrders() {
 
   const updateVendorMutation = useMutation({
     mutationFn: async ({ orderId, vendorId }: { orderId: string; vendorId: string }) => {
-      const token = localStorage.getItem("adminToken");
-      return await apiRequest("PUT", `/api/admin/orders/${orderId}/vendor`, { vendorId }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await apiRequest("PUT", `/api/admin/orders/${orderId}/vendor`, { vendorId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
@@ -119,10 +112,7 @@ export default function AdminOrders() {
 
   const updateTrackingMutation = useMutation({
     mutationFn: async ({ orderId, trackingNumber }: { orderId: string; trackingNumber: string }) => {
-      const token = localStorage.getItem("adminToken");
-      return await apiRequest("PUT", `/api/admin/orders/${orderId}/tracking`, { trackingNumber }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      return await apiRequest("PUT", `/api/admin/orders/${orderId}/tracking`, { trackingNumber });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
@@ -253,10 +243,6 @@ export default function AdminOrders() {
     }
   };
 
-  const getTrackingUrl = (trackingNumber: string) => {
-    // Generic tracking URL - in production, you'd have specific URLs for different carriers
-    return `https://www.google.com/search?q=${encodeURIComponent(trackingNumber)}+tracking`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -365,16 +351,9 @@ export default function AdminOrders() {
                         <TableCell>₹{Number(order.totalAmount).toFixed(2)}</TableCell>
                         <TableCell>
                           {order.trackingNumber ? (
-                            <a
-                              href={getTrackingUrl(order.trackingNumber)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-primary hover:underline"
-                              data-testid={`link-tracking-${order.id}`}
-                            >
+                            <span className="font-mono text-sm" data-testid={`text-tracking-${order.id}`}>
                               {order.trackingNumber}
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
+                            </span>
                           ) : (
                             <span className="text-muted-foreground">Not set</span>
                           )}
