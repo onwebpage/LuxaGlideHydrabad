@@ -982,6 +982,312 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ Admin Order Management Routes ============
+
+  // Get all orders with full details (admin only)
+  app.get("/api/admin/orders", requireAdminAuth, async (req, res) => {
+    try {
+      const { status, limit } = req.query;
+      const orders = await storage.getAllOrders({
+        status: status as string,
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      res.json(orders);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single order with details (admin only)
+  app.get("/api/admin/orders/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const items = await storage.getOrderItems(req.params.id);
+      const address = await storage.getAddress(order.shippingAddressId);
+      const user = await storage.getUser(order.userId);
+      const vendor = await storage.getVendor(order.vendorId);
+
+      res.json({
+        ...order,
+        items,
+        shippingAddress: address,
+        user,
+        vendor,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update order status (admin only)
+  app.put("/api/admin/orders/:id/status", requireAdminAuth, async (req, res) => {
+    try {
+      const { status } = req.body;
+
+      if (!["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+
+      const order = await storage.updateOrder(req.params.id, { 
+        status: status as any,
+        updatedAt: new Date(),
+      });
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update order tracking number (admin only)
+  app.put("/api/admin/orders/:id/tracking", requireAdminAuth, async (req, res) => {
+    try {
+      const { trackingNumber } = req.body;
+
+      if (!trackingNumber) {
+        return res.status(400).json({ message: "Tracking number is required" });
+      }
+
+      const order = await storage.updateOrder(req.params.id, { 
+        trackingNumber,
+        updatedAt: new Date(),
+      });
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Assign vendor to order (admin only)
+  app.put("/api/admin/orders/:id/vendor", requireAdminAuth, async (req, res) => {
+    try {
+      const { vendorId } = req.body;
+
+      if (!vendorId) {
+        return res.status(400).json({ message: "Vendor ID is required" });
+      }
+
+      // Verify vendor exists
+      const vendor = await storage.getVendor(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+
+      const order = await storage.updateOrder(req.params.id, { 
+        vendorId,
+        updatedAt: new Date(),
+      });
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Generate invoice PDF (admin only)
+  app.get("/api/admin/orders/:id/invoice", requireAdminAuth, async (req, res) => {
+    try {
+      const PDFDocument = (await import("pdfkit")).default;
+      
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const items = await storage.getOrderItems(req.params.id);
+      const address = await storage.getAddress(order.shippingAddressId);
+      const user = await storage.getUser(order.userId);
+      const vendor = await storage.getVendor(order.vendorId);
+
+      // Create PDF
+      const doc = new PDFDocument({ margin: 50 });
+
+      // Set response headers
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
+
+      // Pipe PDF to response
+      doc.pipe(res);
+
+      // Header
+      doc.fontSize(20).text("INVOICE", { align: "center" });
+      doc.moveDown();
+
+      // Order details
+      doc.fontSize(10);
+      doc.text(`Order Number: ${order.orderNumber}`);
+      doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+      doc.text(`Status: ${order.status.toUpperCase()}`);
+      doc.text(`Payment Status: ${order.paymentStatus.toUpperCase()}`);
+      doc.moveDown();
+
+      // Customer details
+      doc.fontSize(12).text("Bill To:", { underline: true });
+      doc.fontSize(10);
+      doc.text(user?.fullName || "N/A");
+      doc.text(user?.email || "N/A");
+      if (address) {
+        doc.text(`${address.addressLine1}`);
+        if (address.addressLine2) doc.text(`${address.addressLine2}`);
+        doc.text(`${address.city}, ${address.state} ${address.postalCode}`);
+        doc.text(address.country);
+      }
+      doc.moveDown();
+
+      // Vendor details
+      doc.fontSize(12).text("Sold By:", { underline: true });
+      doc.fontSize(10);
+      doc.text(vendor?.businessName || "N/A");
+      if (vendor?.businessAddress) {
+        doc.text(vendor.businessAddress);
+      }
+      doc.moveDown();
+
+      // Items table
+      doc.fontSize(12).text("Items:", { underline: true });
+      doc.moveDown(0.5);
+
+      // Table header
+      const tableTop = doc.y;
+      doc.fontSize(10).font("Helvetica-Bold");
+      doc.text("Product", 50, tableTop);
+      doc.text("Quantity", 300, tableTop);
+      doc.text("Price", 380, tableTop);
+      doc.text("Total", 460, tableTop);
+      
+      doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+      
+      // Table rows
+      doc.font("Helvetica");
+      let yPosition = tableTop + 25;
+
+      for (const item of items) {
+        const product = await storage.getProduct(item.productId);
+        const itemTotal = Number(item.price) * item.quantity;
+
+        doc.text(product?.name || "Product", 50, yPosition, { width: 240 });
+        doc.text(item.quantity.toString(), 300, yPosition);
+        doc.text(`₹${Number(item.price).toFixed(2)}`, 380, yPosition);
+        doc.text(`₹${itemTotal.toFixed(2)}`, 460, yPosition);
+
+        yPosition += 20;
+      }
+
+      // Total
+      doc.moveTo(50, yPosition + 10).lineTo(550, yPosition + 10).stroke();
+      doc.fontSize(12).font("Helvetica-Bold");
+      doc.text("Total Amount:", 380, yPosition + 20);
+      doc.text(`₹${Number(order.totalAmount).toFixed(2)}`, 460, yPosition + 20);
+
+      // Footer
+      doc.fontSize(8).font("Helvetica").text(
+        "Thank you for your business!",
+        50,
+        doc.page.height - 50,
+        { align: "center" }
+      );
+
+      doc.end();
+    } catch (error: any) {
+      console.error("Generate invoice error:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message });
+      }
+    }
+  });
+
+  // Generate shipping label PDF (admin only)
+  app.get("/api/admin/orders/:id/shipping-label", requireAdminAuth, async (req, res) => {
+    try {
+      const PDFDocument = (await import("pdfkit")).default;
+      
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      const address = await storage.getAddress(order.shippingAddressId);
+      const vendor = await storage.getVendor(order.vendorId);
+
+      if (!address) {
+        return res.status(404).json({ message: "Shipping address not found" });
+      }
+
+      // Create PDF (4x6 shipping label size)
+      const doc = new PDFDocument({ size: [288, 432], margin: 20 });
+
+      // Set response headers
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=label-${order.orderNumber}.pdf`);
+
+      // Pipe PDF to response
+      doc.pipe(res);
+
+      // Title
+      doc.fontSize(16).font("Helvetica-Bold").text("SHIPPING LABEL", { align: "center" });
+      doc.moveDown();
+
+      // Order info
+      doc.fontSize(10).font("Helvetica");
+      doc.text(`Order: ${order.orderNumber}`);
+      if (order.trackingNumber) {
+        doc.text(`Tracking: ${order.trackingNumber}`);
+      }
+      doc.moveDown();
+
+      // Ship From
+      doc.fontSize(12).font("Helvetica-Bold").text("FROM:");
+      doc.fontSize(10).font("Helvetica");
+      doc.text(vendor?.businessName || "Vendor");
+      if (vendor?.businessAddress) {
+        doc.text(vendor.businessAddress, { width: 250 });
+      }
+      doc.moveDown();
+
+      // Ship To
+      doc.fontSize(14).font("Helvetica-Bold").text("SHIP TO:");
+      doc.fontSize(12).font("Helvetica-Bold");
+      doc.text(address.fullName);
+      doc.fontSize(10).font("Helvetica");
+      doc.text(address.phone);
+      doc.text(address.addressLine1, { width: 250 });
+      if (address.addressLine2) {
+        doc.text(address.addressLine2, { width: 250 });
+      }
+      doc.text(`${address.city}, ${address.state} ${address.postalCode}`);
+      doc.text(address.country);
+
+      // Barcode placeholder (order number)
+      doc.moveDown();
+      doc.fontSize(8).text(`Order ID: ${order.id}`, { align: "center" });
+
+      doc.end();
+    } catch (error: any) {
+      console.error("Generate shipping label error:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message });
+      }
+    }
+  });
+
   // ============ RFQ Routes ============
   
   app.post("/api/rfq", async (req, res) => {
