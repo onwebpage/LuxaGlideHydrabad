@@ -9,6 +9,14 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import Papa from "papaparse";
+import {
+  sendNewOrderEmail,
+  sendVendorApprovedEmail,
+  sendOrderShippedEmail,
+  sendOrderDeliveredEmail,
+  sendPasswordResetEmail,
+  sendInvoiceEmail,
+} from "./email";
 
 // Set up file upload
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -240,6 +248,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, this is a placeholder
       res.status(401).json({ message: "Not authenticated" });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Password reset token storage (in production, use database)
+  const passwordResetTokens = new Map<string, { 
+    userId: string; 
+    token: string; 
+    expiresAt: number 
+  }>();
+
+  // Request password reset
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return res.json({ message: "If the email exists, a password reset link has been sent" });
+      }
+
+      // Generate reset token
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+
+      passwordResetTokens.set(resetToken, {
+        userId: user.id,
+        token: resetToken,
+        expiresAt,
+      });
+
+      // Clean up expired tokens periodically
+      for (const [token, data] of passwordResetTokens.entries()) {
+        if (Date.now() > data.expiresAt) {
+          passwordResetTokens.delete(token);
+        }
+      }
+
+      // Send password reset email
+      const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+      
+      try {
+        await sendPasswordResetEmail({
+          email: user.email,
+          name: user.fullName,
+          resetToken,
+          resetUrl,
+        });
+      } catch (emailError) {
+        console.error("Failed to send password reset email:", emailError);
+        // Don't fail the request - token is still valid even if email fails
+      }
+
+      res.json({ message: "If the email exists, a password reset link has been sent" });
+    } catch (error: any) {
+      console.error("Password reset request error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Reset password with token
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      const resetData = passwordResetTokens.get(token);
+
+      if (!resetData) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      if (Date.now() > resetData.expiresAt) {
+        passwordResetTokens.delete(token);
+        return res.status(400).json({ message: "Reset token has expired" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update user password
+      await storage.updateUser(resetData.userId, {
+        password: hashedPassword,
+      });
+
+      // Remove used token
+      passwordResetTokens.delete(token);
+
+      res.json({ message: "Password has been reset successfully" });
+    } catch (error: any) {
+      console.error("Password reset error:", error);
       res.status(500).json({ message: error.message });
     }
   });
@@ -500,6 +612,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
       }
+
+      // Send vendor approval email
+      try {
+        const user = await storage.getUser(vendor.userId);
+        if (user) {
+          await sendVendorApprovedEmail({
+            email: user.email,
+            businessName: vendor.businessName,
+            vendorName: user.fullName,
+          });
+        }
+      } catch (emailError) {
+        console.error("Failed to send vendor approval email:", emailError);
+      }
+
       res.json(vendor);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1005,6 +1132,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear cart
       await storage.clearCart(userId);
 
+      // Send order confirmation email
+      try {
+        const user = await storage.getUser(userId);
+        const orderItems = await storage.getOrderItems(order.id);
+        
+        if (user) {
+          const itemsWithDetails = await Promise.all(
+            orderItems.map(async (item) => {
+              const product = await storage.getProduct(item.productId);
+              return {
+                productName: product?.name || 'Unknown Product',
+                quantity: item.quantity,
+                price: item.price,
+              };
+            })
+          );
+
+          await sendNewOrderEmail({
+            customerEmail: user.email,
+            customerName: user.fullName,
+            orderNumber: order.orderNumber,
+            totalAmount: order.totalAmount,
+            items: itemsWithDetails,
+          });
+        }
+      } catch (emailError) {
+        console.error("Failed to send order confirmation email:", emailError);
+      }
+
       res.status(201).json(order);
     } catch (error: any) {
       console.error("Create order error:", error);
@@ -1128,6 +1284,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Send email notifications for shipped and delivered statuses
+      try {
+        const user = await storage.getUser(order.userId);
+        
+        if (user) {
+          if (status === "shipped") {
+            await sendOrderShippedEmail({
+              customerEmail: user.email,
+              customerName: user.fullName,
+              orderNumber: order.orderNumber,
+              trackingNumber: order.trackingNumber || undefined,
+            });
+          } else if (status === "delivered") {
+            await sendOrderDeliveredEmail({
+              customerEmail: user.email,
+              customerName: user.fullName,
+              orderNumber: order.orderNumber,
+            });
+
+            // Also send invoice when order is delivered
+            const orderItems = await storage.getOrderItems(order.id);
+            const address = await storage.getAddress(order.shippingAddressId);
+            
+            if (address) {
+              const itemsWithDetails = await Promise.all(
+                orderItems.map(async (item) => {
+                  const product = await storage.getProduct(item.productId);
+                  return {
+                    productName: product?.name || 'Unknown Product',
+                    quantity: item.quantity,
+                    price: item.price,
+                  };
+                })
+              );
+
+              await sendInvoiceEmail({
+                customerEmail: user.email,
+                customerName: user.fullName,
+                orderNumber: order.orderNumber,
+                totalAmount: order.totalAmount,
+                items: itemsWithDetails,
+                shippingAddress: {
+                  fullName: address.fullName,
+                  addressLine1: address.addressLine1,
+                  addressLine2: address.addressLine2 || undefined,
+                  city: address.city,
+                  state: address.state,
+                  postalCode: address.postalCode,
+                },
+              });
+            }
+          }
+        }
+      } catch (emailError) {
+        console.error("Failed to send order status email:", emailError);
       }
 
       res.json(order);
