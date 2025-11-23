@@ -23,6 +23,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminProducts from "@/pages/AdminProducts";
 import AdminProductsBulkUpload from "@/pages/AdminProductsBulkUpload";
 import AdminCategories from "@/pages/AdminCategories";
+import AdminOrders from "@/pages/AdminOrders";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/dashboard/admin/products/bulk-upload" component={AdminProductsBulkUpload} />
       <Route path="/dashboard/admin/products" component={AdminProducts} />
       <Route path="/dashboard/admin/categories" component={AdminCategories} />
+      <Route path="/dashboard/admin/orders" component={AdminOrders} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
       {/* Redirect /dashboard to role-specific dashboard - will be dynamic based on user role */}
       <Route path="/dashboard" component={BuyerDashboard} />
