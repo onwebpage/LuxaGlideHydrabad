@@ -150,6 +150,17 @@ export interface IStorage {
   getCmsSetting(key: string): Promise<CmsSetting | undefined>;
   upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting>;
 
+  // Customer Management
+  getAllCustomers(filters?: { 
+    search?: string; 
+    role?: string;
+    isBlocked?: boolean;
+    limit?: number; 
+    offset?: number 
+  }): Promise<User[]>;
+  blockUser(id: string): Promise<User | undefined>;
+  unblockUser(id: string): Promise<User | undefined>;
+
   // Dashboard Statistics
   getBuyerDashboardStats(userId: string): Promise<{
     totalOrders: number;
@@ -617,6 +628,69 @@ export class DatabaseStorage implements IStorage {
     
     const [created] = await db.insert(cmsSettings).values(setting).returning();
     return created;
+  }
+
+  // Customer Management
+  async getAllCustomers(filters?: { 
+    search?: string; 
+    role?: string;
+    isBlocked?: boolean;
+    limit?: number; 
+    offset?: number 
+  }): Promise<User[]> {
+    let query = db.select().from(users);
+    
+    const conditions = [];
+    
+    if (filters?.search) {
+      conditions.push(
+        or(
+          like(users.fullName, `%${filters.search}%`),
+          like(users.email, `%${filters.search}%`),
+          like(users.phone, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    if (filters?.role) {
+      conditions.push(eq(users.role, filters.role as any));
+    }
+    
+    if (filters?.isBlocked !== undefined) {
+      conditions.push(eq(users.isBlocked, filters.isBlocked));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(users.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async blockUser(id: string): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set({ isBlocked: true, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async unblockUser(id: string): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set({ isBlocked: false, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 
   // Dashboard Statistics
