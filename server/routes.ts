@@ -807,6 +807,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ Customer Management Routes (Admin Only) ============
+  
+  // Get all customers with filters
+  app.get("/api/admin/customers", requireAdminAuth, async (req, res) => {
+    try {
+      const { search, role, isBlocked, limit, offset } = req.query;
+      
+      const customers = await storage.getAllCustomers({
+        search: search as string,
+        role: role as string,
+        isBlocked: isBlocked === 'true' ? true : isBlocked === 'false' ? false : undefined,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      });
+      
+      res.json(customers);
+    } catch (error: any) {
+      console.error("Get customers error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get customer details with full profile
+  app.get("/api/admin/customers/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const customer = await storage.getUser(req.params.id);
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      // Get customer's addresses
+      const addresses = await storage.getUserAddresses(req.params.id);
+      
+      // Get customer's orders
+      const orders = await storage.getUserOrders(req.params.id);
+      
+      // Get role-specific profile
+      let profile = null;
+      if (customer.role === 'vendor') {
+        profile = await storage.getVendorByUserId(req.params.id);
+      } else if (customer.role === 'buyer') {
+        profile = await storage.getBuyerByUserId(req.params.id);
+      }
+
+      res.json({
+        ...customer,
+        addresses,
+        orders,
+        profile,
+      });
+    } catch (error: any) {
+      console.error("Get customer details error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Block a customer
+  app.post("/api/admin/customers/:id/block", requireAdminAuth, async (req, res) => {
+    try {
+      const customer = await storage.blockUser(req.params.id);
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      res.json({ message: "Customer blocked successfully", customer });
+    } catch (error: any) {
+      console.error("Block customer error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Unblock a customer
+  app.post("/api/admin/customers/:id/unblock", requireAdminAuth, async (req, res) => {
+    try {
+      const customer = await storage.unblockUser(req.params.id);
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      res.json({ message: "Customer unblocked successfully", customer });
+    } catch (error: any) {
+      console.error("Unblock customer error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ Cart Routes ============
   
   app.get("/api/cart/:userId", async (req, res) => {
