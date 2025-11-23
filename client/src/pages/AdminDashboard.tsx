@@ -27,6 +27,7 @@ import {
   Eye,
   Ban,
   CheckCheck,
+  Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -227,7 +228,7 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/products")} data-testid="card-product-management">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -260,6 +261,18 @@ export default function AdminDashboard() {
                   <p className="text-muted-foreground text-sm">Control and track all customer orders</p>
                 </div>
                 <ShoppingCart className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/customers")} data-testid="card-customer-management">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Customer Management</h3>
+                  <p className="text-muted-foreground text-sm">View and manage all customers</p>
+                </div>
+                <Users className="w-10 h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
