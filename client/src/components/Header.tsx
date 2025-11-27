@@ -6,12 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
+import { useCmsSettings } from "@/hooks/use-cms-settings";
 
 export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
+  const { data: cmsSettings } = useCmsSettings();
+  
+  const siteName = cmsSettings?.siteMeta?.siteName || "LuxeWholesale";
   
   const isLoggedIn = !!user;
   const cartItemCount = 0; // Will be replaced with cart state
@@ -38,9 +42,13 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 hover-elevate rounded-lg px-4 py-2 -ml-4" data-testid="link-home">
-            <h1 className="font-serif text-2xl font-semibold tracking-tight">
-              LuxeWholesale
-            </h1>
+            {cmsSettings?.siteMeta?.logo ? (
+              <img src={cmsSettings.siteMeta.logo} alt={siteName} className="h-8 w-auto" />
+            ) : (
+              <h1 className="font-serif text-2xl font-semibold tracking-tight">
+                {siteName}
+              </h1>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

@@ -148,6 +148,7 @@ export interface IStorage {
 
   // CMS
   getCmsSetting(key: string): Promise<CmsSetting | undefined>;
+  getAllCmsSettings(): Promise<CmsSetting[]>;
   upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting>;
 
   // Customer Management
@@ -613,6 +614,10 @@ export class DatabaseStorage implements IStorage {
   async getCmsSetting(key: string): Promise<CmsSetting | undefined> {
     const [setting] = await db.select().from(cmsSettings).where(eq(cmsSettings.key, key));
     return setting || undefined;
+  }
+
+  async getAllCmsSettings(): Promise<CmsSetting[]> {
+    return await db.select().from(cmsSettings);
   }
 
   async upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting> {

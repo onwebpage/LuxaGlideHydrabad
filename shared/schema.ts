@@ -313,3 +313,117 @@ export type Newsletter = typeof newsletter.$inferSelect;
 export type InsertNewsletter = z.infer<typeof insertNewsletterSchema>;
 export type CmsSetting = typeof cmsSettings.$inferSelect;
 export type InsertCmsSetting = z.infer<typeof insertCmsSettingsSchema>;
+
+// CMS Content Schemas for Website Customization
+export const siteMetaSchema = z.object({
+  siteName: z.string().min(1, "Site name is required"),
+  tagline: z.string().optional(),
+  logo: z.string().optional(),
+  favicon: z.string().optional(),
+  contactEmail: z.string().email().optional(),
+  contactPhone: z.string().optional(),
+  address: z.string().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoKeywords: z.string().optional(),
+});
+
+export const heroSchema = z.object({
+  headline: z.string().min(1, "Headline is required"),
+  subheadline: z.string().optional(),
+  ctaText: z.string().optional(),
+  ctaLink: z.string().optional(),
+  backgroundImage: z.string().optional(),
+  overlayOpacity: z.number().min(0).max(100).optional(),
+  isVisible: z.boolean().optional(),
+});
+
+export const featuredCollectionSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  link: z.string().optional(),
+  isVisible: z.boolean().optional(),
+});
+
+export const featuredCollectionsSchema = z.object({
+  sectionTitle: z.string().optional(),
+  collections: z.array(featuredCollectionSchema),
+});
+
+export const testimonialSchema = z.object({
+  id: z.string(),
+  customerName: z.string().min(1, "Customer name is required"),
+  customerRole: z.string().optional(),
+  customerImage: z.string().optional(),
+  quote: z.string().min(1, "Quote is required"),
+  rating: z.number().min(1).max(5).optional(),
+  isVisible: z.boolean().optional(),
+});
+
+export const testimonialsSchema = z.object({
+  sectionTitle: z.string().optional(),
+  testimonials: z.array(testimonialSchema),
+});
+
+export const promotionBannerSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  link: z.string().optional(),
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  isVisible: z.boolean().optional(),
+});
+
+export const promotionsSchema = z.object({
+  banners: z.array(promotionBannerSchema),
+});
+
+export const socialLinkSchema = z.object({
+  platform: z.string().min(1),
+  url: z.string().url(),
+  isVisible: z.boolean().optional(),
+});
+
+export const footerSchema = z.object({
+  showNewsletter: z.boolean().optional(),
+  newsletterTitle: z.string().optional(),
+  newsletterDescription: z.string().optional(),
+  copyrightText: z.string().optional(),
+  socialLinks: z.array(socialLinkSchema).optional(),
+});
+
+// CMS Settings Types
+export type SiteMeta = z.infer<typeof siteMetaSchema>;
+export type Hero = z.infer<typeof heroSchema>;
+export type FeaturedCollection = z.infer<typeof featuredCollectionSchema>;
+export type FeaturedCollections = z.infer<typeof featuredCollectionsSchema>;
+export type Testimonial = z.infer<typeof testimonialSchema>;
+export type Testimonials = z.infer<typeof testimonialsSchema>;
+export type PromotionBanner = z.infer<typeof promotionBannerSchema>;
+export type Promotions = z.infer<typeof promotionsSchema>;
+export type SocialLink = z.infer<typeof socialLinkSchema>;
+export type Footer = z.infer<typeof footerSchema>;
+
+// Combined CMS Settings
+export interface AllCmsSettings {
+  siteMeta: SiteMeta;
+  hero: Hero;
+  featuredCollections: FeaturedCollections;
+  testimonials: Testimonials;
+  promotions: Promotions;
+  footer: Footer;
+}
+
+// CMS Setting Keys
+export const CMS_KEYS = {
+  SITE_META: 'site.meta',
+  HERO: 'home.hero',
+  FEATURED_COLLECTIONS: 'home.featuredCollections',
+  TESTIMONIALS: 'home.testimonials',
+  PROMOTIONS: 'home.promotions',
+  FOOTER: 'site.footer',
+} as const;

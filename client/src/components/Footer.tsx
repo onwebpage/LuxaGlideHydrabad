@@ -3,13 +3,35 @@ import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, Send } fro
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useCmsSettings } from "@/hooks/use-cms-settings";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const { data: cmsSettings } = useCmsSettings();
+  
+  const siteName = cmsSettings?.siteMeta?.siteName || "LuxeWholesale";
+  const tagline = cmsSettings?.siteMeta?.tagline || "India's premier B2B wholesale marketplace for women's fashion. Connect with verified vendors and grow your retail business.";
+  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "support@luxewholesale.com";
+  const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
+  const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
+  const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
+  const showNewsletter = cmsSettings?.footer?.showNewsletter !== false;
+  const newsletterTitle = cmsSettings?.footer?.newsletterTitle || "Stay Updated";
+  const newsletterDescription = cmsSettings?.footer?.newsletterDescription || "Get exclusive wholesale deals, new arrivals, and industry insights delivered to your inbox.";
+  const socialLinks = cmsSettings?.footer?.socialLinks || [];
+  
+  const getSocialIcon = (platform: string) => {
+    const icons: Record<string, typeof Facebook> = {
+      facebook: Facebook,
+      instagram: Instagram,
+      twitter: Twitter,
+      linkedin: Linkedin,
+    };
+    return icons[platform.toLowerCase()] || Facebook;
+  };
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,60 +57,77 @@ export function Footer() {
             {/* Brand Section */}
             <div>
               <h3 className="font-serif text-3xl font-semibold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                LuxeWholesale
+                {siteName}
               </h3>
               <p className="text-muted-foreground text-lg mb-8 max-w-md leading-relaxed">
-                India's premier B2B wholesale marketplace for women's fashion. Connect with verified vendors and grow your retail business.
+                {tagline}
               </p>
               <div className="flex gap-3">
-                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-facebook">
-                  <Facebook className="w-5 h-5" />
-                </Button>
-                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-instagram">
-                  <Instagram className="w-5 h-5" />
-                </Button>
-                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-twitter">
-                  <Twitter className="w-5 h-5" />
-                </Button>
-                <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-linkedin">
-                  <Linkedin className="w-5 h-5" />
-                </Button>
+                {socialLinks.length > 0 ? (
+                  socialLinks.filter(link => link.isVisible !== false).map((link, index) => {
+                    const Icon = getSocialIcon(link.platform);
+                    return (
+                      <a key={index} href={link.url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="icon" className="hover-elevate" data-testid={`button-social-${link.platform.toLowerCase()}`}>
+                          <Icon className="w-5 h-5" />
+                        </Button>
+                      </a>
+                    );
+                  })
+                ) : (
+                  <>
+                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-facebook">
+                      <Facebook className="w-5 h-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-instagram">
+                      <Instagram className="w-5 h-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-twitter">
+                      <Twitter className="w-5 h-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-linkedin">
+                      <Linkedin className="w-5 h-5" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Newsletter Card */}
-            <div>
-              <Card className="border-2 shadow-lg">
-                <CardContent className="p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-                      <Send className="w-6 h-6 text-primary" />
+            {showNewsletter && (
+              <div>
+                <Card className="border-2 shadow-lg">
+                  <CardContent className="p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+                        <Send className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-xl">{newsletterTitle}</h4>
+                        <p className="text-sm text-muted-foreground">Subscribe to our newsletter</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-xl">Stay Updated</h4>
-                      <p className="text-sm text-muted-foreground">Subscribe to our newsletter</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-6">
-                    Get exclusive wholesale deals, new arrivals, and industry insights delivered to your inbox.
-                  </p>
-                  <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="flex-1"
-                      data-testid="input-newsletter-email"
-                    />
-                    <Button type="submit" data-testid="button-newsletter-submit">
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
+                    <p className="text-muted-foreground text-sm mb-6">
+                      {newsletterDescription}
+                    </p>
+                    <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="flex-1"
+                        data-testid="input-newsletter-email"
+                      />
+                      <Button type="submit" data-testid="button-newsletter-submit">
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
 
           {/* Links Section */}
@@ -180,15 +219,15 @@ export function Footer() {
               <ul className="space-y-4">
                 <li className="flex items-start gap-2">
                   <Mail className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">support@luxewholesale.com</span>
+                  <span className="text-sm text-muted-foreground">{contactEmail}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Phone className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">+91 98765 43210</span>
+                  <span className="text-sm text-muted-foreground">{contactPhone}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">Mumbai, Maharashtra, India</span>
+                  <span className="text-sm text-muted-foreground">{address}</span>
                 </li>
               </ul>
             </div>
@@ -198,7 +237,7 @@ export function Footer() {
           <div className="pt-8 border-t border-border">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                &copy; {new Date().getFullYear()} LuxeWholesale. All rights reserved.
+                &copy; {copyrightText}
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">

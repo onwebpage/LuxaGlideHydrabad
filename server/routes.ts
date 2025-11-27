@@ -2,7 +2,17 @@ import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { updateBuyerProfileSchema } from "@shared/schema";
+import { 
+  updateBuyerProfileSchema,
+  siteMetaSchema,
+  heroSchema,
+  featuredCollectionsSchema,
+  testimonialsSchema,
+  promotionsSchema,
+  footerSchema,
+  CMS_KEYS,
+  type AllCmsSettings,
+} from "@shared/schema";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -1791,6 +1801,272 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(orders);
     } catch (error: any) {
       console.error("Get recent orders error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ CMS Settings Routes ============
+
+  // Default CMS settings
+  const defaultCmsSettings: AllCmsSettings = {
+    siteMeta: {
+      siteName: "FabricMart",
+      tagline: "Premium Fabrics for Every Occasion",
+      contactEmail: "contact@fabricmart.com",
+      contactPhone: "+91 98765 43210",
+      address: "Mumbai, India",
+      seoTitle: "FabricMart - Premium Fabric Marketplace",
+      seoDescription: "Discover premium fabrics from trusted vendors. Quality materials for fashion designers and businesses.",
+    },
+    hero: {
+      headline: "Discover Premium Fabrics",
+      subheadline: "Connect with trusted vendors and find the perfect materials for your next project",
+      ctaText: "Shop Now",
+      ctaLink: "/products",
+      isVisible: true,
+      overlayOpacity: 50,
+    },
+    featuredCollections: {
+      sectionTitle: "Featured Collections",
+      collections: [
+        { id: "1", title: "Cotton Collection", description: "Premium cotton fabrics for everyday wear", link: "/products?category=cotton", isVisible: true },
+        { id: "2", title: "Silk Collection", description: "Luxurious silk fabrics for special occasions", link: "/products?category=silk", isVisible: true },
+        { id: "3", title: "Linen Collection", description: "Breathable linen fabrics for comfort", link: "/products?category=linen", isVisible: true },
+      ],
+    },
+    testimonials: {
+      sectionTitle: "What Our Customers Say",
+      testimonials: [
+        { id: "1", customerName: "Priya Sharma", customerRole: "Fashion Designer", quote: "Excellent quality fabrics and great customer service. Highly recommended!", rating: 5, isVisible: true },
+        { id: "2", customerName: "Rahul Mehta", customerRole: "Boutique Owner", quote: "The variety and quality of fabrics available is unmatched. My go-to platform for sourcing materials.", rating: 5, isVisible: true },
+      ],
+    },
+    promotions: {
+      banners: [],
+    },
+    footer: {
+      showNewsletter: true,
+      newsletterTitle: "Subscribe to Our Newsletter",
+      newsletterDescription: "Get the latest updates on new arrivals and exclusive offers",
+      copyrightText: "© 2024 FabricMart. All rights reserved.",
+      socialLinks: [
+        { platform: "facebook", url: "https://facebook.com", isVisible: true },
+        { platform: "instagram", url: "https://instagram.com", isVisible: true },
+        { platform: "twitter", url: "https://twitter.com", isVisible: true },
+      ],
+    },
+  };
+
+  // Public endpoint to get all CMS settings (no auth required)
+  app.get("/api/cms/public", async (req, res) => {
+    try {
+      const allSettings = await storage.getAllCmsSettings();
+      
+      // Convert array to object with defaults
+      const settingsMap: Partial<AllCmsSettings> = {};
+      
+      for (const setting of allSettings) {
+        switch (setting.key) {
+          case CMS_KEYS.SITE_META:
+            settingsMap.siteMeta = setting.value as any;
+            break;
+          case CMS_KEYS.HERO:
+            settingsMap.hero = setting.value as any;
+            break;
+          case CMS_KEYS.FEATURED_COLLECTIONS:
+            settingsMap.featuredCollections = setting.value as any;
+            break;
+          case CMS_KEYS.TESTIMONIALS:
+            settingsMap.testimonials = setting.value as any;
+            break;
+          case CMS_KEYS.PROMOTIONS:
+            settingsMap.promotions = setting.value as any;
+            break;
+          case CMS_KEYS.FOOTER:
+            settingsMap.footer = setting.value as any;
+            break;
+        }
+      }
+
+      // Merge with defaults
+      const result: AllCmsSettings = {
+        siteMeta: { ...defaultCmsSettings.siteMeta, ...settingsMap.siteMeta },
+        hero: { ...defaultCmsSettings.hero, ...settingsMap.hero },
+        featuredCollections: settingsMap.featuredCollections || defaultCmsSettings.featuredCollections,
+        testimonials: settingsMap.testimonials || defaultCmsSettings.testimonials,
+        promotions: settingsMap.promotions || defaultCmsSettings.promotions,
+        footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
+      };
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Get public CMS settings error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Get all CMS settings
+  app.get("/api/admin/cms", requireAdminAuth, async (req, res) => {
+    try {
+      const allSettings = await storage.getAllCmsSettings();
+      
+      const settingsMap: Partial<AllCmsSettings> = {};
+      
+      for (const setting of allSettings) {
+        switch (setting.key) {
+          case CMS_KEYS.SITE_META:
+            settingsMap.siteMeta = setting.value as any;
+            break;
+          case CMS_KEYS.HERO:
+            settingsMap.hero = setting.value as any;
+            break;
+          case CMS_KEYS.FEATURED_COLLECTIONS:
+            settingsMap.featuredCollections = setting.value as any;
+            break;
+          case CMS_KEYS.TESTIMONIALS:
+            settingsMap.testimonials = setting.value as any;
+            break;
+          case CMS_KEYS.PROMOTIONS:
+            settingsMap.promotions = setting.value as any;
+            break;
+          case CMS_KEYS.FOOTER:
+            settingsMap.footer = setting.value as any;
+            break;
+        }
+      }
+
+      const result: AllCmsSettings = {
+        siteMeta: { ...defaultCmsSettings.siteMeta, ...settingsMap.siteMeta },
+        hero: { ...defaultCmsSettings.hero, ...settingsMap.hero },
+        featuredCollections: settingsMap.featuredCollections || defaultCmsSettings.featuredCollections,
+        testimonials: settingsMap.testimonials || defaultCmsSettings.testimonials,
+        promotions: settingsMap.promotions || defaultCmsSettings.promotions,
+        footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
+      };
+
+      res.json(result);
+    } catch (error: any) {
+      console.error("Get admin CMS settings error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update site meta
+  app.patch("/api/admin/cms/site-meta", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = siteMetaSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.SITE_META,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update site meta error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update hero section
+  app.patch("/api/admin/cms/hero", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = heroSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.HERO,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update hero error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update featured collections
+  app.patch("/api/admin/cms/featured-collections", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = featuredCollectionsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.FEATURED_COLLECTIONS,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update featured collections error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update testimonials
+  app.patch("/api/admin/cms/testimonials", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = testimonialsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.TESTIMONIALS,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update testimonials error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update promotions
+  app.patch("/api/admin/cms/promotions", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = promotionsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.PROMOTIONS,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update promotions error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update footer
+  app.patch("/api/admin/cms/footer", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = footerSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.FOOTER,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update footer error:", error);
       res.status(500).json({ message: error.message });
     }
   });
