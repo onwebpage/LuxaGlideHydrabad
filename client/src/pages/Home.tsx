@@ -8,6 +8,18 @@ import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor } from "@shared/schema";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
+import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
+import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
+import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
+import sareeImage from "@assets/stock_images/indian_woman_wearing_a1c65f9d.jpg";
+import plusSizeImage from "@assets/stock_images/plus_size_woman_wear_9a195a6b.jpg";
+import dressImage from "@assets/stock_images/woman_wearing_elegan_093861bd.jpg";
+import shirtImage from "@assets/stock_images/woman_wearing_casual_0b8e2129.jpg";
+import coordsImage from "@assets/stock_images/woman_wearing_coordi_05875df2.jpg";
+import loungewearImage from "@assets/stock_images/woman_wearing_comfor_d11563b2.jpg";
+import bottomsImage from "@assets/stock_images/woman_wearing_pants__d18fff1f.jpg";
+import shawlImage from "@assets/stock_images/woman_wearing_shawl__60f3f662.jpg";
+import partyWearImage from "@assets/stock_images/woman_wearing_glamor_7fcd42b1.jpg";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -96,13 +108,19 @@ export default function Home() {
     }
   });
 
-  const categories = [
-    { name: "Sarees & Lehengas", count: 1200, icon: Sparkles },
-    { name: "Kurtis & Suits", count: 850, icon: Star },
-    { name: "Western Wear", count: 640, icon: TrendingUp },
-    { name: "Ethnic Wear", count: 920, icon: Package },
-    { name: "Winter Collection", count: 450, icon: Shield },
-    { name: "Party Wear", count: 380, icon: Zap },
+  const shopCategories = [
+    { name: "SUITS", image: suitImage, slug: "suits" },
+    { name: "NEW ARRIVALS", image: newArrivalsImage, slug: "new-arrivals", badge: "NEW" },
+    { name: "KURTAS", image: kurtaImage, slug: "kurtas" },
+    { name: "SAREES", image: sareeImage, slug: "sarees", badge: "UNDER", badgeValue: "1999" },
+    { name: "PLUS SIZES", image: plusSizeImage, slug: "plus-sizes" },
+    { name: "DRESSES", image: dressImage, slug: "dresses" },
+    { name: "SHIRTS", image: shirtImage, slug: "shirts" },
+    { name: "CO-ORDS", image: coordsImage, slug: "co-ords" },
+    { name: "LOUNGEWEAR", image: loungewearImage, slug: "loungewear" },
+    { name: "BOTTOMS", image: bottomsImage, slug: "bottoms" },
+    { name: "SHAWLS", image: shawlImage, slug: "shawls", badge: "SPECIAL", badgeValue: "OFFER" },
+    { name: "PARTY WEAR", image: partyWearImage, slug: "party-wear", badge: "BUY 4", badgeValue: "2199" },
   ];
 
   const testimonials = [
@@ -772,10 +790,10 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Categories - Floating 3D Grid */}
+      {/* Shop by Category - Image Grid */}
       <motion.section 
         ref={categoriesRef}
-        className="py-32 relative overflow-hidden"
+        className="py-24 relative overflow-hidden bg-background"
         style={{ 
           y: categoriesY,
           scale: categoriesScale,
@@ -787,13 +805,10 @@ export default function Home() {
             variants={fadeInUp}
             initial="hidden"
             animate={categoriesInView ? "visible" : "hidden"}
-            className="text-center mb-20"
+            className="text-center mb-12"
           >
-            <h2 className="font-serif text-5xl md:text-7xl font-semibold mb-6">
-              Trending Categories
-            </h2>
-            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-              Explore our diverse collection of women's fashion
+            <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground mb-4">
+              SHOP BY CATEGORIES
             </p>
           </motion.div>
 
@@ -801,38 +816,65 @@ export default function Home() {
             variants={staggerContainer}
             initial="hidden"
             animate={categoriesInView ? "visible" : "hidden"}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
           >
-            {categories.map((category, index) => (
+            {shopCategories.map((category, index) => (
               <motion.div
                 key={category.name}
                 variants={scaleIn}
                 whileHover={{ 
-                  scale: 1.15, 
-                  y: -15,
-                  rotateZ: [0, -10, 10, 0],
-                  rotateY: 360,
-                  transition: { 
-                    rotateY: { duration: 0.8 },
-                    scale: { duration: 0.3 },
-                    y: { duration: 0.3 }
-                  }
+                  scale: 1.03,
+                  transition: { duration: 0.3 }
                 }}
-                style={{ transformStyle: "preserve-3d" }}
+                className="relative"
               >
-                <Card className="hover-elevate transition-all duration-300 cursor-pointer overflow-hidden group shadow-lg hover:shadow-2xl" data-testid={`card-category-${index}`}>
-                  <CardContent className="p-6 text-center">
-                    <motion.div
-                      whileHover={{ rotate: 360, scale: 1.4 }}
-                      transition={{ duration: 0.6 }}
-                      className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-4 shadow-md"
-                    >
-                      <category.icon className="w-10 h-10 text-primary" />
-                    </motion.div>
-                    <h3 className="font-medium text-sm mb-2 group-hover:text-primary transition-colors">{category.name}</h3>
-                    <p className="text-xs text-muted-foreground">{category.count} items</p>
-                  </CardContent>
-                </Card>
+                <Link href={`/products?category=${category.slug}`}>
+                  <div 
+                    className="relative aspect-[3/4] overflow-hidden cursor-pointer group"
+                    data-testid={`card-category-${index}`}
+                  >
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+                    
+                    {category.badge && (
+                      <div className="absolute top-3 right-3">
+                        {category.badge === "NEW" ? (
+                          <div className="bg-black text-white px-3 py-2 text-xs font-bold tracking-wide">
+                            <span className="block text-base font-serif">NEW</span>
+                            <span className="block text-[10px] tracking-widest">ARRIVALS</span>
+                          </div>
+                        ) : category.badge === "UNDER" ? (
+                          <div className="bg-primary text-black px-3 py-2 text-center">
+                            <span className="block text-[10px] tracking-wide">UNDER</span>
+                            <span className="block text-sm font-bold">₹{category.badgeValue}</span>
+                          </div>
+                        ) : category.badge === "SPECIAL" ? (
+                          <div className="relative">
+                            <div className="bg-gradient-to-br from-purple-600 to-purple-800 text-white px-3 py-2 text-center transform rotate-12">
+                              <span className="block text-[10px] tracking-wide">{category.badge}</span>
+                              <span className="block text-xs font-bold">{category.badgeValue}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-pink-500 text-white px-3 py-2 text-center rounded-sm">
+                            <span className="block text-[10px] tracking-wide">{category.badge}</span>
+                            <span className="block text-sm font-bold">₹{category.badgeValue}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                      <h3 className="text-white font-semibold text-sm md:text-base tracking-wide uppercase text-center drop-shadow-lg">
+                        {category.name}
+                      </h3>
+                    </div>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </motion.div>

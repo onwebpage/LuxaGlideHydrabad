@@ -40,20 +40,6 @@ export default function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  // Update search query when URL changes
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1] || '');
-    const searchParam = urlParams.get('search') || '';
-    if (searchParam) {
-      setSearchQuery(searchParam);
-    }
-  }, [location]);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
-
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
 
   const toggleWishlist = (productId: string) => {
@@ -71,6 +57,53 @@ export default function Products() {
   // Fetch products and categories from API
   const { data: apiProducts, isLoading: productsLoading } = useProducts();
   const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
+
+  // Find category by slug with flexible matching
+  const findCategoryBySlug = useMemo(() => {
+    if (!apiCategories) return (slug: string) => null;
+    
+    return (slug: string): string | null => {
+      const normalizedSlug = slug.toLowerCase().replace(/-/g, ' ');
+      
+      for (const cat of apiCategories) {
+        const catSlug = cat.slug?.toLowerCase() || cat.name.toLowerCase().replace(/\s+/g, '-');
+        const catNameLower = cat.name.toLowerCase();
+        
+        if (catSlug === slug || catSlug === normalizedSlug) {
+          return cat.name;
+        }
+        if (catNameLower === normalizedSlug || catNameLower.includes(normalizedSlug)) {
+          return cat.name;
+        }
+        const slugWords = normalizedSlug.split(' ');
+        if (slugWords.some(word => catNameLower.includes(word) && word.length > 2)) {
+          return cat.name;
+        }
+      }
+      return null;
+    };
+  }, [apiCategories]);
+
+  // Update search query and category when URL changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const searchParam = urlParams.get('search') || '';
+    const categoryParam = urlParams.get('category') || '';
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+    if (categoryParam && apiCategories && apiCategories.length > 0) {
+      const categoryName = findCategoryBySlug(categoryParam);
+      if (categoryName) {
+        setSelectedCategory(categoryName);
+      }
+    }
+  }, [location, apiCategories, findCategoryBySlug]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
 
   // Transform API products to include parsed JSON fields
   const products = useMemo(() => {
