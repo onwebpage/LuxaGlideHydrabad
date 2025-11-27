@@ -27,11 +27,17 @@ Preferred communication style: Simple, everyday language.
 **Animation**: Framer Motion for scroll-based parallax effects, page transitions, and micro-interactions
 
 **Directory Structure**:
-- `/client/src/pages` - Page-level components (Home, Products, Login, Register, Dashboards)
+- `/client/src/pages` - Page-level components (Home, Products, Login, Register, Dashboards, AdminSiteSettings)
 - `/client/src/components` - Reusable components (Header, Footer)
 - `/client/src/components/ui` - shadcn/ui component library
-- `/client/src/hooks` - Custom React hooks for data fetching (products, vendors, categories)
+- `/client/src/hooks` - Custom React hooks for data fetching (products, vendors, categories, CMS settings)
 - `/client/src/lib` - Utilities (auth context, query client, cn utility)
+
+**CMS System**:
+- Admin-managed content via `/dashboard/admin/site-settings` with tabbed interface
+- Sections: Branding & SEO, Hero, Featured Collections, Testimonials, Promotions, Footer
+- Public consumption via `useCmsSettings()` hook
+- Admin updates via `useUpdateSiteMeta()`, `useUpdateHero()`, etc. with automatic cache invalidation
 
 ### Backend Architecture
 
@@ -47,6 +53,8 @@ Preferred communication style: Simple, everyday language.
 - `/api/vendors/*` - Vendor management and KYC workflows
 - `/api/orders/*` - Order management and tracking
 - `/api/dashboard/*` - Role-specific dashboard statistics
+- `/api/admin/cms/*` - Admin CMS endpoints for site customization (protected)
+- `/api/cms/public` - Public endpoint for consuming CMS settings
 
 **File Upload**: Multer middleware for handling multipart/form-data with local file storage in `/uploads` directory (5MB file size limit). Images are saved with unique timestamps.
 
