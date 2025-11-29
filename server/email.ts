@@ -1,8 +1,21 @@
 import { Resend } from 'resend';
 
-let connectionSettings: any;
+// For Render deployment, use RESEND_API_KEY and RESEND_FROM_EMAIL environment variables
+// For Replit, it uses the connector system
+let resendClient: Resend | null = null;
+let fromEmail: string | null = null;
 
-async function getCredentials() {
+async function getResendClient(): Promise<{ client: Resend; fromEmail: string }> {
+  // First try direct environment variables (for Render/external deployment)
+  if (process.env.RESEND_API_KEY) {
+    if (!resendClient) {
+      resendClient = new Resend(process.env.RESEND_API_KEY);
+      fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    }
+    return { client: resendClient, fromEmail: fromEmail! };
+  }
+
+  // Fall back to Replit connector system
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -10,11 +23,12 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  if (!hostname || !xReplitToken) {
+    console.warn('Email service not configured - set RESEND_API_KEY and RESEND_FROM_EMAIL');
+    throw new Error('Email service not configured');
   }
 
-  connectionSettings = await fetch(
+  const connectionSettings = await fetch(
     'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
     {
       headers: {
@@ -27,14 +41,10 @@ async function getCredentials() {
   if (!connectionSettings || (!connectionSettings.settings.api_key)) {
     throw new Error('Resend not connected');
   }
-  return {apiKey: connectionSettings.settings.api_key, fromEmail: connectionSettings.settings.from_email};
-}
-
-async function getUncachableResendClient() {
-  const credentials = await getCredentials();
+  
   return {
-    client: new Resend(credentials.apiKey),
-    fromEmail: credentials.fromEmail
+    client: new Resend(connectionSettings.settings.api_key),
+    fromEmail: connectionSettings.settings.from_email
   };
 }
 
@@ -46,7 +56,7 @@ interface EmailData {
 
 export async function sendEmail(data: EmailData): Promise<void> {
   try {
-    const { client, fromEmail } = await getUncachableResendClient();
+    const { client, fromEmail } = await getResendClient();
     
     await client.emails.send({
       from: fromEmail,
