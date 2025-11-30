@@ -208,6 +208,24 @@ export function Header() {
             >
               All Vendors
             </Link>
+            <Link 
+              href="/about" 
+              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/about' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+              }`}
+              data-testid="link-about"
+            >
+              About Us
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/contact' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+              }`}
+              data-testid="link-contact"
+            >
+              Contact
+            </Link>
           </nav>
         </div>
       </div>
