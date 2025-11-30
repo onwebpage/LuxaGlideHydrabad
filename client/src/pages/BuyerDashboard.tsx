@@ -51,15 +51,61 @@ interface WishlistItem {
 }
 
 export default function BuyerDashboard() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
   const userId = user?.id;
 
+  // Redirect non-buyers to appropriate dashboard or login
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "vendor") {
+        setLocation("/dashboard/vendor");
+      } else if (user.role === "admin") {
+        setLocation("/dashboard/admin");
+      }
+    } else if (!authLoading && !user) {
+      // Check localStorage for race condition
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        setLocation("/login");
+      }
+    }
+  }, [user, authLoading, setLocation]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
-    setLocation("/login");
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect vendors and admins to their respective dashboards
+  if (user.role === "vendor" || user.role === "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({

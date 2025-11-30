@@ -91,6 +91,19 @@ export default function VendorDashboard() {
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "vendor")) {
+      // Double-check localStorage in case of race condition with login
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser.role === "vendor") {
+            // User is a vendor in localStorage, wait for context to update
+            return;
+          }
+        } catch (e) {
+          // Invalid JSON, proceed with redirect
+        }
+      }
       setLocation("/login");
     }
   }, [user, authLoading, setLocation]);
@@ -107,14 +120,28 @@ export default function VendorDashboard() {
   }
 
   if (!user || user.role !== "vendor") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting...</p>
+    // Also check localStorage as fallback for race condition
+    const storedUser = localStorage.getItem("user");
+    let isVendorInStorage = false;
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        isVendorInStorage = parsedUser.role === "vendor";
+      } catch (e) {
+        // Invalid JSON
+      }
+    }
+    
+    if (!isVendorInStorage) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Redirecting...</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   if (!vendorProfile) {
