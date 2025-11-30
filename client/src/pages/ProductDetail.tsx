@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,58 +81,69 @@ export default function ProductDetail() {
   const [addedToCart, setAddedToCart] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
   const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
+  const currentProductIdRef = useRef<string | null>(null);
   
   const { addToCart, isAddingToCart } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const registerView = useCallback(async (productId: string) => {
-    const sessionId = getOrCreateSessionId();
-    try {
-      const response = await fetch(`/api/products/${productId}/view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setViewerCount(data.viewerCount);
-      }
-    } catch (error) {
-      console.error('Failed to register view:', error);
-    }
-  }, []);
-
-  const unregisterView = useCallback(async (productId: string) => {
-    const sessionId = getOrCreateSessionId();
-    try {
-      await fetch(`/api/products/${productId}/view`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      });
-    } catch (error) {
-      console.error('Failed to unregister view:', error);
-    }
-  }, []);
-
   useEffect(() => {
     const productId = params?.id;
     if (!productId) return;
 
-    registerView(productId);
+    const sessionId = getOrCreateSessionId();
+    
+    const cleanupPreviousProduct = () => {
+      if (heartbeatRef.current) {
+        clearInterval(heartbeatRef.current);
+        heartbeatRef.current = null;
+      }
+      if (currentProductIdRef.current && currentProductIdRef.current !== productId) {
+        fetch(`/api/products/${currentProductIdRef.current}/view`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId }),
+        }).catch(() => {});
+      }
+    };
 
-    heartbeatRef.current = setInterval(() => {
-      registerView(productId);
-    }, 15000);
+    cleanupPreviousProduct();
+    currentProductIdRef.current = productId;
+    setViewerCount(0);
+
+    const registerView = async () => {
+      try {
+        const response = await fetch(`/api/products/${productId}/view`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setViewerCount(data.viewerCount);
+        }
+      } catch (error) {
+        console.error('Failed to register view:', error);
+      }
+    };
+
+    registerView();
+
+    heartbeatRef.current = setInterval(registerView, 15000);
 
     return () => {
       if (heartbeatRef.current) {
         clearInterval(heartbeatRef.current);
+        heartbeatRef.current = null;
       }
-      unregisterView(productId);
+      fetch(`/api/products/${productId}/view`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      }).catch(() => {});
+      currentProductIdRef.current = null;
     };
-  }, [params?.id, registerView, unregisterView]);
+  }, [params?.id]);
 
   const { data: productData, isLoading: productLoading } = useQuery<Product>({
     queryKey: ['/api/products', params?.id],

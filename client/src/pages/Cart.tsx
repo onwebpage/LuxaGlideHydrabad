@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Loader2,
   ShoppingBag,
+  Eye,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/lib/auth-context";
@@ -40,6 +41,36 @@ export default function Cart() {
 
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
+  const [viewerCounts, setViewerCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchViewerCounts = async () => {
+      if (cartItems.length === 0) {
+        setViewerCounts({});
+        return;
+      }
+      
+      const productIds = cartItems.map(item => item.productId);
+      try {
+        const response = await fetch('/api/products/viewers/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productIds }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setViewerCounts(data.viewerCounts || {});
+        }
+      } catch (error) {
+        console.error('Failed to fetch viewer counts:', error);
+      }
+    };
+
+    fetchViewerCounts();
+    const interval = setInterval(fetchViewerCounts, 15000);
+    
+    return () => clearInterval(interval);
+  }, [cartItems]);
 
   const handleUpdateQuantity = async (cartItemId: string, newQuantity: number, moq: number) => {
     if (newQuantity < moq) {
@@ -258,6 +289,13 @@ export default function Cart() {
                           )}
                           <Badge variant="outline">MOQ: {productMoq}</Badge>
                         </div>
+
+                        {viewerCounts[item.productId] > 0 && (
+                          <div className="flex items-center gap-1.5 text-xs text-orange-600 mb-2" data-testid={`text-viewers-${item.id}`}>
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>{viewerCounts[item.productId]} {viewerCounts[item.productId] === 1 ? 'person' : 'people'} viewing</span>
+                          </div>
+                        )}
 
                         <div className="flex items-center justify-between mt-4">
                           <div className="flex items-center gap-3">
