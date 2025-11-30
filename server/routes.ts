@@ -79,14 +79,7 @@ const adminSessions = new Map<string, {
   expiresAt: number;
 }>();
 
-// In-memory user session store for regular users (buyers/vendors)
-const userSessions = new Map<string, { 
-  userId: string;
-  role: string;
-  createdAt: number;
-  lastAccessedAt: number;
-  expiresAt: number;
-}>();
+// User sessions are now stored in the database for persistence across server restarts
 
 // Real-time product viewer tracking
 // Maps productId -> Map<sessionId, lastActiveTimestamp>
@@ -132,17 +125,18 @@ const SESSION_MAX_LIFETIME = 8 * 60 * 60 * 1000; // 8 hours max
 const SESSION_IDLE_TIMEOUT = 60 * 60 * 1000; // 1 hour idle timeout
 
 // Cleanup expired sessions and stale viewers periodically
-setInterval(() => {
+setInterval(async () => {
   const now = Date.now();
   for (const [token, session] of adminSessions.entries()) {
     if (now > session.expiresAt) {
       adminSessions.delete(token);
     }
   }
-  for (const [token, session] of userSessions.entries()) {
-    if (now > session.expiresAt) {
-      userSessions.delete(token);
-    }
+  // Cleanup expired database sessions
+  try {
+    await storage.deleteExpiredSessions();
+  } catch (error) {
+    console.error("Failed to cleanup expired sessions:", error);
   }
   // Cleanup stale viewers
   for (const [productId, viewers] of productViewers.entries()) {
@@ -166,8 +160,8 @@ declare global {
   }
 }
 
-// User authentication middleware for buyers/vendors
-function requireAuth(req: Request, res: Response, next: NextFunction) {
+// User authentication middleware for buyers/vendors (async for database sessions)
+async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -175,30 +169,36 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 
   const token = authHeader.substring(7);
-  const session = userSessions.get(token);
-
-  if (!session) {
-    return res.status(401).json({ message: "Invalid or expired session" });
-  }
-
-  const now = Date.now();
-  const maxLifetimeExpired = now > session.createdAt + SESSION_MAX_LIFETIME;
-  const idleTimeoutExpired = now > session.lastAccessedAt + SESSION_IDLE_TIMEOUT;
-
-  if (maxLifetimeExpired || idleTimeoutExpired) {
-    userSessions.delete(token);
-    return res.status(401).json({ message: "Session expired" });
-  }
-
-  // Update last accessed time but don't extend beyond max lifetime
-  session.lastAccessedAt = now;
-  session.expiresAt = Math.min(
-    session.createdAt + SESSION_MAX_LIFETIME,
-    now + SESSION_IDLE_TIMEOUT
-  );
   
-  req.user = { id: session.userId, role: session.role };
-  next();
+  try {
+    const session = await storage.getSession(token);
+
+    if (!session) {
+      return res.status(401).json({ message: "Invalid or expired session" });
+    }
+
+    const now = new Date();
+    const sessionCreatedAt = new Date(session.createdAt).getTime();
+    const sessionLastAccessedAt = new Date(session.lastAccessedAt).getTime();
+    const nowMs = now.getTime();
+    
+    const maxLifetimeExpired = nowMs > sessionCreatedAt + SESSION_MAX_LIFETIME;
+    const idleTimeoutExpired = nowMs > sessionLastAccessedAt + SESSION_IDLE_TIMEOUT;
+
+    if (maxLifetimeExpired || idleTimeoutExpired) {
+      await storage.deleteSession(token);
+      return res.status(401).json({ message: "Session expired" });
+    }
+
+    // Update last accessed time
+    await storage.updateSessionAccess(token);
+    
+    req.user = { id: session.userId, role: session.role };
+    next();
+  } catch (error) {
+    console.error("Auth error:", error);
+    return res.status(500).json({ message: "Authentication error" });
+  }
 }
 
 // Admin authentication middleware
@@ -283,16 +283,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate user session token
+      // Generate user session token and store in database
       const token = crypto.randomBytes(32).toString("hex");
-      const now = Date.now();
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + SESSION_IDLE_TIMEOUT);
 
-      userSessions.set(token, {
+      await storage.createSession({
+        token,
         userId: user.id,
         role: user.role,
         createdAt: now,
         lastAccessedAt: now,
-        expiresAt: now + SESSION_IDLE_TIMEOUT,
+        expiresAt,
       });
 
       const { password: _, ...userWithoutPassword } = user;
@@ -335,23 +337,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profileData = await storage.getBuyerByUserId(user.id);
       }
 
-      // Invalidate existing sessions for this user (session rotation)
-      for (const [existingToken, session] of userSessions.entries()) {
-        if (session.userId === user.id) {
-          userSessions.delete(existingToken);
-        }
-      }
-
-      // Generate user session token
+      // Generate user session token and store in database
       const token = crypto.randomBytes(32).toString("hex");
-      const now = Date.now();
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + SESSION_IDLE_TIMEOUT);
 
-      userSessions.set(token, {
+      await storage.createSession({
+        token,
         userId: user.id,
         role: user.role,
         createdAt: now,
         lastAccessedAt: now,
-        expiresAt: now + SESSION_IDLE_TIMEOUT,
+        expiresAt,
       });
 
       const { password: _, ...userWithoutPassword } = user;
@@ -430,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
         const token = authHeader.substring(7);
-        userSessions.delete(token);
+        await storage.deleteSession(token);
       }
       res.json({ message: "Logged out successfully" });
     } catch (error: any) {

@@ -446,3 +446,16 @@ export const CMS_KEYS = {
   FOOTER: 'site.footer',
   HOMEPAGE_PRODUCTS: 'home.products',
 } as const;
+
+// User Sessions table (for persistent authentication)
+export const userSessions = pgTable("user_sessions", {
+  token: varchar("token").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: userRoleEnum("role").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = typeof userSessions.$inferInsert;
