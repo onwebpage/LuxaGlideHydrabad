@@ -16,7 +16,7 @@ import {
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import type { Vendor, Product } from "@shared/schema";
+import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
@@ -30,6 +30,20 @@ import loungewearImage from "@assets/stock_images/woman_wearing_comfor_d11563b2.
 import bottomsImage from "@assets/stock_images/woman_wearing_pants__d18fff1f.jpg";
 import shawlImage from "@assets/stock_images/woman_wearing_shawl__60f3f662.jpg";
 import partyWearImage from "@assets/stock_images/woman_wearing_glamor_7fcd42b1.jpg";
+
+const defaultCategoryImages: Record<string, string> = {
+  "suits": suitImage,
+  "new-arrivals": newArrivalsImage,
+  "kurtas": kurtaImage,
+  "sarees": sareeImage,
+  "dresses": dressImage,
+  "shirts": shirtImage,
+  "co-ords": coordsImage,
+  "loungewear": loungewearImage,
+  "bottoms": bottomsImage,
+  "shawls": shawlImage,
+  "party-wear": partyWearImage,
+};
 
 export default function Home() {
   const [sortBy, setSortBy] = useState("relevance");
@@ -61,7 +75,30 @@ export default function Home() {
   
   const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
 
+  const { data: cmsSettings } = useQuery<AllCmsSettings>({
+    queryKey: ['/api/cms/public'],
+    queryFn: async () => {
+      const response = await fetch('/api/cms/public');
+      if (!response.ok) throw new Error('Failed to fetch CMS settings');
+      return response.json();
+    }
+  });
+
   const sectionTitle = homepageProductsData?.sectionTitle || "Products For You";
+
+  const dynamicShopCategories = useMemo(() => {
+    if (!apiCategories || apiCategories.length === 0) return [];
+    return apiCategories.slice(0, 12).map((cat: Category) => ({
+      name: cat.name.toUpperCase(),
+      image: cat.image || defaultCategoryImages[cat.slug] || suitImage,
+      slug: cat.slug,
+    }));
+  }, [apiCategories]);
+
+  const featuredCollections = useMemo(() => {
+    if (!cmsSettings?.featuredCollections?.collections) return [];
+    return cmsSettings.featuredCollections.collections.filter(c => c.isVisible !== false);
+  }, [cmsSettings]);
   
   const products = useMemo(() => {
     if (!homepageProductsData?.products) return [];
@@ -136,19 +173,21 @@ export default function Home() {
     });
   };
 
-  const shopCategories = [
+  const fallbackCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
-    { name: "NEW ARRIVALS", image: newArrivalsImage, slug: "new-arrivals", badge: "NEW" },
+    { name: "NEW ARRIVALS", image: newArrivalsImage, slug: "new-arrivals" },
     { name: "KURTAS", image: kurtaImage, slug: "kurtas" },
-    { name: "SAREES", image: sareeImage, slug: "sarees", badge: "UNDER", badgeValue: "1999" },
+    { name: "SAREES", image: sareeImage, slug: "sarees" },
     { name: "DRESSES", image: dressImage, slug: "dresses" },
     { name: "SHIRTS", image: shirtImage, slug: "shirts" },
     { name: "CO-ORDS", image: coordsImage, slug: "co-ords" },
     { name: "LOUNGEWEAR", image: loungewearImage, slug: "loungewear" },
     { name: "BOTTOMS", image: bottomsImage, slug: "bottoms" },
-    { name: "SHAWLS", image: shawlImage, slug: "shawls", badge: "SPECIAL", badgeValue: "OFFER" },
-    { name: "PARTY WEAR", image: partyWearImage, slug: "party-wear", badge: "BUY 4", badgeValue: "2199" },
+    { name: "SHAWLS", image: shawlImage, slug: "shawls" },
+    { name: "PARTY WEAR", image: partyWearImage, slug: "party-wear" },
   ];
+
+  const shopCategories = dynamicShopCategories.length > 0 ? dynamicShopCategories : fallbackCategories;
 
   const testimonials = [
     {
@@ -389,57 +428,25 @@ export default function Home() {
 
             {/* Right Side - Category Cards in Arch Shape */}
             <div className="flex-1 grid grid-cols-2 gap-4 lg:gap-6 max-w-lg">
-              <Link href="/products?category=sarees" className="group">
-                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
-                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
-                    <img 
-                      src={partyWearImage} 
-                      alt="Lehengas" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+              {(featuredCollections.length > 0 ? featuredCollections.slice(0, 4) : [
+                { id: "1", title: "Lehengas", image: partyWearImage, link: "/products?category=sarees" },
+                { id: "2", title: "Kurtas", image: kurtaImage, link: "/products?category=kurtas" },
+                { id: "3", title: "Sarees", image: sareeImage, link: "/products?category=sarees" },
+                { id: "4", title: "Accessories", image: coordsImage, link: "/products?category=jewellery" },
+              ]).map((collection) => (
+                <Link key={collection.id} href={collection.link || "/products"} className="group">
+                  <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
+                    <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
+                      <img 
+                        src={collection.image || sareeImage} 
+                        alt={collection.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <p className="text-center text-white font-medium text-sm">{collection.title}</p>
                   </div>
-                  <p className="text-center text-white font-medium text-sm">Lehengas</p>
-                </div>
-              </Link>
-
-              <Link href="/products?category=kurtas" className="group">
-                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
-                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
-                    <img 
-                      src={kurtaImage} 
-                      alt="Kurtas" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-center text-white font-medium text-sm">Kurtas</p>
-                </div>
-              </Link>
-
-              <Link href="/products?category=sarees" className="group">
-                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
-                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
-                    <img 
-                      src={sareeImage} 
-                      alt="Sarees" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-center text-white font-medium text-sm">Sarees</p>
-                </div>
-              </Link>
-
-              <Link href="/products?category=jewellery" className="group">
-                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
-                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
-                    <img 
-                      src={coordsImage} 
-                      alt="Accessories" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <p className="text-center text-white font-medium text-sm">Accessories</p>
-                </div>
-              </Link>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

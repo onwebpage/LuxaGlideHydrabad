@@ -34,7 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { FolderTree, Plus, ArrowLeft, Trash2, Edit } from "lucide-react";
+import { FolderTree, Plus, ArrowLeft, Trash2, Edit, Upload, ImageIcon } from "lucide-react";
 import type { Category } from "@shared/schema";
 
 export default function AdminCategories() {
@@ -157,6 +157,39 @@ export default function AdminCategories() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formDataUpload,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image: data.url }));
+      toast({
+        title: "Image Uploaded",
+        description: "Image has been uploaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload image",
+        variant: "destructive",
+      });
+    }
+    e.target.value = "";
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-6">
@@ -207,6 +240,7 @@ export default function AdminCategories() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-16">Image</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Slug</TableHead>
                       <TableHead>Description</TableHead>
@@ -217,6 +251,19 @@ export default function AdminCategories() {
                   <TableBody>
                     {categories.map((category) => (
                       <TableRow key={category.id} data-testid={`row-category-${category.id}`}>
+                        <TableCell>
+                          {category.image ? (
+                            <img 
+                              src={category.image} 
+                              alt={category.name}
+                              className="w-12 h-12 object-cover rounded-md"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center">
+                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell className="font-medium" data-testid={`text-category-name-${category.id}`}>
                           {category.name}
                         </TableCell>
@@ -283,14 +330,37 @@ export default function AdminCategories() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://example.com/image.jpg"
-                data-testid="input-category-image"
-              />
+              <Label htmlFor="image">Category Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="image"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  data-testid="input-category-image"
+                />
+                <label className="cursor-pointer">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    data-testid="input-image-upload"
+                  />
+                  <Button type="button" variant="outline" size="icon" asChild>
+                    <span><Upload className="w-4 h-4" /></span>
+                  </Button>
+                </label>
+              </div>
+              {formData.image && (
+                <div className="mt-2 relative">
+                  <img 
+                    src={formData.image} 
+                    alt="Category preview" 
+                    className="max-h-32 rounded-md object-cover"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -340,14 +410,37 @@ export default function AdminCategories() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-image">Image URL</Label>
-              <Input
-                id="edit-image"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://example.com/image.jpg"
-                data-testid="input-edit-image"
-              />
+              <Label htmlFor="edit-image">Category Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="edit-image"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  data-testid="input-edit-image"
+                />
+                <label className="cursor-pointer">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    data-testid="input-edit-image-upload"
+                  />
+                  <Button type="button" variant="outline" size="icon" asChild>
+                    <span><Upload className="w-4 h-4" /></span>
+                  </Button>
+                </label>
+              </div>
+              {formData.image && (
+                <div className="mt-2 relative">
+                  <img 
+                    src={formData.image} 
+                    alt="Category preview" 
+                    className="max-h-32 rounded-md object-cover"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
