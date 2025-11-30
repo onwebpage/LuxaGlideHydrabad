@@ -56,105 +56,39 @@ export default function BuyerDashboard() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
   const userId = user?.id;
-
-  // Redirect non-buyers to appropriate dashboard or login
-  useEffect(() => {
-    if (!authLoading && user) {
-      if (user.role === "vendor") {
-        setLocation("/dashboard/vendor");
-      } else if (user.role === "admin") {
-        setLocation("/dashboard/admin");
-      }
-    } else if (!authLoading && !user) {
-      // Check localStorage for race condition
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) {
-        setLocation("/login");
-      }
-    }
-  }, [user, authLoading, setLocation]);
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect vendors and admins to their respective dashboards
-  if (user.role === "vendor" || user.role === "admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
+  const buyerProfile = profile as Buyer | null;
 
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
-    queryKey: [`/api/dashboard/buyer/${userId}`],
-    enabled: !!userId,
+    queryKey: ['/api/dashboard/buyer', userId],
+    enabled: !!userId && user?.role === "buyer",
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
-    queryKey: [`/api/orders/user/${userId}`],
-    enabled: !!userId,
+    queryKey: ['/api/orders/user', userId],
+    enabled: !!userId && user?.role === "buyer",
   });
 
   const { data: addresses = [], isLoading: addressesLoading } = useQuery<Address[]>({
-    queryKey: [`/api/addresses/${userId}`],
-    enabled: !!userId,
+    queryKey: ['/api/addresses', userId],
+    enabled: !!userId && user?.role === "buyer",
   });
 
   const { data: wishlistData = [], isLoading: wishlistLoading } = useQuery<WishlistItem[]>({
-    queryKey: [`/api/wishlist/${userId}`],
-    enabled: !!userId,
+    queryKey: ['/api/wishlist', userId],
+    enabled: !!userId && user?.role === "buyer",
   });
 
-  const buyerProfile = profile as Buyer | null;
-  
   const form = useForm<UpdateBuyerProfile>({
     resolver: zodResolver(updateBuyerProfileSchema),
     defaultValues: {
-      fullName: user.fullName || "",
-      phone: user.phone || "",
+      fullName: user?.fullName || "",
+      phone: user?.phone || "",
       businessName: buyerProfile?.businessName || "",
       gstNumber: buyerProfile?.gstNumber || "",
       currentPassword: "",
-      userId: user.id,
+      userId: user?.id || "",
     },
   });
-
-  // Reset form when dialog opens with latest user data
-  useEffect(() => {
-    if (isEditDialogOpen) {
-      form.reset({
-        fullName: user.fullName || "",
-        phone: user.phone || "",
-        businessName: buyerProfile?.businessName || "",
-        gstNumber: buyerProfile?.gstNumber || "",
-        currentPassword: "",
-        userId: user.id,
-      });
-    }
-  }, [isEditDialogOpen, user, buyerProfile, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateBuyerProfile) => {
@@ -185,6 +119,67 @@ export default function BuyerDashboard() {
       });
     },
   });
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "vendor") {
+        setLocation("/dashboard/vendor");
+      } else if (user.role === "admin") {
+        setLocation("/dashboard/admin");
+      }
+    } else if (!authLoading && !user) {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        setLocation("/login");
+      }
+    }
+  }, [user, authLoading, setLocation]);
+
+  useEffect(() => {
+    if (isEditDialogOpen && user) {
+      form.reset({
+        fullName: user.fullName || "",
+        phone: user.phone || "",
+        businessName: buyerProfile?.businessName || "",
+        gstNumber: buyerProfile?.gstNumber || "",
+        currentPassword: "",
+        userId: user.id,
+      });
+    }
+  }, [isEditDialogOpen, user, buyerProfile, form]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role === "vendor" || user.role === "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = (data: UpdateBuyerProfile) => {
     updateProfileMutation.mutate(data);
