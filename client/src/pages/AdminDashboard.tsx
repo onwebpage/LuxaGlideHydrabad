@@ -278,6 +278,18 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/vendors")} data-testid="card-vendor-management">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Vendor Management</h3>
+                  <p className="text-muted-foreground text-sm">Manage vendor accounts and KYC</p>
+                </div>
+                <Store className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/site-settings")} data-testid="card-site-settings">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">

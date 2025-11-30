@@ -62,6 +62,7 @@ export interface IStorage {
   getAllVendors(filters?: { kycStatus?: string; limit?: number }): Promise<Vendor[]>;
   createVendor(vendor: InsertVendor): Promise<Vendor>;
   updateVendor(id: string, data: Partial<InsertVendor>): Promise<Vendor | undefined>;
+  deleteVendor(id: string): Promise<void>;
 
   // Buyers
   getBuyer(id: string): Promise<Buyer | undefined>;
@@ -105,6 +106,7 @@ export interface IStorage {
     limit?: number;
     offset?: number;
   }): Promise<Product[]>;
+  getProductsByVendorId(vendorId: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, data: Partial<InsertProduct>): Promise<Product | undefined>;
   updateProductStatus(id: string, status: string): Promise<Product | undefined>;
@@ -256,6 +258,15 @@ export class DatabaseStorage implements IStorage {
   async updateVendor(id: string, data: Partial<InsertVendor>): Promise<Vendor | undefined> {
     const [vendor] = await db.update(vendors).set(data).where(eq(vendors.id, id)).returning();
     return vendor || undefined;
+  }
+
+  async deleteVendor(id: string): Promise<void> {
+    const vendor = await this.getVendor(id);
+    if (vendor) {
+      await db.delete(products).where(eq(products.vendorId, id));
+      await db.delete(vendors).where(eq(vendors.id, id));
+      await db.delete(users).where(eq(users.id, vendor.userId));
+    }
   }
 
   // Buyers
@@ -459,6 +470,12 @@ export class DatabaseStorage implements IStorage {
     }
     
     return await query;
+  }
+
+  async getProductsByVendorId(vendorId: string): Promise<Product[]> {
+    return await db.select().from(products)
+      .where(eq(products.vendorId, vendorId))
+      .orderBy(desc(products.createdAt));
   }
 
   async updateProductStatus(id: string, status: string): Promise<Product | undefined> {

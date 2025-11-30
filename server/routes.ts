@@ -966,6 +966,228 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ Vendor Product Management Routes ============
+
+  // Get vendor's own products
+  app.get("/api/vendor/my-products", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(403).json({ message: "Vendor profile not found" });
+      }
+
+      const products = await storage.getProductsByVendorId(vendor.id);
+      res.json(products);
+    } catch (error: any) {
+      console.error("Get vendor products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update vendor's own product (authenticated vendor only)
+  app.put("/api/vendor/products/:id", requireAuth, upload.array("images", 10), async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(403).json({ message: "Vendor profile not found" });
+      }
+
+      const product = await storage.getProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      if (product.vendorId !== vendor.id) {
+        return res.status(403).json({ message: "You can only edit your own products" });
+      }
+
+      const { name, description, price, moq, stock, fabric, categoryId } = req.body;
+      
+      const updates: any = {};
+      if (name && typeof name === 'string' && name.trim()) {
+        updates.name = name.trim();
+        updates.slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      }
+      if (description !== undefined) updates.description = description;
+      if (price !== undefined) {
+        const parsedPrice = parseFloat(price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+          return res.status(400).json({ message: "Price must be a positive number" });
+        }
+        updates.price = parsedPrice.toFixed(2);
+      }
+      if (moq !== undefined) {
+        const parsedMoq = parseInt(moq, 10);
+        if (isNaN(parsedMoq) || parsedMoq < 1) {
+          return res.status(400).json({ message: "MOQ must be a positive integer" });
+        }
+        updates.moq = parsedMoq;
+      }
+      if (stock !== undefined) {
+        const parsedStock = parseInt(stock, 10);
+        if (isNaN(parsedStock) || parsedStock < 0) {
+          return res.status(400).json({ message: "Stock must be a non-negative integer" });
+        }
+        updates.stock = parsedStock;
+      }
+      if (fabric !== undefined) updates.fabric = fabric;
+      if (categoryId !== undefined) updates.categoryId = categoryId;
+
+      const files = req.files as Express.Multer.File[];
+      if (files && files.length > 0) {
+        const newImages = files.map(file => `/uploads/${file.filename}`);
+        updates.images = JSON.stringify(newImages);
+      }
+
+      updates.updatedAt = new Date();
+
+      const updatedProduct = await storage.updateProduct(req.params.id, updates);
+      res.json(updatedProduct);
+    } catch (error: any) {
+      console.error("Update vendor product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete vendor's own product (authenticated vendor only)
+  app.delete("/api/vendor/products/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(403).json({ message: "Vendor profile not found" });
+      }
+
+      const product = await storage.getProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      if (product.vendorId !== vendor.id) {
+        return res.status(403).json({ message: "You can only delete your own products" });
+      }
+
+      await storage.deleteProduct(req.params.id);
+      res.json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete vendor product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Admin Vendor Management Routes ============
+
+  // Get all vendors with user details (admin only)
+  app.get("/api/admin/vendors", requireAdminAuth, async (req, res) => {
+    try {
+      const { kycStatus, search, limit, offset } = req.query;
+      
+      const vendors = await storage.getAllVendors({
+        kycStatus: kycStatus as string,
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      const vendorsWithUserDetails = await Promise.all(
+        vendors.map(async (vendor) => {
+          const user = await storage.getUser(vendor.userId);
+          const stats = await storage.getVendorDashboardStats(vendor.id);
+          return {
+            ...vendor,
+            user: user ? {
+              id: user.id,
+              email: user.email,
+              fullName: user.fullName,
+              phone: user.phone,
+              isBlocked: user.isBlocked,
+              createdAt: user.createdAt,
+            } : null,
+            stats,
+          };
+        })
+      );
+
+      let filteredVendors = vendorsWithUserDetails;
+      if (search) {
+        const searchLower = (search as string).toLowerCase();
+        filteredVendors = vendorsWithUserDetails.filter(v => 
+          v.businessName.toLowerCase().includes(searchLower) ||
+          v.user?.fullName?.toLowerCase().includes(searchLower) ||
+          v.user?.email?.toLowerCase().includes(searchLower) ||
+          v.gstNumber?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      res.json(filteredVendors);
+    } catch (error: any) {
+      console.error("Get admin vendors error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single vendor with full details (admin only)
+  app.get("/api/admin/vendors/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const vendor = await storage.getVendor(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+
+      const user = await storage.getUser(vendor.userId);
+      const stats = await storage.getVendorDashboardStats(vendor.id);
+      const products = await storage.getAllProductsForAdmin({ vendorId: vendor.id });
+      const vendorOrders = await storage.getVendorOrders(vendor.id);
+
+      res.json({
+        ...vendor,
+        user: user ? {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          phone: user.phone,
+          isBlocked: user.isBlocked,
+          createdAt: user.createdAt,
+        } : null,
+        stats,
+        products,
+        orders: vendorOrders,
+      });
+    } catch (error: any) {
+      console.error("Get admin vendor details error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete vendor and associated user (admin only)
+  app.delete("/api/admin/vendors/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const vendor = await storage.getVendor(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+
+      await storage.deleteVendor(req.params.id);
+      
+      res.json({ message: "Vendor deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete vendor error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // GST number validation function
   function validateGstNumber(gst: string): { valid: boolean; message: string } {
     if (!gst || gst.length === 0) {

@@ -36,6 +36,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Product, Vendor } from "@shared/schema";
@@ -72,6 +82,19 @@ export default function VendorDashboard() {
   const [productSaving, setProductSaving] = useState(false);
   const productImageInputRef = useRef<HTMLInputElement>(null);
   
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editProductName, setEditProductName] = useState("");
+  const [editProductPrice, setEditProductPrice] = useState("");
+  const [editProductMoq, setEditProductMoq] = useState("");
+  const [editProductStock, setEditProductStock] = useState("");
+  const [editProductDescription, setEditProductDescription] = useState("");
+  const [editProductSaving, setEditProductSaving] = useState(false);
+  
+  const [deleteProductOpen, setDeleteProductOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [deleteProductLoading, setDeleteProductLoading] = useState(false);
+  
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
 
@@ -86,9 +109,16 @@ export default function VendorDashboard() {
   });
 
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: [`/api/products`],
-    select: (data) => data.filter((p: Product) => p.vendorId === vendorId),
+    queryKey: ["/api/vendor/my-products"],
     enabled: !!vendorId,
+    queryFn: async () => {
+      const token = getAuthToken();
+      const response = await fetch("/api/vendor/my-products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch products");
+      return response.json();
+    },
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
@@ -392,7 +422,7 @@ export default function VendorDashboard() {
 
       resetProductForm();
       setIsAddProductOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/vendor/my-products'] });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -490,6 +520,139 @@ export default function VendorDashboard() {
       });
     } finally {
       setKycUploading(false);
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setEditProductName(product.name);
+    setEditProductPrice(String(product.price));
+    setEditProductMoq(String(product.moq));
+    setEditProductStock(String(product.stock));
+    setEditProductDescription(product.description);
+    setIsEditProductOpen(true);
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+
+    if (!editProductName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Product name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!editProductPrice || Number(editProductPrice) <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid price",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const authToken = getAuthToken();
+    if (!authToken) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in again to edit products",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEditProductSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', editProductName.trim());
+      formData.append('description', editProductDescription.trim());
+      formData.append('price', editProductPrice);
+      formData.append('moq', editProductMoq || '10');
+      formData.append('stock', editProductStock || '0');
+
+      const response = await fetch(`/api/vendor/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update product');
+      }
+
+      toast({
+        title: "Product Updated",
+        description: "Your product has been updated successfully.",
+      });
+
+      setIsEditProductOpen(false);
+      setEditingProduct(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/vendor/my-products'] });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update product",
+        variant: "destructive",
+      });
+    } finally {
+      setEditProductSaving(false);
+    }
+  };
+
+  const handleDeleteProduct = (product: Product) => {
+    setProductToDelete(product);
+    setDeleteProductOpen(true);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+
+    const authToken = getAuthToken();
+    if (!authToken) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in again to delete products",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDeleteProductLoading(true);
+    try {
+      const response = await fetch(`/api/vendor/products/${productToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete product');
+      }
+
+      toast({
+        title: "Product Deleted",
+        description: "Your product has been deleted successfully.",
+      });
+
+      setDeleteProductOpen(false);
+      setProductToDelete(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/vendor/my-products'] });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete product",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteProductLoading(false);
     }
   };
 
@@ -933,10 +1096,20 @@ export default function VendorDashboard() {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button variant="ghost" size="sm" data-testid={`button-edit-${product.id}`}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                data-testid={`button-edit-${product.id}`}
+                                onClick={() => handleEditProduct(product)}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="sm" data-testid={`button-delete-${product.id}`}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                data-testid={`button-delete-${product.id}`}
+                                onClick={() => handleDeleteProduct(product)}
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -949,6 +1122,123 @@ export default function VendorDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Edit Product Dialog */}
+          <Dialog open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Product</DialogTitle>
+                <DialogDescription>
+                  Update your product details
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <Label htmlFor="editProductName">Product Name</Label>
+                  <Input 
+                    id="editProductName" 
+                    placeholder="e.g., Designer Silk Saree" 
+                    data-testid="input-edit-product-name"
+                    value={editProductName}
+                    onChange={(e) => setEditProductName(e.target.value)}
+                  />
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="editPrice">Price (₹)</Label>
+                    <Input 
+                      id="editPrice" 
+                      type="number" 
+                      placeholder="2500" 
+                      data-testid="input-edit-price"
+                      value={editProductPrice}
+                      onChange={(e) => setEditProductPrice(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editMoq">MOQ</Label>
+                    <Input 
+                      id="editMoq" 
+                      type="number" 
+                      placeholder="10" 
+                      data-testid="input-edit-moq"
+                      value={editProductMoq}
+                      onChange={(e) => setEditProductMoq(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editStock">Stock</Label>
+                    <Input 
+                      id="editStock" 
+                      type="number" 
+                      placeholder="100" 
+                      data-testid="input-edit-stock"
+                      value={editProductStock}
+                      onChange={(e) => setEditProductStock(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="editDescription">Description</Label>
+                  <Textarea 
+                    id="editDescription" 
+                    placeholder="Product description..." 
+                    data-testid="input-edit-description"
+                    value={editProductDescription}
+                    onChange={(e) => setEditProductDescription(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsEditProductOpen(false);
+                      setEditingProduct(null);
+                    }}
+                    disabled={editProductSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    data-testid="button-update-product"
+                    onClick={handleUpdateProduct}
+                    disabled={editProductSaving}
+                  >
+                    {editProductSaving ? "Updating..." : "Update Product"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Product Confirmation */}
+          <AlertDialog open={deleteProductOpen} onOpenChange={setDeleteProductOpen}>
+            <AlertDialogContent data-testid="dialog-delete-product">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{productToDelete?.name}"? 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel 
+                  disabled={deleteProductLoading}
+                  data-testid="button-cancel-delete"
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={confirmDeleteProduct}
+                  disabled={deleteProductLoading}
+                  className="bg-destructive hover:bg-destructive/90"
+                  data-testid="button-confirm-delete"
+                >
+                  {deleteProductLoading ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Orders Tab */}
           <TabsContent value="orders">
