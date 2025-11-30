@@ -16,7 +16,8 @@ import {
   useUpdateFeaturedCollections,
   useUpdateTestimonials,
   useUpdatePromotions,
-  useUpdateFooter
+  useUpdateFooter,
+  useUpdateHomepageProducts
 } from "@/hooks/use-cms-settings";
 import { 
   Settings, 
@@ -30,9 +31,14 @@ import {
   Trash2,
   Upload,
   Star,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Package,
+  Search,
+  GripVertical,
+  X
 } from "lucide-react";
-import type { FeaturedCollection, Testimonial, PromotionBanner, SocialLink } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import type { FeaturedCollection, Testimonial, PromotionBanner, SocialLink, HomepageFeaturedProduct, Product } from "@shared/schema";
 
 export default function AdminSiteSettings() {
   const [, setLocation] = useLocation();
@@ -45,6 +51,12 @@ export default function AdminSiteSettings() {
   const updateTestimonials = useUpdateTestimonials();
   const updatePromotions = useUpdatePromotions();
   const updateFooter = useUpdateFooter();
+  const updateHomepageProducts = useUpdateHomepageProducts();
+  
+  const [productSearch, setProductSearch] = useState("");
+  const { data: allProducts = [] } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+  });
 
   const [siteMeta, setSiteMeta] = useState({
     siteName: "",
@@ -99,6 +111,18 @@ export default function AdminSiteSettings() {
     socialLinks: [] as SocialLink[],
   });
 
+  const [homepageProducts, setHomepageProducts] = useState<{
+    sectionTitle: string;
+    autoFallback: boolean;
+    maxProducts: number;
+    products: HomepageFeaturedProduct[];
+  }>({
+    sectionTitle: "Products For You",
+    autoFallback: true,
+    maxProducts: 12,
+    products: [],
+  });
+
   useEffect(() => {
     const adminAuth = localStorage.getItem("adminAuth");
     if (!adminAuth || adminAuth !== "true") {
@@ -121,6 +145,14 @@ export default function AdminSiteSettings() {
         ...cmsSettings.footer,
         socialLinks: cmsSettings.footer.socialLinks ?? [],
       });
+      if (cmsSettings.homepageProducts) {
+        setHomepageProducts({
+          sectionTitle: cmsSettings.homepageProducts.sectionTitle || "Products For You",
+          autoFallback: cmsSettings.homepageProducts.autoFallback ?? true,
+          maxProducts: cmsSettings.homepageProducts.maxProducts || 12,
+          products: cmsSettings.homepageProducts.products || [],
+        });
+      }
     }
   }, [cmsSettings]);
 
@@ -177,6 +209,66 @@ export default function AdminSiteSettings() {
       toast({ title: "Error", description: "Failed to save footer settings", variant: "destructive" });
     }
   };
+
+  const handleSaveHomepageProducts = async () => {
+    try {
+      await updateHomepageProducts.mutateAsync(homepageProducts);
+      toast({ title: "Success", description: "Homepage products saved successfully" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to save homepage products", variant: "destructive" });
+    }
+  };
+
+  const addHomepageProduct = (productId: string) => {
+    const exists = homepageProducts.products.some(p => p.productId === productId);
+    if (exists) {
+      toast({ title: "Info", description: "Product already added" });
+      return;
+    }
+    setHomepageProducts(prev => ({
+      ...prev,
+      products: [
+        ...prev.products,
+        { productId, displayOrder: prev.products.length, isVisible: true }
+      ],
+    }));
+    setProductSearch("");
+  };
+
+  const removeHomepageProduct = (productId: string) => {
+    setHomepageProducts(prev => ({
+      ...prev,
+      products: prev.products
+        .filter(p => p.productId !== productId)
+        .map((p, idx) => ({ ...p, displayOrder: idx })),
+    }));
+  };
+
+  const moveHomepageProduct = (productId: string, direction: "up" | "down") => {
+    setHomepageProducts(prev => {
+      const products = [...prev.products];
+      const idx = products.findIndex(p => p.productId === productId);
+      if (idx === -1) return prev;
+      
+      const newIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (newIdx < 0 || newIdx >= products.length) return prev;
+      
+      [products[idx], products[newIdx]] = [products[newIdx], products[idx]];
+      return {
+        ...prev,
+        products: products.map((p, i) => ({ ...p, displayOrder: i })),
+      };
+    });
+  };
+
+  const getProductById = (productId: string): Product | undefined => {
+    return allProducts.find(p => p.id === productId);
+  };
+
+  const filteredProducts = allProducts.filter(p => 
+    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+    p.sku?.toLowerCase().includes(productSearch.toLowerCase())
+  ).slice(0, 10);
 
   const addCollection = () => {
     setFeaturedCollections(prev => ({
@@ -346,6 +438,10 @@ export default function AdminSiteSettings() {
             <TabsTrigger value="footer" data-testid="tab-footer">
               <LinkIcon className="w-4 h-4 mr-2" />
               Footer
+            </TabsTrigger>
+            <TabsTrigger value="homepage-products" data-testid="tab-homepage-products">
+              <Package className="w-4 h-4 mr-2" />
+              Homepage Products
             </TabsTrigger>
           </TabsList>
 
@@ -1080,6 +1176,193 @@ export default function AdminSiteSettings() {
                 <Button onClick={handleSaveFooter} disabled={updateFooter.isPending} data-testid="button-save-footer">
                   <Save className="w-4 h-4 mr-2" />
                   {updateFooter.isPending ? "Saving..." : "Save Footer Settings"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="homepage-products">
+            <Card>
+              <CardHeader>
+                <CardTitle>Homepage Products</CardTitle>
+                <CardDescription>
+                  Control which products appear on the homepage. When no products are selected, 
+                  the latest vendor products will be shown automatically.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="productsSectionTitle">Section Title</Label>
+                  <Input
+                    id="productsSectionTitle"
+                    value={homepageProducts.sectionTitle}
+                    onChange={(e) => setHomepageProducts(prev => ({ ...prev, sectionTitle: e.target.value }))}
+                    placeholder="Products For You"
+                    data-testid="input-products-section-title"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="flex items-center gap-4">
+                    <Switch
+                      id="autoFallback"
+                      checked={homepageProducts.autoFallback}
+                      onCheckedChange={(checked) => setHomepageProducts(prev => ({ ...prev, autoFallback: checked }))}
+                      data-testid="switch-auto-fallback"
+                    />
+                    <div>
+                      <Label htmlFor="autoFallback">Auto-display vendor products</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Show latest products when no featured products are selected
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxProducts">Max Products</Label>
+                    <Input
+                      id="maxProducts"
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={homepageProducts.maxProducts}
+                      onChange={(e) => setHomepageProducts(prev => ({ ...prev, maxProducts: parseInt(e.target.value) || 12 }))}
+                      data-testid="input-max-products"
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Featured Products</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Search and add products to feature on the homepage. Drag to reorder.
+                  </p>
+                  
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      placeholder="Search products by name or SKU..."
+                      className="pl-9"
+                      data-testid="input-product-search"
+                    />
+                    {productSearch && filteredProducts.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-card border rounded-md shadow-lg max-h-64 overflow-auto">
+                        {filteredProducts.map(product => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            onClick={() => addHomepageProduct(product.id)}
+                            className="w-full flex items-center gap-3 p-3 hover-elevate text-left"
+                            data-testid={`button-add-product-${product.id}`}
+                          >
+                            {product.images && product.images.length > 0 ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-10 h-10 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+                                <Package className="w-5 h-5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{product.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {product.sku} - ${product.price}
+                              </p>
+                            </div>
+                            <Plus className="w-4 h-4 text-primary flex-shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    {homepageProducts.products.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground border rounded-md border-dashed">
+                        <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p>No featured products selected</p>
+                        <p className="text-sm">
+                          {homepageProducts.autoFallback 
+                            ? "Latest vendor products will be shown automatically"
+                            : "Search above to add products"}
+                        </p>
+                      </div>
+                    ) : (
+                      homepageProducts.products.map((item, idx) => {
+                        const product = getProductById(item.productId);
+                        if (!product) return null;
+                        return (
+                          <div 
+                            key={item.productId} 
+                            className="flex items-center gap-3 p-3 border rounded-md"
+                            data-testid={`featured-product-${item.productId}`}
+                          >
+                            <div className="flex flex-col gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => moveHomepageProduct(item.productId, "up")}
+                                disabled={idx === 0}
+                                data-testid={`button-move-up-${item.productId}`}
+                              >
+                                <GripVertical className="w-4 h-4 rotate-90" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => moveHomepageProduct(item.productId, "down")}
+                                disabled={idx === homepageProducts.products.length - 1}
+                                data-testid={`button-move-down-${item.productId}`}
+                              >
+                                <GripVertical className="w-4 h-4 -rotate-90" />
+                              </Button>
+                            </div>
+                            {product.images && product.images.length > 0 ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                                <Package className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{product.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {product.sku} - ${product.price}
+                              </p>
+                            </div>
+                            <span className="text-xs text-muted-foreground">#{idx + 1}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeHomepageProduct(item.productId)}
+                              data-testid={`button-remove-product-${item.productId}`}
+                            >
+                              <X className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleSaveHomepageProducts} 
+                  disabled={updateHomepageProducts.isPending} 
+                  data-testid="button-save-homepage-products"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {updateHomepageProducts.isPending ? "Saving..." : "Save Homepage Products"}
                 </Button>
               </CardContent>
             </Card>

@@ -10,6 +10,7 @@ import {
   testimonialsSchema,
   promotionsSchema,
   footerSchema,
+  homepageFeaturedProductsSchema,
   CMS_KEYS,
   type AllCmsSettings,
 } from "@shared/schema";
@@ -547,6 +548,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ============ Vendor Routes ============
+  
+  // Get approved vendors (public - for homepage featured vendors)
+  app.get("/api/vendors/approved", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      const vendors = await storage.getAllVendors({
+        kycStatus: "approved",
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      res.json(vendors);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
   
   // Get all vendors (admin only)
   app.get("/api/vendors", requireAdminAuth, async (req, res) => {
@@ -1855,6 +1871,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { platform: "twitter", url: "https://twitter.com", isVisible: true },
       ],
     },
+    homepageProducts: {
+      sectionTitle: "Products For You",
+      autoFallback: true,
+      maxProducts: 12,
+      products: [],
+    },
   };
 
   // Public endpoint to get all CMS settings (no auth required)
@@ -1885,6 +1907,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case CMS_KEYS.FOOTER:
             settingsMap.footer = setting.value as any;
             break;
+          case CMS_KEYS.HOMEPAGE_PRODUCTS:
+            settingsMap.homepageProducts = setting.value as any;
+            break;
         }
       }
 
@@ -1896,6 +1921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         testimonials: settingsMap.testimonials || defaultCmsSettings.testimonials,
         promotions: settingsMap.promotions || defaultCmsSettings.promotions,
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
+        homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
       };
 
       res.json(result);
@@ -1932,6 +1958,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case CMS_KEYS.FOOTER:
             settingsMap.footer = setting.value as any;
             break;
+          case CMS_KEYS.HOMEPAGE_PRODUCTS:
+            settingsMap.homepageProducts = setting.value as any;
+            break;
         }
       }
 
@@ -1942,6 +1971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         testimonials: settingsMap.testimonials || defaultCmsSettings.testimonials,
         promotions: settingsMap.promotions || defaultCmsSettings.promotions,
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
+        homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
       };
 
       res.json(result);
@@ -2067,6 +2097,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(setting);
     } catch (error: any) {
       console.error("Update footer error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update homepage featured products
+  app.patch("/api/admin/cms/homepage-products", requireAdminAuth, async (req, res) => {
+    try {
+      const parsed = homepageFeaturedProductsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.errors });
+      }
+
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.HOMEPAGE_PRODUCTS,
+        value: parsed.data,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update homepage products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Public: Get homepage products with fallback to latest vendor products
+  app.get("/api/homepage-products", async (req, res) => {
+    try {
+      // Get CMS settings for homepage products
+      const cmsSetting = await storage.getCmsSetting(CMS_KEYS.HOMEPAGE_PRODUCTS);
+      const homepageConfig = cmsSetting?.value as any || {
+        sectionTitle: "Products For You",
+        autoFallback: true,
+        maxProducts: 12,
+        products: [],
+      };
+
+      let productIds: string[] = [];
+      let useFallback = false;
+
+      // Check if there are admin-selected products
+      if (homepageConfig.products && homepageConfig.products.length > 0) {
+        productIds = homepageConfig.products
+          .filter((p: any) => p.isVisible !== false)
+          .sort((a: any, b: any) => a.displayOrder - b.displayOrder)
+          .map((p: any) => p.productId);
+      }
+
+      // If no selected products or autoFallback is enabled and no products selected
+      if (productIds.length === 0 && (homepageConfig.autoFallback !== false)) {
+        useFallback = true;
+      }
+
+      let products;
+      if (useFallback) {
+        // Get latest published vendor products
+        products = await storage.getAllProducts({
+          limit: homepageConfig.maxProducts || 12,
+        });
+      } else {
+        // Fetch selected products by IDs
+        const allProducts = await storage.getAllProducts({ limit: 100 });
+        products = productIds
+          .map((id: string) => allProducts.find(p => p.id === id))
+          .filter(Boolean)
+          .slice(0, homepageConfig.maxProducts || 12);
+      }
+
+      res.json({
+        sectionTitle: homepageConfig.sectionTitle || "Products For You",
+        products,
+        useFallback,
+      });
+    } catch (error: any) {
+      console.error("Get homepage products error:", error);
       res.status(500).json({ message: error.message });
     }
   });

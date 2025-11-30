@@ -16,8 +16,7 @@ import {
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import type { Vendor } from "@shared/schema";
-import { useProducts, type Product } from "@/hooks/use-products";
+import type { Vendor, Product } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
@@ -39,21 +38,35 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
-    queryKey: ['/api/vendors'],
+    queryKey: ['/api/vendors/approved'],
     queryFn: async () => {
-      const response = await fetch('/api/vendors?kycStatus=approved&limit=4');
+      const response = await fetch('/api/vendors/approved?limit=4');
       if (!response.ok) throw new Error('Failed to fetch vendors');
       return response.json();
     }
   });
 
-  const { data: apiProducts, isLoading: productsLoading } = useProducts();
+  const { data: homepageProductsData, isLoading: productsLoading } = useQuery<{
+    sectionTitle: string;
+    products: Product[];
+    useFallback: boolean;
+  }>({
+    queryKey: ['/api/homepage-products'],
+    queryFn: async () => {
+      const response = await fetch('/api/homepage-products');
+      if (!response.ok) throw new Error('Failed to fetch homepage products');
+      return response.json();
+    }
+  });
+  
   const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
 
+  const sectionTitle = homepageProductsData?.sectionTitle || "Products For You";
+  
   const products = useMemo(() => {
-    if (!apiProducts) return [];
+    if (!homepageProductsData?.products) return [];
     
-    return apiProducts.map(product => {
+    return homepageProductsData.products.map(product => {
       const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
       const bulkPricing = product.bulkPricing ? (typeof product.bulkPricing === 'string' ? JSON.parse(product.bulkPricing) : product.bulkPricing) : null;
       
@@ -74,7 +87,7 @@ export default function Home() {
         hasDiscount,
       };
     });
-  }, [apiProducts]);
+  }, [homepageProductsData?.products]);
 
   const filteredCategories = useMemo(() => {
     if (!apiCategories) return [];
@@ -436,7 +449,7 @@ export default function Home() {
       <section className="py-12 bg-background" data-testid="section-products-for-you">
         <div className="container mx-auto px-4 lg:px-6">
           <h2 className="font-serif text-2xl md:text-3xl font-semibold mb-8 text-foreground">
-            Products For You
+            {sectionTitle}
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-6">

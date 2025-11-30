@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import type { AllCmsSettings, SiteMeta, Hero, FeaturedCollections, Testimonials, Promotions, Footer } from "@shared/schema";
+import type { AllCmsSettings, SiteMeta, Hero, FeaturedCollections, Testimonials, Promotions, Footer, HomepageFeaturedProducts } from "@shared/schema";
 
 export function useCmsSettings() {
   return useQuery<AllCmsSettings>({
@@ -145,6 +145,20 @@ export function useUpdateFooter() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/cms"] });
       queryClient.invalidateQueries({ queryKey: ["/api/cms/public"] });
+    },
+  });
+}
+
+export function useUpdateHomepageProducts() {
+  return useMutation({
+    mutationFn: (data: HomepageFeaturedProducts) => adminFetch("/api/admin/cms/homepage-products", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/cms"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/cms/public"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/homepage-products"] });
     },
   });
 }

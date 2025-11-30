@@ -416,7 +416,25 @@ export interface AllCmsSettings {
   testimonials: Testimonials;
   promotions: Promotions;
   footer: Footer;
+  homepageProducts: HomepageFeaturedProducts;
 }
+
+// Homepage Featured Products Schema
+export const homepageFeaturedProductSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  displayOrder: z.number().min(0),
+  isVisible: z.boolean().optional(),
+});
+
+export const homepageFeaturedProductsSchema = z.object({
+  sectionTitle: z.string().optional(),
+  autoFallback: z.boolean().optional(), // If true, show latest products when no featured products selected
+  maxProducts: z.number().min(1).max(20).optional(),
+  products: z.array(homepageFeaturedProductSchema),
+});
+
+export type HomepageFeaturedProduct = z.infer<typeof homepageFeaturedProductSchema>;
+export type HomepageFeaturedProducts = z.infer<typeof homepageFeaturedProductsSchema>;
 
 // CMS Setting Keys
 export const CMS_KEYS = {
@@ -426,4 +444,5 @@ export const CMS_KEYS = {
   TESTIMONIALS: 'home.testimonials',
   PROMOTIONS: 'home.promotions',
   FOOTER: 'site.footer',
+  HOMEPAGE_PRODUCTS: 'home.products',
 } as const;
