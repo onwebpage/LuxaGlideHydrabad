@@ -495,6 +495,77 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* Running Brand Marquee Bar - Meesho Style */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30 py-6 border-y border-purple-100 dark:border-purple-900/30">
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
+        {/* Bottom accent line */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />
+        
+        <div className="flex overflow-hidden">
+          {/* First set of brands - scrolling left */}
+          <motion.div 
+            className="flex items-center gap-16 px-8"
+            animate={{ x: [0, -1200] }}
+            transition={{ 
+              x: { 
+                repeat: Infinity, 
+                duration: 20, 
+                ease: "linear" 
+              }
+            }}
+          >
+            {/* Brand logos - using text as placeholders since we don't have actual logos */}
+            {[
+              { name: "FabricWorld", color: "text-purple-700 dark:text-purple-400" },
+              { name: "SilkCraft", color: "text-pink-600 dark:text-pink-400" },
+              { name: "TextileHub", color: "text-blue-600 dark:text-blue-400" },
+              { name: "WeaveMaster", color: "text-emerald-600 dark:text-emerald-400" },
+              { name: "FashionFirst", color: "text-orange-600 dark:text-orange-400" },
+              { name: "StyleKart", color: "text-red-600 dark:text-red-400" },
+              { name: "TrendyFab", color: "text-violet-600 dark:text-violet-400" },
+              { name: "EleganceHub", color: "text-amber-600 dark:text-amber-400" },
+            ].map((brand, index) => (
+              <div key={index} className="flex-shrink-0">
+                <span className={`text-xl font-bold tracking-tight ${brand.color} whitespace-nowrap`}>
+                  {brand.name}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+          
+          {/* Duplicate set for seamless loop */}
+          <motion.div 
+            className="flex items-center gap-16 px-8"
+            animate={{ x: [0, -1200] }}
+            transition={{ 
+              x: { 
+                repeat: Infinity, 
+                duration: 20, 
+                ease: "linear" 
+              }
+            }}
+          >
+            {[
+              { name: "FabricWorld", color: "text-purple-700 dark:text-purple-400" },
+              { name: "SilkCraft", color: "text-pink-600 dark:text-pink-400" },
+              { name: "TextileHub", color: "text-blue-600 dark:text-blue-400" },
+              { name: "WeaveMaster", color: "text-emerald-600 dark:text-emerald-400" },
+              { name: "FashionFirst", color: "text-orange-600 dark:text-orange-400" },
+              { name: "StyleKart", color: "text-red-600 dark:text-red-400" },
+              { name: "TrendyFab", color: "text-violet-600 dark:text-violet-400" },
+              { name: "EleganceHub", color: "text-amber-600 dark:text-amber-400" },
+            ].map((brand, index) => (
+              <div key={`dup-${index}`} className="flex-shrink-0">
+                <span className={`text-xl font-bold tracking-tight ${brand.color} whitespace-nowrap`}>
+                  {brand.name}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Stats Section - Scroll Reveal with Stagger */}
       <motion.section 
         ref={statsRef}
