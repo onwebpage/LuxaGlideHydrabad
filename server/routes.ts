@@ -613,7 +613,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create product (vendor only)
+  // Create product (vendor only - requires approved KYC)
   app.post("/api/products", upload.array("images", 10), async (req, res) => {
     try {
       const { 
@@ -629,6 +629,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sizes,
         bulkPricing
       } = req.body;
+
+      // Check if vendor exists and has approved KYC
+      const vendor = await storage.getVendor(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      
+      if (vendor.kycStatus !== "approved") {
+        return res.status(403).json({ 
+          message: "KYC verification required. Please complete your KYC verification before adding products." 
+        });
+      }
 
       // Generate slug from name
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");

@@ -527,15 +527,26 @@ export default function VendorDashboard() {
           {/* Products Tab */}
           <TabsContent value="products">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
                 <CardTitle>Product Inventory</CardTitle>
-                <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
-                  <DialogTrigger asChild>
-                    <Button data-testid="button-add-product">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Product
-                    </Button>
-                  </DialogTrigger>
+                <div className="flex items-center gap-3">
+                  {kycStatus !== "approved" && (
+                    <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>Complete KYC to add products</span>
+                    </div>
+                  )}
+                  <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        data-testid="button-add-product"
+                        disabled={kycStatus !== "approved"}
+                        title={kycStatus !== "approved" ? "Complete KYC verification to add products" : "Add a new product"}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Product
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Product</DialogTitle>
@@ -580,6 +591,7 @@ export default function VendorDashboard() {
                     </div>
                   </DialogContent>
                 </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
                 {productsLoading ? (
