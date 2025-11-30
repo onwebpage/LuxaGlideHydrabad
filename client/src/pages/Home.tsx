@@ -241,10 +241,6 @@ export default function Home() {
 
         <div className="relative z-10 container mx-auto px-6 text-center">
           <div className="max-w-4xl mx-auto">
-            <Badge className="mb-8 bg-primary/20 backdrop-blur-xl border-2 border-primary/30 text-white px-8 py-3 text-base" data-testid="badge-hero">
-              Premium Wholesale Marketplace
-            </Badge>
-            
             <h1 className="font-serif text-5xl md:text-7xl font-semibold text-white leading-tight mb-8">
               Elevate Your Fashion
               <br />
