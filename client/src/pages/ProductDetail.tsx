@@ -201,7 +201,7 @@ export default function ProductDetail() {
     fabric: productData?.fabric || "",
     category: "Fashion",
     colors: colors.length > 0 ? colors : ["Red", "Blue", "Gold", "Pink", "Green"],
-    sizes: sizes.length > 0 ? sizes : ["Free Size"],
+    sizes: sizes.length > 0 ? sizes : ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
     bulkPricing: bulkPricing.length > 0 ? bulkPricing : [
       { quantity: 1, price: parseFloat(String(productData?.price || "2500")) },
       { quantity: 50, price: parseFloat(String(productData?.price || "2500")) * 0.92 },
@@ -216,10 +216,10 @@ export default function ProductDetail() {
   };
 
   useEffect(() => {
-    if (colors.length > 0 && !selectedColor) {
-      setSelectedColor(colors[0]);
+    if (sizes.length > 0 && !selectedSize) {
+      setSelectedSize(sizes[0]);
     }
-  }, [colors, selectedColor]);
+  }, [sizes, selectedSize]);
 
   useEffect(() => {
     if (productData?.moq) {
@@ -398,24 +398,24 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Color Selection */}
+            {/* Size Selection */}
             <div className="mb-6">
               <Label className="text-sm uppercase tracking-wider mb-3 block">
-                Select Color
+                Select Size
               </Label>
               <div className="flex flex-wrap gap-3">
-                {product.colors.map((color) => (
+                {product.sizes.map((size) => (
                   <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
                     className={`px-4 py-2 rounded-lg border-2 transition-all hover-elevate ${
-                      selectedColor === color
+                      selectedSize === size
                         ? "border-primary bg-primary/10"
                         : "border-border"
                     }`}
-                    data-testid={`button-color-${color}`}
+                    data-testid={`button-size-${size}`}
                   >
-                    {color}
+                    {size}
                   </button>
                 ))}
               </div>
