@@ -387,6 +387,15 @@ export default function VendorDashboard() {
           </Alert>
         )}
 
+        {kycStatus === "submitted" && (
+          <Alert className="mb-6 border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-700 dark:text-blue-400">
+              Your KYC documents have been submitted and are under review. You can start adding products while we verify your documents.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {kycStatus === "rejected" && (
           <Alert className="mb-6 border-destructive/50 bg-destructive/5">
             <AlertCircle className="h-4 w-4 text-destructive" />
@@ -621,7 +630,7 @@ export default function VendorDashboard() {
               <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
                 <CardTitle>Product Inventory</CardTitle>
                 <div className="flex items-center gap-3">
-                  {kycStatus !== "approved" && (
+                  {(kycStatus === "pending" || kycStatus === "rejected") && (
                     <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
                       <AlertCircle className="w-4 h-4" />
                       <span>Complete KYC to add products</span>
@@ -631,8 +640,8 @@ export default function VendorDashboard() {
                     <DialogTrigger asChild>
                       <Button 
                         data-testid="button-add-product"
-                        disabled={kycStatus !== "approved"}
-                        title={kycStatus !== "approved" ? "Complete KYC verification to add products" : "Add a new product"}
+                        disabled={kycStatus !== "approved" && kycStatus !== "submitted"}
+                        title={(kycStatus === "pending" || kycStatus === "rejected") ? "Complete KYC verification to add products" : "Add a new product"}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Product

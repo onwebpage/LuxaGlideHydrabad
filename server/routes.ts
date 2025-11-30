@@ -1107,7 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         kycDocuments: documentUrls,
         businessAddress: businessAddress,
         gstNumber: gstNumber,
-        kycStatus: "pending",
+        kycStatus: "submitted",
       });
 
       res.json({ 
