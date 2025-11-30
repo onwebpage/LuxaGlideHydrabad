@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // Enums
 export const userRoleEnum = pgEnum("user_role", ["buyer", "vendor", "admin"]);
-export const kycStatusEnum = pgEnum("kyc_status", ["pending", "approved", "rejected"]);
+export const kycStatusEnum = pgEnum("kyc_status", ["pending", "submitted", "approved", "rejected"]);
 export const productStatusEnum = pgEnum("product_status", ["pending", "approved", "published"]);
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed", "refunded"]);
