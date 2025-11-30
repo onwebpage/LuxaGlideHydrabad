@@ -1,11 +1,24 @@
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor } from "@shared/schema";
+import { useProducts, type Product } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
@@ -20,6 +33,11 @@ import shawlImage from "@assets/stock_images/woman_wearing_shawl__60f3f662.jpg";
 import partyWearImage from "@assets/stock_images/woman_wearing_glamor_7fcd42b1.jpg";
 
 export default function Home() {
+  const [sortBy, setSortBy] = useState("relevance");
+  const [categorySearch, setCategorySearch] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors'],
     queryFn: async () => {
@@ -28,6 +46,82 @@ export default function Home() {
       return response.json();
     }
   });
+
+  const { data: apiProducts, isLoading: productsLoading } = useProducts();
+  const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
+
+  const products = useMemo(() => {
+    if (!apiProducts) return [];
+    
+    return apiProducts.map(product => {
+      const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+      const bulkPricing = product.bulkPricing ? (typeof product.bulkPricing === 'string' ? JSON.parse(product.bulkPricing) : product.bulkPricing) : null;
+      
+      const currentPrice = parseFloat(product.price);
+      const hasDiscount = bulkPricing && Array.isArray(bulkPricing) && bulkPricing.length > 0;
+      const originalPrice = hasDiscount ? Math.round(currentPrice * 1.15) : null;
+      const discountPercent = hasDiscount ? Math.round((1 - currentPrice / originalPrice!) * 100) : null;
+      
+      return {
+        ...product,
+        image: Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg',
+        imageCount: Array.isArray(images) ? images.length : 1,
+        price: currentPrice,
+        rating: parseFloat(product.rating || '0'),
+        originalPrice,
+        discountPercent,
+        reviewCount: product.reviewCount || 0,
+        hasDiscount,
+      };
+    });
+  }, [apiProducts]);
+
+  const filteredCategories = useMemo(() => {
+    if (!apiCategories) return [];
+    return apiCategories.filter(cat => 
+      cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+    );
+  }, [apiCategories, categorySearch]);
+
+  const displayedCategories = showAllCategories 
+    ? filteredCategories 
+    : filteredCategories.slice(0, 8);
+
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+    
+    if (selectedCategories.size > 0) {
+      result = result.filter(p => selectedCategories.has(p.categoryId));
+    }
+    
+    switch (sortBy) {
+      case "price-low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "rating":
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      default:
+        break;
+    }
+    
+    return result.slice(0, 10);
+  }, [products, selectedCategories, sortBy]);
+
+  const toggleCategory = (categoryId: string) => {
+    setSelectedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
 
   const shopCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
@@ -333,6 +427,220 @@ export default function Home() {
                   <p className="text-center text-white font-medium text-sm">Accessories</p>
                 </div>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Products For You Section */}
+      <section className="py-12 bg-background" data-testid="section-products-for-you">
+        <div className="container mx-auto px-4 lg:px-6">
+          <h2 className="font-serif text-2xl md:text-3xl font-semibold mb-8 text-foreground">
+            Products For You
+          </h2>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left Sidebar - Filters */}
+            <aside className="w-full lg:w-64 shrink-0">
+              <div className="sticky top-24 space-y-6">
+                {/* Sort Dropdown */}
+                <div>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-full bg-background border" data-testid="select-sort-products">
+                      <span className="text-sm text-muted-foreground">Sort by :</span>
+                      <SelectValue placeholder="Relevance" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="relevance">Relevance</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filters Header */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-semibold text-sm uppercase tracking-wide">Filters</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {products.length}+ Products
+                  </p>
+                </div>
+
+                {/* Category Section */}
+                <div className="border-t pt-4">
+                  <button
+                    className="flex items-center justify-between w-full mb-4"
+                    onClick={() => setShowAllCategories(!showAllCategories)}
+                    data-testid="button-toggle-categories"
+                  >
+                    <h4 className="font-semibold text-sm">Category</h4>
+                    {showAllCategories ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+
+                  {/* Category Search */}
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search"
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="pl-9 h-9 text-sm"
+                      data-testid="input-category-search"
+                    />
+                  </div>
+
+                  {/* Category Checkboxes */}
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {categoriesLoading ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <Skeleton key={i} className="h-5 w-full" />
+                      ))
+                    ) : (
+                      displayedCategories.map((category) => (
+                        <label
+                          key={category.id}
+                          className="flex items-center gap-3 cursor-pointer group"
+                          data-testid={`checkbox-category-${category.id}`}
+                        >
+                          <Checkbox
+                            checked={selectedCategories.has(category.id)}
+                            onCheckedChange={() => toggleCategory(category.id)}
+                            className="border-muted-foreground/50"
+                          />
+                          <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                            {category.name}
+                          </span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Show More */}
+                  {filteredCategories.length > 8 && (
+                    <button
+                      className="text-primary text-sm font-medium mt-4 hover:underline"
+                      onClick={() => setShowAllCategories(!showAllCategories)}
+                      data-testid="button-show-more-categories"
+                    >
+                      {showAllCategories ? "Show Less" : "Show More"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </aside>
+
+            {/* Right Side - Product Grid */}
+            <div className="flex-1">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {productsLoading ? (
+                  Array.from({ length: 10 }).map((_, i) => (
+                    <Card key={i} className="overflow-hidden border-0 shadow-sm">
+                      <Skeleton className="aspect-square w-full" />
+                      <div className="p-3 space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                    </Card>
+                  ))
+                ) : filteredProducts.length === 0 ? (
+                  <div className="col-span-full py-12 text-center">
+                    <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
+                    <p className="text-muted-foreground">No products found</p>
+                  </div>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <Link key={product.id} href={`/products/${product.id}`}>
+                      <Card
+                        className="group overflow-hidden border hover-elevate transition-all duration-300 cursor-pointer h-full"
+                        data-testid={`card-product-for-you-${product.id}`}
+                      >
+                        {/* Product Image */}
+                        <div className="relative aspect-square overflow-hidden bg-muted/30">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {/* Image Count Badge */}
+                          {product.imageCount > 1 && (
+                            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-sm">
+                              +{product.imageCount - 1} More
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Details */}
+                        <div className="p-3 space-y-1.5">
+                          {/* Product Name */}
+                          <h3 className="text-sm font-medium text-foreground truncate leading-tight">
+                            {product.name}
+                          </h3>
+
+                          {/* Price */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-base font-bold text-foreground">
+                              ₹{product.price.toLocaleString()}
+                            </span>
+                            {product.hasDiscount && product.originalPrice && (
+                              <>
+                                <span className="text-xs text-muted-foreground line-through">
+                                  ₹{product.originalPrice.toLocaleString()}
+                                </span>
+                                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                  {product.discountPercent}% off
+                                </span>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Free Delivery */}
+                          <div className="flex items-center gap-1">
+                            <Truck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                              Free Delivery
+                            </span>
+                          </div>
+
+                          {/* Rating */}
+                          {(product.rating > 0 || product.reviewCount > 0) && (
+                            <div className="flex items-center gap-1.5 pt-1">
+                              <div className="flex items-center gap-1 bg-emerald-600 dark:bg-emerald-500 text-white px-1.5 py-0.5 rounded-sm">
+                                <span className="text-xs font-semibold">{product.rating.toFixed(1)}</span>
+                                <Star className="w-2.5 h-2.5 fill-white" />
+                              </div>
+                              {product.reviewCount > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  {product.reviewCount.toLocaleString()} Reviews
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    </Link>
+                  ))
+                )}
+              </div>
+
+              {/* View All Products Link */}
+              {products.length > 10 && (
+                <div className="text-center mt-8">
+                  <Link href="/products">
+                    <Button variant="outline" size="lg" data-testid="button-view-all-products">
+                      View All Products
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
