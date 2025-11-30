@@ -881,96 +881,135 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-32 bg-gradient-to-b from-secondary/20 to-background relative overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="font-serif text-5xl md:text-6xl font-semibold mb-6">
-              Why Choose LuxeWholesale?
-            </h2>
-            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-              India's most trusted B2B fashion marketplace for wholesale buyers
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Benefit 1 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-pricing">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <TrendingUp className="w-8 h-8 text-primary" />
+      {/* Premium Gold Collection Section - Meesho Style */}
+      <section className="relative overflow-hidden" data-testid="section-gold-collection">
+        {/* Dark gradient background similar to Meesho Gold */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2d1810] via-[#3d2518] to-[#4a2c1a]" />
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(212, 175, 55, 0.1) 0%, transparent 50%)' }} />
+        
+        <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            {/* Left Side - Branding & CTA */}
+            <div className="flex-1 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+              {/* Featured Image */}
+              <motion.div 
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+                className="relative w-full max-w-sm lg:max-w-md"
+              >
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden">
+                  <img 
+                    src={sareeImage} 
+                    alt="Premium Collection" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d1810]/60 via-transparent to-transparent" />
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Competitive Wholesale Prices</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Access the best wholesale rates directly from verified manufacturers and suppliers. Save up to 40% on bulk orders.
-                </p>
-              </CardContent>
-            </Card>
+                {/* Decorative bokeh effects */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full bg-amber-400/20 blur-2xl" />
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full bg-amber-300/15 blur-3xl" />
+              </motion.div>
 
-            {/* Benefit 2 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-quality">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <Shield className="w-8 h-8 text-primary" />
+              {/* Branding Text */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-center lg:text-left"
+              >
+                {/* Gold Star Icon + Title */}
+                <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+                  <Sparkles className="w-8 h-8 text-amber-400" />
+                  <h2 className="font-serif text-4xl lg:text-5xl font-bold text-amber-400 tracking-tight">
+                    Gold
+                  </h2>
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Quality Guaranteed</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Every product is quality-checked before dispatch. 100% authentic fabrics and materials with easy returns.
+                
+                <p className="text-white/90 text-lg lg:text-xl mb-6 max-w-sm">
+                  Products you Love. Quality we Trust.
                 </p>
-              </CardContent>
-            </Card>
+                
+                <Link href="/products">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="border-2 border-amber-400 text-amber-400 bg-transparent hover:bg-amber-400/10 px-8 py-6 text-base font-semibold"
+                    data-testid="button-shop-gold"
+                  >
+                    Shop Now
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
 
-            {/* Benefit 3 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-delivery">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <Zap className="w-8 h-8 text-primary" />
+            {/* Right Side - Category Cards in Arch Shape */}
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="flex-1 grid grid-cols-2 gap-4 lg:gap-6 max-w-lg"
+            >
+              {/* Lehengas Card */}
+              <Link href="/products?category=sarees" className="group">
+                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-all duration-300">
+                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
+                    <img 
+                      src={partyWearImage} 
+                      alt="Lehengas" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <p className="text-center text-white font-medium text-sm">Lehengas</p>
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Fast Delivery</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Pan-India delivery within 3-7 days. Real-time tracking and dedicated logistics support for bulk orders.
-                </p>
-              </CardContent>
-            </Card>
+              </Link>
 
-            {/* Benefit 4 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-vendors">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <CheckCircle className="w-8 h-8 text-primary" />
+              {/* Menwear Card */}
+              <Link href="/products?category=kurtas" className="group">
+                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-all duration-300">
+                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
+                    <img 
+                      src={kurtaImage} 
+                      alt="Kurtas" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <p className="text-center text-white font-medium text-sm">Kurtas</p>
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Verified Vendors</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Work with trusted, background-verified suppliers. Every vendor is thoroughly vetted for reliability and quality.
-                </p>
-              </CardContent>
-            </Card>
+              </Link>
 
-            {/* Benefit 5 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-selection">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <Package className="w-8 h-8 text-primary" />
+              {/* Sarees Card */}
+              <Link href="/products?category=sarees" className="group">
+                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-all duration-300">
+                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
+                    <img 
+                      src={sareeImage} 
+                      alt="Sarees" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <p className="text-center text-white font-medium text-sm">Sarees</p>
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Wide Selection</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Over 5,000+ products across all categories. From traditional to contemporary fashion, find everything in one place.
-                </p>
-              </CardContent>
-            </Card>
+              </Link>
 
-            {/* Benefit 6 */}
-            <Card className="hover-elevate border-2 shadow-lg" data-testid="benefit-ordering">
-              <CardContent className="p-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-6">
-                  <Users className="w-8 h-8 text-primary" />
+              {/* Jewellery Card */}
+              <Link href="/products?category=jewellery" className="group">
+                <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-all duration-300">
+                  <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
+                    <img 
+                      src={coordsImage} 
+                      alt="Accessories" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <p className="text-center text-white font-medium text-sm">Accessories</p>
                 </div>
-                <h3 className="font-semibold text-2xl mb-4">Easy Ordering</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Simple bulk ordering process with flexible MOQs. Dedicated account manager for personalized support.
-                </p>
-              </CardContent>
-            </Card>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
