@@ -73,7 +73,7 @@ export default function ProductDetail() {
   const [, params] = useRoute("/products/:id");
   const [, setLocation] = useLocation();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(10);
+  const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
@@ -193,7 +193,7 @@ export default function ProductDetail() {
       totalSales: vendorData?.totalSales || 0,
     },
     price: parseFloat(String(productData?.price || "0")),
-    moq: productData?.moq || 10,
+    moq: productData?.moq || 1,
     stock: productData?.stock || 0,
     rating: parseFloat(String(productData?.rating || "0")),
     reviewCount: productData?.reviewCount || 0,
@@ -203,14 +203,14 @@ export default function ProductDetail() {
     colors: colors.length > 0 ? colors : ["Red", "Blue", "Gold", "Pink", "Green"],
     sizes: sizes.length > 0 ? sizes : ["Free Size"],
     bulkPricing: bulkPricing.length > 0 ? bulkPricing : [
-      { quantity: 10, price: parseFloat(String(productData?.price || "2500")) },
+      { quantity: 1, price: parseFloat(String(productData?.price || "2500")) },
       { quantity: 50, price: parseFloat(String(productData?.price || "2500")) * 0.92 },
       { quantity: 100, price: parseFloat(String(productData?.price || "2500")) * 0.84 },
     ],
     features: [
       productData?.fabric ? `Made with ${productData.fabric}` : "Premium Quality",
       "Handcrafted",
-      `MOQ: ${productData?.moq || 10} pieces`,
+      `MOQ: ${productData?.moq || 1} pieces`,
       "Bulk Discounts Available",
     ],
   };
@@ -430,7 +430,7 @@ export default function ProductDetail() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setQuantity(Math.max(product.moq, quantity - 10))}
+                  onClick={() => setQuantity(Math.max(product.moq, quantity - 1))}
                   data-testid="button-decrease-quantity"
                 >
                   <Minus className="w-4 h-4" />
@@ -445,7 +445,7 @@ export default function ProductDetail() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setQuantity(quantity + 10)}
+                  onClick={() => setQuantity(quantity + 1)}
                   data-testid="button-increase-quantity"
                 >
                   <Plus className="w-4 h-4" />

@@ -92,7 +92,7 @@ export const products = pgTable("products", {
   categoryId: varchar("category_id").references(() => categories.id),
   fabric: text("fabric"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  moq: integer("moq").notNull().default(10), // Minimum Order Quantity
+  moq: integer("moq").notNull().default(1), // Minimum Order Quantity
   stock: integer("stock").notNull().default(0),
   images: jsonb("images").notNull(), // Array of image URLs
   colors: jsonb("colors"), // Array of available colors

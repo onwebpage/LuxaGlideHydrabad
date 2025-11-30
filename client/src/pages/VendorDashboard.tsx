@@ -76,7 +76,7 @@ export default function VendorDashboard() {
   
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
-  const [productMoq, setProductMoq] = useState("10");
+  const [productMoq, setProductMoq] = useState("1");
   const [productDescription, setProductDescription] = useState("");
   const [productImages, setProductImages] = useState<File[]>([]);
   const [productSaving, setProductSaving] = useState(false);
@@ -336,7 +336,7 @@ export default function VendorDashboard() {
   const resetProductForm = () => {
     setProductName("");
     setProductPrice("");
-    setProductMoq("10");
+    setProductMoq("1");
     setProductDescription("");
     setProductImages([]);
   };
@@ -395,7 +395,7 @@ export default function VendorDashboard() {
       formData.append('name', productName.trim());
       formData.append('description', productDescription.trim());
       formData.append('price', productPrice);
-      formData.append('moq', productMoq || '10');
+      formData.append('moq', productMoq || '1');
       formData.append('stock', '100');
       
       productImages.forEach((file) => {
@@ -570,7 +570,7 @@ export default function VendorDashboard() {
       formData.append('name', editProductName.trim());
       formData.append('description', editProductDescription.trim());
       formData.append('price', editProductPrice);
-      formData.append('moq', editProductMoq || '10');
+      formData.append('moq', editProductMoq || '1');
       formData.append('stock', editProductStock || '0');
 
       const response = await fetch(`/api/vendor/products/${editingProduct.id}`, {
