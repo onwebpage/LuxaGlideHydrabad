@@ -16,11 +16,16 @@ type UserProfile = Buyer | Vendor | null;
 interface AuthContextType {
   user: User | null;
   profile: UserProfile;
+  token: string | null;
   login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (data: any) => Promise<User>;
   refreshProfile: (updatedUser: User, updatedProfile: UserProfile) => void;
   isLoading: boolean;
+}
+
+export function getAuthToken(): string | null {
+  return localStorage.getItem("authToken");
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,17 +33,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is logged in (from localStorage)
     const storedUser = localStorage.getItem("user");
     const storedProfile = localStorage.getItem("profile");
+    const storedToken = localStorage.getItem("authToken");
     
     if (storedUser) {
       setUser(JSON.parse(storedUser));
       if (storedProfile) {
         setProfile(JSON.parse(storedProfile));
+      }
+      if (storedToken) {
+        setToken(storedToken);
       }
     }
     
@@ -51,13 +61,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await res.json() as {
         user: User;
         profile: UserProfile;
+        token: string;
         message: string;
       };
       
       if (response.user) {
         setUser(response.user);
         setProfile(response.profile);
+        setToken(response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("authToken", response.token);
         if (response.profile) {
           localStorage.setItem("profile", JSON.stringify(response.profile));
         }
@@ -71,20 +84,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (data: any): Promise<User> => {
     try {
-      await apiRequest("POST", "/api/auth/register", data);
+      const res = await apiRequest("POST", "/api/auth/register", data);
+      const response = await res.json() as {
+        user: User;
+        profile: UserProfile;
+        token: string;
+        message: string;
+      };
       
-      // Auto-login after registration and return user
-      return await login(data.email, data.password);
+      if (response.user) {
+        setUser(response.user);
+        setProfile(response.profile);
+        setToken(response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("authToken", response.token);
+        if (response.profile) {
+          localStorage.setItem("profile", JSON.stringify(response.profile));
+        }
+        return response.user;
+      }
+      throw new Error("Registration failed - no user data received");
     } catch (error: any) {
       throw new Error(error.message || "Registration failed");
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setProfile(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("profile");
+  const logout = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (authToken) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${authToken}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      setProfile(null);
+      setToken(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("profile");
+      localStorage.removeItem("authToken");
+    }
   };
 
   const refreshProfile = (updatedUser: User, updatedProfile: UserProfile) => {
@@ -97,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, login, logout, register, refreshProfile, isLoading }}>
+    <AuthContext.Provider value={{ user, profile, token, login, logout, register, refreshProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

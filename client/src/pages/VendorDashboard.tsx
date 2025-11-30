@@ -39,7 +39,9 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Product, Vendor } from "@shared/schema";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, getAuthToken } from "@/lib/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { X, FileText, CheckCircle } from "lucide-react";
 
 const salesData = [
   { month: "Jan", sales: 45000 },
@@ -52,8 +54,14 @@ const salesData = [
 
 export default function VendorDashboard() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isKycDialogOpen, setIsKycDialogOpen] = useState(false);
+  const [kycUploading, setKycUploading] = useState(false);
+  const [kycFiles, setKycFiles] = useState<File[]>([]);
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
   const [, setLocation] = useLocation();
-  const { user, profile, isLoading: authLoading } = useAuth();
+  const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
+  const { toast } = useToast();
   
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
@@ -159,6 +167,99 @@ export default function VendorDashboard() {
     },
   ];
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const validFiles: File[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        if (validTypes.includes(file.type) && file.size <= 5 * 1024 * 1024) {
+          validFiles.push(file);
+        } else {
+          toast({
+            title: "Invalid file",
+            description: `${file.name} is not a valid file type or exceeds 5MB`,
+            variant: "destructive",
+          });
+        }
+      }
+      setKycFiles(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setKycFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleKycSubmit = async () => {
+    if (kycFiles.length === 0) {
+      toast({
+        title: "No documents",
+        description: "Please upload at least one KYC document",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const authToken = getAuthToken();
+    if (!authToken) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in again to submit KYC documents",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setKycUploading(true);
+    try {
+      const formData = new FormData();
+      kycFiles.forEach((file) => {
+        formData.append('documents', file);
+      });
+      formData.append('businessAddress', businessAddress);
+      formData.append('gstNumber', gstNumber);
+
+      const response = await fetch('/api/vendors/kyc/submit', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit KYC documents');
+      }
+
+      const data = await response.json();
+      
+      if (user && data.vendor) {
+        refreshProfile(user, data.vendor);
+      }
+
+      toast({
+        title: "KYC Submitted",
+        description: "Your KYC documents have been submitted for verification. You will be notified once approved.",
+      });
+
+      setIsKycDialogOpen(false);
+      setKycFiles([]);
+      setBusinessAddress("");
+      setGstNumber("");
+    } catch (error: any) {
+      toast({
+        title: "Submission failed",
+        description: error.message || "Failed to submit KYC documents",
+        variant: "destructive",
+      });
+    } finally {
+      setKycUploading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto px-6">
@@ -174,14 +275,163 @@ export default function VendorDashboard() {
         {kycStatus === "pending" && (
           <Alert className="mb-6 border-primary/50 bg-primary/5">
             <AlertCircle className="h-4 w-4 text-primary" />
-            <AlertDescription>
+            <AlertDescription className="flex items-center gap-2 flex-wrap">
               Your KYC verification is pending. Please upload required documents to start selling.
-              <Button variant="ghost" className="p-0 h-auto ml-2 text-primary underline" data-testid="button-complete-kyc">
+              <Button 
+                variant="ghost" 
+                className="p-0 h-auto text-primary underline" 
+                onClick={() => setIsKycDialogOpen(true)}
+                data-testid="button-complete-kyc"
+              >
                 Complete KYC
               </Button>
             </AlertDescription>
           </Alert>
         )}
+
+        {kycStatus === "rejected" && (
+          <Alert className="mb-6 border-destructive/50 bg-destructive/5">
+            <AlertCircle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="flex items-center gap-2 flex-wrap">
+              Your KYC verification was rejected. Please resubmit your documents.
+              <Button 
+                variant="ghost" 
+                className="p-0 h-auto text-destructive underline" 
+                onClick={() => setIsKycDialogOpen(true)}
+                data-testid="button-resubmit-kyc"
+              >
+                Resubmit KYC
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {kycStatus === "approved" && (
+          <Alert className="mb-6 border-green-500/50 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700">
+              Your KYC verification is complete. You can now start selling products.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* KYC Dialog */}
+        <Dialog open={isKycDialogOpen} onOpenChange={setIsKycDialogOpen}>
+          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Complete KYC Verification</DialogTitle>
+              <DialogDescription>
+                Please upload your business documents to verify your account. This is required to start selling on LuxeWholesale.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="businessAddress">Business Address</Label>
+                <Textarea
+                  id="businessAddress"
+                  placeholder="Enter your complete business address"
+                  value={businessAddress}
+                  onChange={(e) => setBusinessAddress(e.target.value)}
+                  data-testid="input-business-address"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gstNumber">GST Number (Optional)</Label>
+                <Input
+                  id="gstNumber"
+                  placeholder="e.g., 22AAAAA0000A1Z5"
+                  value={gstNumber}
+                  onChange={(e) => setGstNumber(e.target.value)}
+                  data-testid="input-gst-number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Upload Documents</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Upload valid business documents such as PAN Card, Business Registration Certificate, GST Certificate, or Address Proof.
+                </p>
+                <div 
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center hover-elevate transition-all cursor-pointer"
+                  onClick={() => document.getElementById('kyc-file-input')?.click()}
+                >
+                  <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to upload documents (JPG, PNG, PDF - max 5MB each)
+                  </p>
+                  <input
+                    id="kyc-file-input"
+                    type="file"
+                    multiple
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    data-testid="input-kyc-files"
+                  />
+                </div>
+              </div>
+
+              {kycFiles.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Selected Documents ({kycFiles.length})</Label>
+                  <div className="space-y-2">
+                    {kycFiles.map((file, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({(file.size / 1024).toFixed(1)} KB)
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFile(index)}
+                          data-testid={`button-remove-file-${index}`}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsKycDialogOpen(false);
+                    setKycFiles([]);
+                    setBusinessAddress("");
+                    setGstNumber("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleKycSubmit}
+                  disabled={kycUploading || kycFiles.length === 0}
+                  data-testid="button-submit-kyc"
+                >
+                  {kycUploading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    "Submit for Verification"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { z } from "zod";
 import { 
   updateBuyerProfileSchema,
   siteMetaSchema,
@@ -35,20 +36,53 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Helper function to get safe extension from mimetype
+function getSafeExtension(mimetype: string): string {
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'application/pdf': '.pdf',
+  };
+  return mimeToExt[mimetype] || '';
+}
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: uploadDir,
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+      // Generate safe random filename based on mimetype, not user-supplied extension
+      const uniqueSuffix = Date.now() + "-" + crypto.randomBytes(8).toString('hex');
+      const safeExt = getSafeExtension(file.mimetype);
+      if (!safeExt) {
+        return cb(new Error('Invalid file type'), '');
+      }
+      cb(null, file.fieldname + "-" + uniqueSuffix + safeExt);
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  },
 });
 
 // In-memory admin session store (for production, use Redis or database)
 const adminSessions = new Map<string, { 
   username: string; 
+  createdAt: number;
+  lastAccessedAt: number;
+  expiresAt: number;
+}>();
+
+// In-memory user session store for regular users (buyers/vendors)
+const userSessions = new Map<string, { 
+  userId: string;
+  role: string;
   createdAt: number;
   lastAccessedAt: number;
   expiresAt: number;
@@ -66,7 +100,56 @@ setInterval(() => {
       adminSessions.delete(token);
     }
   }
+  for (const [token, session] of userSessions.entries()) {
+    if (now > session.expiresAt) {
+      userSessions.delete(token);
+    }
+  }
 }, 5 * 60 * 1000); // Run every 5 minutes
+
+// Extend Express Request to include user info
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: string; role: string };
+    }
+  }
+}
+
+// User authentication middleware for buyers/vendors
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+
+  const token = authHeader.substring(7);
+  const session = userSessions.get(token);
+
+  if (!session) {
+    return res.status(401).json({ message: "Invalid or expired session" });
+  }
+
+  const now = Date.now();
+  const maxLifetimeExpired = now > session.createdAt + SESSION_MAX_LIFETIME;
+  const idleTimeoutExpired = now > session.lastAccessedAt + SESSION_IDLE_TIMEOUT;
+
+  if (maxLifetimeExpired || idleTimeoutExpired) {
+    userSessions.delete(token);
+    return res.status(401).json({ message: "Session expired" });
+  }
+
+  // Update last accessed time but don't extend beyond max lifetime
+  session.lastAccessedAt = now;
+  session.expiresAt = Math.min(
+    session.createdAt + SESSION_MAX_LIFETIME,
+    now + SESSION_IDLE_TIMEOUT
+  );
+  
+  req.user = { id: session.userId, role: session.role };
+  next();
+}
 
 // Admin authentication middleware
 function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
@@ -134,22 +217,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Create role-specific profile
+      let profileData = null;
       if (role === "vendor") {
-        await storage.createVendor({
+        profileData = await storage.createVendor({
           userId: user.id,
           businessName: businessName || "",
           gstNumber,
           kycStatus: "pending",
         });
       } else if (role === "buyer") {
-        await storage.createBuyer({
+        profileData = await storage.createBuyer({
           userId: user.id,
           businessName,
           gstNumber,
         });
       }
 
-      res.json({ message: "Registration successful", userId: user.id, role: user.role });
+      // Generate user session token
+      const token = crypto.randomBytes(32).toString("hex");
+      const now = Date.now();
+
+      userSessions.set(token, {
+        userId: user.id,
+        role: user.role,
+        createdAt: now,
+        lastAccessedAt: now,
+        expiresAt: now + SESSION_IDLE_TIMEOUT,
+      });
+
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ 
+        message: "Registration successful", 
+        user: userWithoutPassword,
+        profile: profileData,
+        token
+      });
     } catch (error: any) {
       console.error("Registration error:", error);
       res.status(500).json({ message: error.message || "Registration failed" });
@@ -183,10 +285,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profileData = await storage.getBuyerByUserId(user.id);
       }
 
+      // Invalidate existing sessions for this user (session rotation)
+      for (const [existingToken, session] of userSessions.entries()) {
+        if (session.userId === user.id) {
+          userSessions.delete(existingToken);
+        }
+      }
+
+      // Generate user session token
+      const token = crypto.randomBytes(32).toString("hex");
+      const now = Date.now();
+
+      userSessions.set(token, {
+        userId: user.id,
+        role: user.role,
+        createdAt: now,
+        lastAccessedAt: now,
+        expiresAt: now + SESSION_IDLE_TIMEOUT,
+      });
+
       const { password: _, ...userWithoutPassword } = user;
       res.json({ 
         user: userWithoutPassword,
         profile: profileData,
+        token,
         message: "Login successful"
       });
     } catch (error: any) {
@@ -245,6 +367,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (authHeader && authHeader.startsWith("Bearer ")) {
         const token = authHeader.substring(7);
         adminSessions.delete(token);
+      }
+      res.json({ message: "Logged out successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // User logout (buyers/vendors) - requires authentication
+  app.post("/api/auth/logout", requireAuth, async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        userSessions.delete(token);
       }
       res.json({ message: "Logged out successfully" });
     } catch (error: any) {
@@ -701,6 +837,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(vendor);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // KYC submission validation schema
+  const kycSubmissionSchema = z.object({
+    businessAddress: z.string()
+      .max(500, "Business address must be less than 500 characters")
+      .optional()
+      .transform(val => val?.trim()),
+    gstNumber: z.string()
+      .max(20, "GST number must be less than 20 characters")
+      .regex(/^[A-Z0-9]*$/, "GST number can only contain uppercase letters and numbers")
+      .optional()
+      .transform(val => val?.trim()),
+  });
+
+  // Vendor KYC submission (for vendors themselves)
+  app.post("/api/vendors/kyc/submit", requireAuth, upload.array('documents', 5), async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== "vendor") {
+        return res.status(403).json({ message: "Only vendors can submit KYC documents" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor profile not found" });
+      }
+
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: "At least one document is required" });
+      }
+
+      if (files.length > 5) {
+        return res.status(400).json({ message: "Maximum 5 documents allowed" });
+      }
+
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      const maxFileSize = 5 * 1024 * 1024;
+
+      for (const file of files) {
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return res.status(400).json({ 
+            message: `Invalid file type: ${file.originalname}. Only JPG, PNG, and PDF files are allowed.` 
+          });
+        }
+        if (file.size > maxFileSize) {
+          return res.status(400).json({ 
+            message: `File too large: ${file.originalname}. Maximum size is 5MB.` 
+          });
+        }
+        // Sanitize filename - remove path traversal attempts
+        if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+          return res.status(400).json({ 
+            message: `Invalid filename: ${file.originalname}` 
+          });
+        }
+      }
+
+      // Validate business info using Zod schema
+      const validationResult = kycSubmissionSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: validationResult.error.errors.map(e => e.message).join(', ') 
+        });
+      }
+
+      const { businessAddress, gstNumber } = validationResult.data;
+
+      const documentUrls = files.map(file => `/uploads/${file.filename}`);
+
+      const updatedVendor = await storage.updateVendor(vendor.id, {
+        kycDocuments: documentUrls,
+        businessAddress: businessAddress || vendor.businessAddress,
+        gstNumber: gstNumber || vendor.gstNumber,
+        kycStatus: "pending",
+      });
+
+      res.json({ 
+        message: "KYC documents submitted successfully", 
+        vendor: updatedVendor 
+      });
+    } catch (error: any) {
+      console.error("KYC submission error:", error);
+      res.status(500).json({ message: error.message || "Failed to submit KYC documents" });
     }
   });
 

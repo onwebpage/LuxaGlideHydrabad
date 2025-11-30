@@ -14,10 +14,14 @@ export async function apiRequest(
 ): Promise<Response> {
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   
-  // Add admin token if present
+  // Add admin token if present (takes precedence)
   const adminToken = localStorage.getItem("adminToken");
+  const authToken = localStorage.getItem("authToken");
+  
   if (adminToken) {
     headers["Authorization"] = `Bearer ${adminToken}`;
+  } else if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
   }
 
   const res = await fetch(url, {
@@ -39,10 +43,14 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const headers: Record<string, string> = {};
     
-    // Add admin token if present
+    // Add admin token if present (takes precedence)
     const adminToken = localStorage.getItem("adminToken");
+    const authToken = localStorage.getItem("authToken");
+    
     if (adminToken) {
       headers["Authorization"] = `Bearer ${adminToken}`;
+    } else if (authToken) {
+      headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     // Build URL from queryKey
