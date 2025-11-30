@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRoute, Link } from "wouter";
+import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,8 @@ import {
   ArrowLeft,
   Plus,
   Minus,
+  Loader2,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -28,6 +30,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import type { Product, Vendor } from "@shared/schema";
 
 import redSaree1 from "@assets/stock_images/red_silk_saree_india_274954fe.jpg";
 import redSaree2 from "@assets/stock_images/red_silk_saree_india_cb81e8d8.jpg";
@@ -55,43 +62,134 @@ const colorImageMap: Record<string, string[]> = {
 
 export default function ProductDetail() {
   const [, params] = useRoute("/products/:id");
+  const [, setLocation] = useLocation();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(10);
-  const [selectedColor, setSelectedColor] = useState("Red");
+  const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [addedToCart, setAddedToCart] = useState(false);
+  
+  const { addToCart, isAddingToCart } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Mock product data - will be replaced with API
-  const product = {
-    id: params?.id || "1",
-    name: "Designer Silk Saree Collection",
-    vendor: {
-      id: "v1",
-      name: "Elite Fashion Co.",
-      rating: 4.8,
-      totalSales: 5000,
+  const { data: productData, isLoading: productLoading } = useQuery<Product>({
+    queryKey: ['/api/products', params?.id],
+    enabled: !!params?.id,
+  });
+
+  const { data: vendorData } = useQuery<Vendor>({
+    queryKey: ['/api/vendors', productData?.vendorId],
+    queryFn: async () => {
+      const response = await fetch(`/api/vendors/approved`);
+      const vendors = await response.json();
+      return vendors.find((v: Vendor) => v.id === productData?.vendorId);
     },
-    price: 2500,
-    moq: 10,
-    stock: 500,
-    rating: 4.7,
-    reviewCount: 142,
-    description: "Premium quality silk saree with intricate embroidery work. Perfect for weddings and special occasions. Handcrafted by skilled artisans.",
-    fabric: "Pure Silk",
-    category: "Sarees",
-    colors: ["Red", "Blue", "Gold", "Pink", "Green"],
-    sizes: ["Free Size"],
-    bulkPricing: [
-      { quantity: 10, price: 2500 },
-      { quantity: 50, price: 2300 },
-      { quantity: 100, price: 2100 },
-      { quantity: 200, price: 1900 },
+    enabled: !!productData?.vendorId,
+  });
+
+  const parseJsonField = (field: any): string[] => {
+    if (!field) return [];
+    if (Array.isArray(field)) return field;
+    try {
+      return JSON.parse(field);
+    } catch {
+      return [];
+    }
+  };
+
+  const parseBulkPricing = (field: any): Array<{ quantity: number; price: number }> => {
+    if (!field) return [];
+    if (Array.isArray(field)) return field;
+    try {
+      return JSON.parse(field);
+    } catch {
+      return [];
+    }
+  };
+
+  const images = parseJsonField(productData?.images);
+  const colors = parseJsonField(productData?.colors);
+  const sizes = parseJsonField(productData?.sizes);
+  const bulkPricing = parseBulkPricing(productData?.bulkPricing);
+
+  const product = {
+    id: productData?.id || params?.id || "1",
+    name: productData?.name || "Product",
+    vendor: {
+      id: vendorData?.id || "v1",
+      name: vendorData?.businessName || "Vendor",
+      rating: parseFloat(String(vendorData?.rating || "4.5")),
+      totalSales: vendorData?.totalSales || 0,
+    },
+    price: parseFloat(String(productData?.price || "0")),
+    moq: productData?.moq || 10,
+    stock: productData?.stock || 0,
+    rating: parseFloat(String(productData?.rating || "0")),
+    reviewCount: productData?.reviewCount || 0,
+    description: productData?.description || "",
+    fabric: productData?.fabric || "",
+    category: "Fashion",
+    colors: colors.length > 0 ? colors : ["Red", "Blue", "Gold", "Pink", "Green"],
+    sizes: sizes.length > 0 ? sizes : ["Free Size"],
+    bulkPricing: bulkPricing.length > 0 ? bulkPricing : [
+      { quantity: 10, price: parseFloat(String(productData?.price || "2500")) },
+      { quantity: 50, price: parseFloat(String(productData?.price || "2500")) * 0.92 },
+      { quantity: 100, price: parseFloat(String(productData?.price || "2500")) * 0.84 },
     ],
     features: [
-      "100% Pure Silk",
-      "Hand Embroidered",
-      "Dry Clean Only",
-      "Comes with Blouse Piece",
+      productData?.fabric ? `Made with ${productData.fabric}` : "Premium Quality",
+      "Handcrafted",
+      `MOQ: ${productData?.moq || 10} pieces`,
+      "Bulk Discounts Available",
     ],
+  };
+
+  useEffect(() => {
+    if (colors.length > 0 && !selectedColor) {
+      setSelectedColor(colors[0]);
+    }
+  }, [colors, selectedColor]);
+
+  useEffect(() => {
+    if (productData?.moq) {
+      setQuantity(productData.moq);
+    }
+  }, [productData?.moq]);
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to add items to your cart",
+        variant: "destructive",
+      });
+      setLocation("/login");
+      return;
+    }
+
+    try {
+      await addToCart({
+        productId: product.id,
+        quantity,
+        selectedColor: selectedColor || undefined,
+        selectedSize: selectedSize || undefined,
+      });
+      
+      setAddedToCart(true);
+      toast({
+        title: "Added to Cart",
+        description: `${quantity} x ${product.name} added to your cart`,
+      });
+      
+      setTimeout(() => setAddedToCart(false), 2000);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add to cart",
+        variant: "destructive",
+      });
+    }
   };
 
   // Get current color images - fallback to Red color if selected color not found
@@ -284,9 +382,21 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <div className="flex gap-3 mb-8">
-              <Button className="flex-1" size="lg" data-testid="button-add-to-cart">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Add to Cart
+              <Button 
+                className="flex-1" 
+                size="lg" 
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || addedToCart}
+                data-testid="button-add-to-cart"
+              >
+                {isAddingToCart ? (
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : addedToCart ? (
+                  <Check className="w-5 h-5 mr-2" />
+                ) : (
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                )}
+                {isAddingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
               </Button>
               <Button variant="outline" size="lg" data-testid="button-request-quote">
                 <MessageSquare className="w-5 h-5 mr-2" />

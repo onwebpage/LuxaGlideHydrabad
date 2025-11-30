@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useQuery } from "@tanstack/react-query";
+import { useCart } from "@/hooks/use-cart";
 import type { Category } from "@shared/schema";
 
 export function Header() {
@@ -18,9 +19,9 @@ export function Header() {
   const { data: cmsSettings } = useCmsSettings();
   
   const siteName = cmsSettings?.siteMeta?.siteName || "FabricMart";
+  const { cartItemCount } = useCart();
   
   const isLoggedIn = !!user;
-  const cartItemCount = 0;
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
@@ -119,7 +120,7 @@ export function Header() {
               )}
 
               {/* Cart */}
-              <Link href={isLoggedIn ? "/dashboard/buyer" : "/login"} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors relative" data-testid="link-cart">
+              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors relative" data-testid="link-cart">
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5" />
                   {cartItemCount > 0 && (

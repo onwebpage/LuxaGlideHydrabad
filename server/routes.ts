@@ -1391,6 +1391,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/cart/user/:userId", async (req, res) => {
+    try {
+      await storage.clearCart(req.params.userId);
+      res.json({ message: "Cart cleared successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ Wishlist Routes ============
   
   app.get("/api/wishlist/:userId", async (req, res) => {
