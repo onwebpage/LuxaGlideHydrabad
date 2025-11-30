@@ -58,7 +58,12 @@ export default function VendorDashboard() {
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<{
+    totalProducts: number;
+    activeOrders: number;
+    totalRevenue: number;
+    avgRating: number;
+  }>({
     queryKey: ["/api/dashboard/vendor", vendorId],
     enabled: !!vendorId,
   });
@@ -171,7 +176,7 @@ export default function VendorDashboard() {
             <AlertCircle className="h-4 w-4 text-primary" />
             <AlertDescription>
               Your KYC verification is pending. Please upload required documents to start selling.
-              <Button variant="link" className="p-0 h-auto ml-2 text-primary" data-testid="button-complete-kyc">
+              <Button variant="ghost" className="p-0 h-auto ml-2 text-primary underline" data-testid="button-complete-kyc">
                 Complete KYC
               </Button>
             </AlertDescription>
