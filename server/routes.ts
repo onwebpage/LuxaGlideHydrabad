@@ -852,17 +852,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // KYC submission validation schema
+  // GST number validation function
+  function validateGstNumber(gst: string): { valid: boolean; message: string } {
+    if (!gst || gst.length === 0) {
+      return { valid: false, message: "Incorrect - GST number is required" };
+    }
+    
+    // Remove any spaces
+    const gstNumber = gst.trim().toUpperCase();
+    
+    // Check length (must be exactly 15 characters)
+    if (gstNumber.length !== 15) {
+      return { valid: false, message: "Incorrect - GST number must be exactly 15 characters" };
+    }
+    
+    // GST format: 2 digits state code + 10 char PAN + 1 entity number + 1 'Z' + 1 check digit
+    // Pattern: ^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$
+    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    
+    if (!gstPattern.test(gstNumber)) {
+      return { valid: false, message: "Incorrect - Invalid GST number format" };
+    }
+    
+    // Validate state code (01-37 are valid Indian state codes)
+    const stateCode = parseInt(gstNumber.substring(0, 2), 10);
+    if (stateCode < 1 || stateCode > 37) {
+      return { valid: false, message: "Incorrect - Invalid state code in GST number" };
+    }
+    
+    // Validate PAN format (positions 3-12)
+    const panPart = gstNumber.substring(2, 12);
+    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panPattern.test(panPart)) {
+      return { valid: false, message: "Incorrect - Invalid PAN in GST number" };
+    }
+    
+    // The 4th character of PAN indicates entity type
+    // C = Company, P = Person, H = HUF, F = Firm, A = AOP, T = Trust, etc.
+    const entityTypes = ['C', 'P', 'H', 'F', 'A', 'T', 'B', 'L', 'J', 'G'];
+    if (!entityTypes.includes(panPart[3])) {
+      return { valid: false, message: "Incorrect - Invalid entity type in GST number" };
+    }
+    
+    return { valid: true, message: "Valid GST number" };
+  }
+
+  // KYC submission validation schema - all fields required
   const kycSubmissionSchema = z.object({
     businessAddress: z.string()
-      .max(500, "Business address must be less than 500 characters")
-      .optional()
+      .min(10, "Incorrect - Business address must be at least 10 characters")
+      .max(500, "Incorrect - Business address must be less than 500 characters")
       .transform(val => val?.trim()),
     gstNumber: z.string()
-      .max(20, "GST number must be less than 20 characters")
-      .regex(/^[A-Z0-9]*$/, "GST number can only contain uppercase letters and numbers")
-      .optional()
-      .transform(val => val?.trim()),
+      .min(1, "Incorrect - GST number is required")
+      .length(15, "Incorrect - GST number must be exactly 15 characters")
+      .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Incorrect - Invalid GST number format")
+      .transform(val => val?.trim().toUpperCase()),
   });
 
   // Vendor KYC submission (for vendors themselves)
@@ -924,12 +969,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { businessAddress, gstNumber } = validationResult.data;
 
+      // Additional GST validation with detailed error messages
+      const gstValidation = validateGstNumber(gstNumber);
+      if (!gstValidation.valid) {
+        return res.status(400).json({ 
+          message: gstValidation.message
+        });
+      }
+
+      // Validate business address is provided
+      if (!businessAddress || businessAddress.length < 10) {
+        return res.status(400).json({ 
+          message: "Incorrect - Business address must be at least 10 characters"
+        });
+      }
+
       const documentUrls = files.map(file => `/uploads/${file.filename}`);
 
       const updatedVendor = await storage.updateVendor(vendor.id, {
         kycDocuments: documentUrls,
-        businessAddress: businessAddress || vendor.businessAddress,
-        gstNumber: gstNumber || vendor.gstNumber,
+        businessAddress: businessAddress,
+        gstNumber: gstNumber,
         kycStatus: "pending",
       });
 
