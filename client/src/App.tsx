@@ -44,6 +44,7 @@ function Router() {
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
       <Route path="/dashboard/vendor" component={VendorDashboard} />
+      <Route path="/vendor" component={VendorDashboard} />
       <Route path="/dashboard/admin/products/bulk-upload" component={AdminProductsBulkUpload} />
       <Route path="/dashboard/admin/products" component={AdminProducts} />
       <Route path="/dashboard/admin/categories" component={AdminCategories} />
