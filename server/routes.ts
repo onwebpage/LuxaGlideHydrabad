@@ -88,11 +88,50 @@ const userSessions = new Map<string, {
   expiresAt: number;
 }>();
 
+// Real-time product viewer tracking
+// Maps productId -> Map<sessionId, lastActiveTimestamp>
+const productViewers = new Map<string, Map<string, number>>();
+const VIEWER_TIMEOUT = 30 * 1000; // 30 seconds - if no heartbeat, consider viewer gone
+
+// Get count of active viewers for a product
+function getActiveViewerCount(productId: string): number {
+  const viewers = productViewers.get(productId);
+  if (!viewers) return 0;
+  
+  const now = Date.now();
+  let count = 0;
+  for (const [sessionId, lastActive] of viewers.entries()) {
+    if (now - lastActive < VIEWER_TIMEOUT) {
+      count++;
+    }
+  }
+  return count;
+}
+
+// Register or update a viewer for a product
+function registerViewer(productId: string, sessionId: string): void {
+  if (!productViewers.has(productId)) {
+    productViewers.set(productId, new Map());
+  }
+  productViewers.get(productId)!.set(sessionId, Date.now());
+}
+
+// Remove a viewer from a product
+function removeViewer(productId: string, sessionId: string): void {
+  const viewers = productViewers.get(productId);
+  if (viewers) {
+    viewers.delete(sessionId);
+    if (viewers.size === 0) {
+      productViewers.delete(productId);
+    }
+  }
+}
+
 // Session configuration
 const SESSION_MAX_LIFETIME = 8 * 60 * 60 * 1000; // 8 hours max
 const SESSION_IDLE_TIMEOUT = 60 * 60 * 1000; // 1 hour idle timeout
 
-// Cleanup expired sessions periodically
+// Cleanup expired sessions and stale viewers periodically
 setInterval(() => {
   const now = Date.now();
   for (const [token, session] of adminSessions.entries()) {
@@ -103,6 +142,17 @@ setInterval(() => {
   for (const [token, session] of userSessions.entries()) {
     if (now > session.expiresAt) {
       userSessions.delete(token);
+    }
+  }
+  // Cleanup stale viewers
+  for (const [productId, viewers] of productViewers.entries()) {
+    for (const [sessionId, lastActive] of viewers.entries()) {
+      if (now - lastActive > VIEWER_TIMEOUT) {
+        viewers.delete(sessionId);
+      }
+    }
+    if (viewers.size === 0) {
+      productViewers.delete(productId);
     }
   }
 }, 5 * 60 * 1000); // Run every 5 minutes
@@ -608,6 +658,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json(product);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Product viewer tracking - register/heartbeat a viewer
+  app.post("/api/products/:id/view", (req, res) => {
+    try {
+      const productId = req.params.id;
+      const { sessionId } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ message: "sessionId required" });
+      }
+      
+      registerViewer(productId, sessionId);
+      const viewerCount = getActiveViewerCount(productId);
+      
+      res.json({ viewerCount });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Product viewer tracking - unregister a viewer (when leaving page)
+  app.delete("/api/products/:id/view", (req, res) => {
+    try {
+      const productId = req.params.id;
+      const { sessionId } = req.body;
+      
+      if (sessionId) {
+        removeViewer(productId, sessionId);
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get viewer count for a product
+  app.get("/api/products/:id/viewers", (req, res) => {
+    try {
+      const productId = req.params.id;
+      const viewerCount = getActiveViewerCount(productId);
+      
+      res.json({ viewerCount });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get viewer counts for multiple products (for cart page)
+  app.post("/api/products/viewers/batch", (req, res) => {
+    try {
+      const { productIds } = req.body;
+      
+      if (!Array.isArray(productIds)) {
+        return res.status(400).json({ message: "productIds array required" });
+      }
+      
+      const viewerCounts: Record<string, number> = {};
+      for (const productId of productIds) {
+        viewerCounts[productId] = getActiveViewerCount(productId);
+      }
+      
+      res.json({ viewerCounts });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

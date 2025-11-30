@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import {
   Minus,
   Loader2,
   Check,
+  Eye,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -35,6 +36,16 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, Vendor } from "@shared/schema";
+
+function getOrCreateSessionId(): string {
+  const key = 'viewer_session_id';
+  let sessionId = sessionStorage.getItem(key);
+  if (!sessionId) {
+    sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    sessionStorage.setItem(key, sessionId);
+  }
+  return sessionId;
+}
 
 import redSaree1 from "@assets/stock_images/red_silk_saree_india_274954fe.jpg";
 import redSaree2 from "@assets/stock_images/red_silk_saree_india_cb81e8d8.jpg";
@@ -68,10 +79,60 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
+  const [viewerCount, setViewerCount] = useState(0);
+  const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
   
   const { addToCart, isAddingToCart } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const registerView = useCallback(async (productId: string) => {
+    const sessionId = getOrCreateSessionId();
+    try {
+      const response = await fetch(`/api/products/${productId}/view`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setViewerCount(data.viewerCount);
+      }
+    } catch (error) {
+      console.error('Failed to register view:', error);
+    }
+  }, []);
+
+  const unregisterView = useCallback(async (productId: string) => {
+    const sessionId = getOrCreateSessionId();
+    try {
+      await fetch(`/api/products/${productId}/view`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+    } catch (error) {
+      console.error('Failed to unregister view:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const productId = params?.id;
+    if (!productId) return;
+
+    registerView(productId);
+
+    heartbeatRef.current = setInterval(() => {
+      registerView(productId);
+    }, 15000);
+
+    return () => {
+      if (heartbeatRef.current) {
+        clearInterval(heartbeatRef.current);
+      }
+      unregisterView(productId);
+    };
+  }, [params?.id, registerView, unregisterView]);
 
   const { data: productData, isLoading: productLoading } = useQuery<Product>({
     queryKey: ['/api/products', params?.id],
@@ -320,6 +381,12 @@ export default function ProductDetail() {
               <p className="text-sm text-green-600 mt-1">
                 {product.stock} pieces in stock
               </p>
+              {viewerCount > 0 && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-orange-600" data-testid="text-viewer-count">
+                  <Eye className="w-4 h-4" />
+                  <span>{viewerCount} {viewerCount === 1 ? 'person' : 'people'} viewing this product</span>
+                </div>
+              )}
             </div>
 
             {/* Color Selection */}
