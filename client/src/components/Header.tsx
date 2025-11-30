@@ -47,7 +47,7 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 md:relative md:top-auto">
       {/* Main Header - White Background */}
       <div className="bg-white border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
