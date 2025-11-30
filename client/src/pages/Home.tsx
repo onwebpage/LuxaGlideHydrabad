@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
-import heroImage from "@assets/generated_images/luxury_fashion_boutique_hero.png";
+import heroImage from "@assets/generated_images/luxury_fashion_boutique_interior.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
 import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
