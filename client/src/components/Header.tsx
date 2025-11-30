@@ -1,8 +1,15 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Truck, Shield, BadgePercent, Store, TrendingUp } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Truck, Shield, BadgePercent, Store, TrendingUp, LogOut, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
@@ -15,7 +22,7 @@ export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: cmsSettings } = useCmsSettings();
   
   const siteName = cmsSettings?.siteMeta?.siteName || "FabricMart";
@@ -102,13 +109,42 @@ export function Header() {
 
               {/* Profile */}
               {isLoggedIn ? (
-                <Link href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="link-profile">
-                  <User className="w-5 h-5" />
-                  <div className="hidden lg:flex flex-col leading-tight">
-                    <span className="text-xs text-gray-500">Hello,</span>
-                    <span className="font-medium truncate max-w-[80px]">{user?.fullName?.split(' ')[0] || 'User'}</span>
-                  </div>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="button-profile-dropdown">
+                      <User className="w-5 h-5" />
+                      <div className="hidden lg:flex flex-col leading-tight">
+                        <span className="text-xs text-gray-500">Hello,</span>
+                        <span className="font-medium truncate max-w-[80px]">{user?.fullName?.split(' ')[0] || 'User'}</span>
+                      </div>
+                      <ChevronDown className="w-4 h-4 hidden lg:block" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'} 
+                        className="flex items-center gap-2 cursor-pointer"
+                        data-testid="link-dashboard"
+                      >
+                        <User className="w-4 h-4" />
+                        My Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={async () => {
+                        await logout();
+                        setLocation('/');
+                      }}
+                      className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
+                      data-testid="button-logout"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="link-login">
                   <User className="w-5 h-5" />
@@ -178,6 +214,16 @@ export function Header() {
       <div className="bg-white border-b border-gray-100 hidden md:block">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
+            <Link 
+              href="/products" 
+              className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+              }`}
+              data-testid="link-collection"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Collection
+            </Link>
             <Link 
               href="/products" 
               className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
@@ -263,12 +309,21 @@ export function Header() {
                     href="/products"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                    data-testid="link-mobile-collection"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    Collection
+                  </Link>
+                  <Link
+                    href="/products"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
                     data-testid="link-mobile-all-products"
                   >
                     <TrendingUp className="w-4 h-4" />
                     Popular
                   </Link>
-                  {categories.slice(0, 7).map((category) => (
+                  {categories.slice(0, 6).map((category) => (
                     <Link
                       key={category.id}
                       href={`/products?category=${category.slug}`}
@@ -319,15 +374,29 @@ export function Header() {
               {/* Mobile Auth Actions */}
               <div className="border-t border-gray-100 pt-4 mt-4">
                 {isLoggedIn ? (
-                  <Link
-                    href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-lg font-medium"
-                    data-testid="link-mobile-dashboard"
-                  >
-                    <User className="w-4 h-4" />
-                    Go to Dashboard
-                  </Link>
+                  <div className="space-y-2">
+                    <Link
+                      href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-lg font-medium"
+                      data-testid="link-mobile-dashboard"
+                    >
+                      <User className="w-4 h-4" />
+                      Go to Dashboard
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        await logout();
+                        setMobileMenuOpen(false);
+                        setLocation('/');
+                      }}
+                      className="flex items-center justify-center gap-2 w-full py-3 border border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 transition-colors"
+                      data-testid="button-mobile-logout"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
                 ) : (
                   <div className="flex gap-3">
                     <Link

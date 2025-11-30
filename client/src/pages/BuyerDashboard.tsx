@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/table";
 import {
   ShoppingBag,
-  Heart,
   MapPin,
   FileText,
   Download,
@@ -39,15 +38,7 @@ import type { Order, Address, Product, Buyer } from "@shared/schema";
 interface DashboardStats {
   totalOrders: number;
   pendingOrders: number;
-  wishlistCount: number;
   totalSpent: number;
-}
-
-interface WishlistItem {
-  id: string;
-  userId: string;
-  productId: string;
-  createdAt: string;
 }
 
 export default function BuyerDashboard() {
@@ -70,11 +61,6 @@ export default function BuyerDashboard() {
 
   const { data: addresses = [], isLoading: addressesLoading } = useQuery<Address[]>({
     queryKey: ['/api/addresses', userId],
-    enabled: !!userId && user?.role === "buyer",
-  });
-
-  const { data: wishlistData = [], isLoading: wishlistLoading } = useQuery<WishlistItem[]>({
-    queryKey: ['/api/wishlist', userId],
     enabled: !!userId && user?.role === "buyer",
   });
 
@@ -209,11 +195,6 @@ export default function BuyerDashboard() {
       icon: Package 
     },
     { 
-      label: "Wishlist Items", 
-      value: statsLoading ? "..." : stats?.wishlistCount?.toString() || "0", 
-      icon: Heart 
-    },
-    { 
       label: "Total Spent", 
       value: statsLoading ? "..." : `₹${stats?.totalSpent?.toLocaleString() || "0"}`, 
       icon: TrendingUp 
@@ -261,7 +242,6 @@ export default function BuyerDashboard() {
         <Tabs defaultValue="orders" className="space-y-6">
           <TabsList>
             <TabsTrigger value="orders" data-testid="tab-orders">Orders</TabsTrigger>
-            <TabsTrigger value="wishlist" data-testid="tab-wishlist">Wishlist</TabsTrigger>
             <TabsTrigger value="addresses" data-testid="tab-addresses">Addresses</TabsTrigger>
             <TabsTrigger value="profile" data-testid="tab-profile">Profile</TabsTrigger>
           </TabsList>
@@ -324,23 +304,6 @@ export default function BuyerDashboard() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Wishlist Tab */}
-          <TabsContent value="wishlist">
-            {wishlistLoading ? (
-              <div className="py-8 text-center text-muted-foreground">Loading wishlist...</div>
-            ) : wishlistData.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
-                Your wishlist is empty. Browse products to add items!
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {wishlistData.map((item) => (
-                  <WishlistProductCard key={item.id} item={item} />
-                ))}
-              </div>
-            )}
           </TabsContent>
 
           {/* Addresses Tab */}
@@ -561,55 +524,4 @@ export default function BuyerDashboard() {
 // Label component for profile section
 function Label({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={className}>{children}</div>;
-}
-
-// Wishlist product card component - fetches real product data for each wishlist item
-function WishlistProductCard({ item }: { item: WishlistItem }) {
-  const { data: product, isLoading } = useQuery<Product>({
-    queryKey: [`/api/products/${item.productId}`],
-    enabled: !!item.productId,
-  });
-
-  if (isLoading) {
-    return (
-      <Card className="hover-elevate transition-all">
-        <CardContent className="p-6">
-          <div className="aspect-square bg-secondary rounded-lg animate-pulse mb-4" />
-          <div className="h-6 bg-secondary rounded animate-pulse mb-2" />
-          <div className="h-8 bg-secondary rounded animate-pulse mb-4" />
-          <div className="h-10 bg-secondary rounded animate-pulse" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!product) return null;
-
-  const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
-  const firstImage = Array.isArray(images) ? images[0] : null;
-
-  return (
-    <Card className="hover-elevate transition-all">
-      <CardContent className="p-6">
-        <Link href={`/products/${product.slug}`}>
-          <div className="aspect-square bg-secondary rounded-lg flex items-center justify-center mb-4 overflow-hidden">
-            {firstImage && !firstImage.includes('🌸') ? (
-              <img src={firstImage} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <Package className="w-16 h-16 text-muted-foreground" />
-              </div>
-            )}
-          </div>
-        </Link>
-        <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
-        <p className="text-2xl font-serif font-semibold mb-4">
-          ₹{Number(product.price).toLocaleString()}
-        </p>
-        <Button className="w-full" data-testid={`button-add-to-cart-${item.id}`}>
-          Add to Cart
-        </Button>
-      </CardContent>
-    </Card>
-  );
 }

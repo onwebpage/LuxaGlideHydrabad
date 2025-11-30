@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, Target, Users, TrendingUp, Shield, Zap, Heart, Globe, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
+import { Award, Target, Users, TrendingUp, Shield, Zap, Star, Globe, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 
 // Animated Counter Component
@@ -61,9 +61,9 @@ export default function About() {
       description: "We verify every vendor through rigorous KYC processes to ensure safe and secure transactions for all our partners."
     },
     {
-      icon: Heart,
+      icon: Star,
       title: "Customer First",
-      description: "Our buyers and vendors are at the heart of everything we do. We strive to exceed expectations in every interaction."
+      description: "Our buyers and vendors are at the center of everything we do. We strive to exceed expectations in every interaction."
     },
     {
       icon: Zap,
@@ -87,7 +87,7 @@ export default function About() {
   const milestones = [
     { year: "2020", title: "Foundation", description: "LuxeWholesale was founded with a vision to revolutionize B2B fashion commerce" },
     { year: "2021", title: "Growth", description: "Expanded to 100+ vendors and launched our verified vendor program" },
-    { year: "2022", title: "Innovation", description: "Introduced advanced RFQ system and bulk pricing features" },
+    { year: "2022", title: "Innovation", description: "Introduced advanced bulk pricing features and streamlined ordering" },
     { year: "2023", title: "Expansion", description: "Reached 500+ vendors and 10,000+ buyers across India" },
     { year: "2024", title: "Excellence", description: "Became India's leading wholesale fashion marketplace" }
   ];

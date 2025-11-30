@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Heart, ShoppingCart, Search, SlidersHorizontal, Star, Package2 } from "lucide-react";
+import { ShoppingCart, Search, SlidersHorizontal, Star, Package2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sheet,
@@ -39,20 +39,6 @@ export default function Products() {
   const [sortBy, setSortBy] = useState("featured");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
-
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
-
-  const toggleWishlist = (productId: string) => {
-    setWishlist((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
-  };
 
   // Fetch products and categories from API
   const { data: apiProducts, isLoading: productsLoading } = useProducts();
@@ -508,30 +494,6 @@ export default function Products() {
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
 
-                        {/* Wishlist Button */}
-                        <div className="absolute top-4 right-4 z-10">
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className={`backdrop-blur-md shadow-lg transition-all ${
-                              wishlist.has(product.id)
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-white/90"
-                            }`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              toggleWishlist(product.id);
-                            }}
-                            data-testid={`button-wishlist-${product.id}`}
-                          >
-                            <Heart
-                              className={`w-4 h-4 transition-all ${
-                                wishlist.has(product.id) ? "fill-current" : ""
-                              }`}
-                            />
-                          </Button>
-                        </div>
-
                         {/* MOQ Badge */}
                         <Badge className="absolute top-4 left-4 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-md">
                           MOQ: {product.moq}
@@ -568,7 +530,7 @@ export default function Products() {
                       {product.colors && product.colors.length > 0 && (
                         <div className="flex items-center gap-3 mb-6">
                           <div className="flex gap-2 flex-wrap">
-                            {product.colors.slice(0, 5).map((color, i) => (
+                            {product.colors.slice(0, 5).map((color: string, i: number) => (
                               <Badge key={i} variant="outline" className="text-xs">
                                 {color}
                               </Badge>

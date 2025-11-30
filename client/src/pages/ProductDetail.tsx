@@ -8,10 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Heart,
   ShoppingCart,
   Star,
-  MessageSquare,
   Package,
   Truck,
   Shield,
@@ -475,13 +473,6 @@ export default function ProductDetail() {
                   <ShoppingCart className="w-5 h-5 mr-2" />
                 )}
                 {isAddingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
-              </Button>
-              <Button variant="outline" size="lg" data-testid="button-request-quote">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                RFQ
-              </Button>
-              <Button variant="outline" size="icon" className="shrink-0" data-testid="button-add-wishlist">
-                <Heart className="w-5 h-5" />
               </Button>
             </div>
 
