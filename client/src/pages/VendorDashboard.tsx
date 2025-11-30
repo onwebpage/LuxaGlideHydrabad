@@ -89,6 +89,56 @@ export default function VendorDashboard() {
 
   const kycStatus = vendorProfile?.kycStatus || "pending";
 
+  // GST number validation - memoized to prevent recalculation on every render
+  // MUST be called before any conditional returns to follow React hooks rules
+  const gstValidationResult = useMemo(() => {
+    if (!gstNumber || gstNumber.length === 0) {
+      return { valid: false, message: "Incorrect - GST number is required" };
+    }
+    
+    const gst = gstNumber.trim().toUpperCase();
+    
+    if (gst.length !== 15) {
+      return { valid: false, message: "Incorrect - GST number must be exactly 15 characters" };
+    }
+    
+    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    
+    if (!gstPattern.test(gst)) {
+      return { valid: false, message: "Incorrect - Invalid GST number format" };
+    }
+    
+    const stateCode = parseInt(gst.substring(0, 2), 10);
+    if (stateCode < 1 || stateCode > 37) {
+      return { valid: false, message: "Incorrect - Invalid state code in GST number" };
+    }
+    
+    const panPart = gst.substring(2, 12);
+    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panPattern.test(panPart)) {
+      return { valid: false, message: "Incorrect - Invalid PAN in GST number" };
+    }
+    
+    const entityTypes = ['C', 'P', 'H', 'F', 'A', 'T', 'B', 'L', 'J', 'G'];
+    if (!entityTypes.includes(panPart[3])) {
+      return { valid: false, message: "Incorrect - Invalid entity type in GST number" };
+    }
+    
+    return { valid: true, message: "Valid GST number" };
+  }, [gstNumber]);
+
+  // Business address validation - memoized
+  // MUST be called before any conditional returns to follow React hooks rules
+  const addressValidationResult = useMemo(() => {
+    if (!businessAddress || businessAddress.trim().length === 0) {
+      return { valid: false, message: "Incorrect - Business address is required" };
+    }
+    if (businessAddress.trim().length < 10) {
+      return { valid: false, message: "Incorrect - Business address must be at least 10 characters" };
+    }
+    return { valid: true, message: "Valid" };
+  }, [businessAddress]);
+
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "vendor")) {
       // Double-check localStorage in case of race condition with login
@@ -218,54 +268,6 @@ export default function VendorDashboard() {
   const removeFile = (index: number) => {
     setKycFiles(prev => prev.filter((_, i) => i !== index));
   };
-
-  // GST number validation - memoized to prevent recalculation on every render
-  const gstValidationResult = useMemo(() => {
-    if (!gstNumber || gstNumber.length === 0) {
-      return { valid: false, message: "Incorrect - GST number is required" };
-    }
-    
-    const gst = gstNumber.trim().toUpperCase();
-    
-    if (gst.length !== 15) {
-      return { valid: false, message: "Incorrect - GST number must be exactly 15 characters" };
-    }
-    
-    const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-    
-    if (!gstPattern.test(gst)) {
-      return { valid: false, message: "Incorrect - Invalid GST number format" };
-    }
-    
-    const stateCode = parseInt(gst.substring(0, 2), 10);
-    if (stateCode < 1 || stateCode > 37) {
-      return { valid: false, message: "Incorrect - Invalid state code in GST number" };
-    }
-    
-    const panPart = gst.substring(2, 12);
-    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panPattern.test(panPart)) {
-      return { valid: false, message: "Incorrect - Invalid PAN in GST number" };
-    }
-    
-    const entityTypes = ['C', 'P', 'H', 'F', 'A', 'T', 'B', 'L', 'J', 'G'];
-    if (!entityTypes.includes(panPart[3])) {
-      return { valid: false, message: "Incorrect - Invalid entity type in GST number" };
-    }
-    
-    return { valid: true, message: "Valid GST number" };
-  }, [gstNumber]);
-
-  // Business address validation - memoized
-  const addressValidationResult = useMemo(() => {
-    if (!businessAddress || businessAddress.trim().length === 0) {
-      return { valid: false, message: "Incorrect - Business address is required" };
-    }
-    if (businessAddress.trim().length < 10) {
-      return { valid: false, message: "Incorrect - Business address must be at least 10 characters" };
-    }
-    return { valid: true, message: "Valid" };
-  }, [businessAddress]);
 
   const handleKycSubmit = async () => {
     // Validate GST number first using memoized result
