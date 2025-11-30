@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/table";
 import {
   Package,
-  TrendingUp,
   IndianRupee,
   ShoppingBag,
   Plus,
@@ -39,11 +39,24 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import type { Order, Product, Vendor } from "@shared/schema";
+import { useAuth } from "@/lib/auth-context";
+
+const salesData = [
+  { month: "Jan", sales: 45000 },
+  { month: "Feb", sales: 52000 },
+  { month: "Mar", sales: 48000 },
+  { month: "Apr", sales: 61000 },
+  { month: "May", sales: 55000 },
+  { month: "Jun", sales: 67000 },
+];
 
 export default function VendorDashboard() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [, setLocation] = useLocation();
+  const { user, profile, isLoading: authLoading } = useAuth();
   
-  const vendorId = localStorage.getItem("vendorId") || "demo-vendor-id";
+  const vendorProfile = profile as Vendor | null;
+  const vendorId = vendorProfile?.id;
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/dashboard/vendor", vendorId],
@@ -61,12 +74,46 @@ export default function VendorDashboard() {
     enabled: !!vendorId,
   });
 
-  const { data: vendorData } = useQuery<Vendor>({
-    queryKey: [`/api/vendors/${vendorId}`],
-    enabled: !!vendorId,
-  });
+  const kycStatus = vendorProfile?.kycStatus || "pending";
 
-  const kycStatus = vendorData?.kycStatus || "pending";
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== "vendor")) {
+      setLocation("/login");
+    }
+  }, [user, authLoading, setLocation]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "vendor") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!vendorProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading vendor profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {

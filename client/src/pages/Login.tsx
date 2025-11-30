@@ -19,18 +19,30 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const getDashboardPath = (role: string): string => {
+    switch (role) {
+      case "vendor":
+        return "/dashboard/vendor";
+      case "admin":
+        return "/dashboard/admin";
+      case "buyer":
+      default:
+        return "/dashboard/buyer";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const user = await login(email, password);
       
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      setLocation("/dashboard");
+      setLocation(getDashboardPath(user.role));
     } catch (error: any) {
       toast({
         title: "Login failed",

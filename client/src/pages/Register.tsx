@@ -30,6 +30,18 @@ export default function Register() {
     gstNumber: "",
   });
 
+  const getDashboardPath = (role: string): string => {
+    switch (role) {
+      case "vendor":
+        return "/dashboard/vendor";
+      case "admin":
+        return "/dashboard/admin";
+      case "buyer":
+      default:
+        return "/dashboard/buyer";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -45,7 +57,7 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      await register({
+      const user = await register({
         ...formData,
         role: activeTab,
       });
@@ -54,7 +66,7 @@ export default function Register() {
         title: "Account created!",
         description: `Welcome to LuxeWholesale as a ${activeTab}.`,
       });
-      setLocation("/dashboard");
+      setLocation(getDashboardPath(user.role));
     } catch (error: any) {
       toast({
         title: "Registration failed",

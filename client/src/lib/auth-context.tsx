@@ -16,9 +16,9 @@ type UserProfile = Buyer | Vendor | null;
 interface AuthContextType {
   user: User | null;
   profile: UserProfile;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
-  register: (data: any) => Promise<void>;
+  register: (data: any) => Promise<User>;
   refreshProfile: (updatedUser: User, updatedProfile: UserProfile) => void;
   isLoading: boolean;
 }
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       const res = await apiRequest("POST", "/api/auth/login", { email, password });
       const response = await res.json() as {
@@ -61,18 +61,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (response.profile) {
           localStorage.setItem("profile", JSON.stringify(response.profile));
         }
+        return response.user;
       }
+      throw new Error("Login failed - no user data received");
     } catch (error: any) {
       throw new Error(error.message || "Login failed");
     }
   };
 
-  const register = async (data: any) => {
+  const register = async (data: any): Promise<User> => {
     try {
-      const response = await apiRequest("POST", "/api/auth/register", data);
+      await apiRequest("POST", "/api/auth/register", data);
       
-      // Auto-login after registration
-      await login(data.email, data.password);
+      // Auto-login after registration and return user
+      return await login(data.email, data.password);
     } catch (error: any) {
       throw new Error(error.message || "Registration failed");
     }
