@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ import type { Order, Product, Vendor } from "@shared/schema";
 import { useAuth, getAuthToken } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { X, FileText, CheckCircle } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 
 const salesData = [
   { month: "Jan", sales: 45000 },
@@ -62,6 +63,14 @@ export default function VendorDashboard() {
   const [, setLocation] = useLocation();
   const { user, profile, isLoading: authLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
+  
+  const [productName, setProductName] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productMoq, setProductMoq] = useState("10");
+  const [productDescription, setProductDescription] = useState("");
+  const [productImages, setProductImages] = useState<File[]>([]);
+  const [productSaving, setProductSaving] = useState(false);
+  const productImageInputRef = useRef<HTMLInputElement>(null);
   
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
@@ -267,6 +276,132 @@ export default function VendorDashboard() {
 
   const removeFile = (index: number) => {
     setKycFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleProductImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const validFiles: File[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (validTypes.includes(file.type) && file.size <= 5 * 1024 * 1024) {
+          validFiles.push(file);
+        } else {
+          toast({
+            title: "Invalid file",
+            description: `${file.name} is not a valid image type or exceeds 5MB`,
+            variant: "destructive",
+          });
+        }
+      }
+      setProductImages(prev => [...prev, ...validFiles]);
+    }
+  };
+
+  const removeProductImage = (index: number) => {
+    setProductImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const resetProductForm = () => {
+    setProductName("");
+    setProductPrice("");
+    setProductMoq("10");
+    setProductDescription("");
+    setProductImages([]);
+  };
+
+  const handleProductSubmit = async () => {
+    if (!productName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Product name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!productPrice || Number(productPrice) <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid price",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!productDescription.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Product description is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (productImages.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please upload at least one product image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const authToken = getAuthToken();
+    if (!authToken) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in again to add products",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProductSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('vendorId', vendorId || '');
+      formData.append('name', productName.trim());
+      formData.append('description', productDescription.trim());
+      formData.append('price', productPrice);
+      formData.append('moq', productMoq || '10');
+      formData.append('stock', '100');
+      
+      productImages.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create product');
+      }
+
+      toast({
+        title: "Product Added",
+        description: "Your product has been added successfully and is pending approval.",
+      });
+
+      resetProductForm();
+      setIsAddProductOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add product",
+        variant: "destructive",
+      });
+    } finally {
+      setProductSaving(false);
+    }
   };
 
   const handleKycSubmit = async () => {
@@ -657,36 +792,110 @@ export default function VendorDashboard() {
                     <div className="space-y-4 mt-4">
                       <div>
                         <Label htmlFor="productName">Product Name</Label>
-                        <Input id="productName" placeholder="e.g., Designer Silk Saree" data-testid="input-product-name" />
+                        <Input 
+                          id="productName" 
+                          placeholder="e.g., Designer Silk Saree" 
+                          data-testid="input-product-name"
+                          value={productName}
+                          onChange={(e) => setProductName(e.target.value)}
+                        />
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="price">Price (₹)</Label>
-                          <Input id="price" type="number" placeholder="2500" data-testid="input-price" />
+                          <Input 
+                            id="price" 
+                            type="number" 
+                            placeholder="2500" 
+                            data-testid="input-price"
+                            value={productPrice}
+                            onChange={(e) => setProductPrice(e.target.value)}
+                          />
                         </div>
                         <div>
                           <Label htmlFor="moq">MOQ</Label>
-                          <Input id="moq" type="number" placeholder="10" data-testid="input-moq" />
+                          <Input 
+                            id="moq" 
+                            type="number" 
+                            placeholder="10" 
+                            data-testid="input-moq"
+                            value={productMoq}
+                            onChange={(e) => setProductMoq(e.target.value)}
+                          />
                         </div>
                       </div>
                       <div>
                         <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" placeholder="Product description..." data-testid="input-description" />
+                        <Textarea 
+                          id="description" 
+                          placeholder="Product description..." 
+                          data-testid="input-description"
+                          value={productDescription}
+                          onChange={(e) => setProductDescription(e.target.value)}
+                        />
                       </div>
                       <div>
-                        <Label>Product Images</Label>
-                        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover-elevate transition-all cursor-pointer">
+                        <Label>Product Images *</Label>
+                        <div 
+                          className="border-2 border-dashed border-border rounded-lg p-8 text-center hover-elevate transition-all cursor-pointer"
+                          onClick={() => productImageInputRef.current?.click()}
+                        >
                           <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                           <p className="text-sm text-muted-foreground">
-                            Click to upload or drag and drop images
+                            Click to upload or drag and drop images (JPG, PNG - max 5MB each)
                           </p>
+                          <input
+                            ref={productImageInputRef}
+                            type="file"
+                            multiple
+                            accept=".jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={handleProductImageChange}
+                            data-testid="input-product-images"
+                          />
                         </div>
+                        {productImages.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-sm font-medium">Selected Images ({productImages.length})</p>
+                            <div className="flex flex-wrap gap-2">
+                              {productImages.map((file, index) => (
+                                <div key={index} className="relative group">
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-20 h-20 object-cover rounded-md border"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeProductImage(index)}
+                                    className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex justify-end gap-3">
-                        <Button variant="outline" onClick={() => setIsAddProductOpen(false)}>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            resetProductForm();
+                            setIsAddProductOpen(false);
+                          }}
+                          disabled={productSaving}
+                        >
                           Cancel
                         </Button>
-                        <Button data-testid="button-save-product">Save Product</Button>
+                        <Button 
+                          data-testid="button-save-product"
+                          onClick={handleProductSubmit}
+                          disabled={productSaving}
+                        >
+                          {productSaving ? "Saving..." : "Save Product"}
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>
