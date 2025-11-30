@@ -750,7 +750,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Vendor not found" });
       }
       
-      if (vendor.kycStatus !== "approved") {
+      if (vendor.kycStatus !== "approved" && vendor.kycStatus !== "submitted") {
         return res.status(403).json({ 
           message: "KYC verification required. Please complete your KYC verification before adding products." 
         });
