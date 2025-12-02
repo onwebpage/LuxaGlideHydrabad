@@ -251,24 +251,6 @@ export default function Home() {
               Connect with verified vendors, access exclusive wholesale pricing, and grow your retail business with premium women's clothing.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/products">
-                <Button size="lg" className="text-base px-10 py-6 text-lg" data-testid="button-explore-collection">
-                  Explore Collection
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="/register?role=vendor">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-base px-10 py-6 text-lg bg-white/10 backdrop-blur-xl border-2 border-white/30 text-white hover:bg-white/20"
-                  data-testid="button-become-vendor"
-                >
-                  Become a Vendor
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
