@@ -251,6 +251,15 @@ export default function Home() {
               Connect with verified vendors, access exclusive wholesale pricing, and grow your retail business with premium women's clothing.
             </p>
             
+            <Link href="/register?role=vendor">
+              <Button
+                size="lg"
+                className="text-lg px-12 py-7"
+                data-testid="button-become-vendor"
+              >
+                Become a Vendor
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -641,76 +650,6 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Featured Vendors */}
-      <section className="py-20 bg-secondary/30">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
-              Featured Vendors
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Partner with trusted suppliers offering premium quality products
-            </p>
-          </div>
-
-          {vendorsLoading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Loading vendors...</p>
-            </div>
-          ) : vendors.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg mb-6">No verified vendors available yet.</p>
-              <Link href="/register?role=vendor">
-                <Button size="lg" data-testid="button-become-first-vendor">
-                  Become Our First Vendor
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {vendors.map((vendor) => {
-                const logoInitials = vendor.businessName
-                  .split(' ')
-                  .map(word => word[0])
-                  .join('')
-                  .toUpperCase()
-                  .slice(0, 2);
-
-                return (
-                  <Card key={vendor.id} className="hover-elevate transition-shadow" data-testid={`card-vendor-${vendor.id}`}>
-                    <CardContent className="p-6 text-center">
-                      {vendor.logo ? (
-                        <div className="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden">
-                          <img src={vendor.logo} alt={vendor.businessName} className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 text-2xl font-serif font-semibold text-primary">
-                          {logoInitials}
-                        </div>
-                      )}
-                      <h3 className="font-serif text-xl font-semibold mb-2">{vendor.businessName}</h3>
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        <Star className="w-4 h-4 fill-primary text-primary" />
-                        <span className="text-sm font-medium">{Number(vendor.rating).toFixed(1)}</span>
-                      </div>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        {vendor.totalSales || 0} Sales
-                      </p>
-                      <Link href={`/vendors/${vendor.id}`}>
-                        <Button variant="outline" className="w-full" data-testid={`button-view-vendor-${vendor.id}`}>
-                          View Store
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
         </div>
       </section>
 
