@@ -364,76 +364,57 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Premium Gold Collection Section - Meesho Style */}
-      <section className="relative overflow-hidden" data-testid="section-gold-collection">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#2d1810] via-[#3d2518] to-[#4a2c1a]" />
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(212, 175, 55, 0.1) 0%, transparent 50%)' }} />
-        
-        <div className="container mx-auto px-4 lg:px-6 py-12 lg:py-16 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            {/* Left Side - Branding & CTA */}
-            <div className="flex-1 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
-              {/* Featured Image */}
-              <div className="relative w-full max-w-sm lg:max-w-md">
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden">
-                  <img 
-                    src={sareeImage} 
-                    alt="Premium Collection" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d1810]/60 via-transparent to-transparent" />
-                </div>
-                <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full bg-amber-400/20 blur-2xl" />
-                <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full bg-amber-300/15 blur-3xl" />
-              </div>
+      {/* Why Choose Us Section */}
+      <section className="py-20 bg-gradient-to-b from-secondary/20 to-background" data-testid="section-why-choose-us">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
+              The LuxeWholesale Promise
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Experience premium wholesale fashion with unmatched quality and service
+            </p>
+          </div>
 
-              {/* Branding Text */}
-              <div className="text-center lg:text-left">
-                <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
-                  <Sparkles className="w-8 h-8 text-amber-400" />
-                  <h2 className="font-serif text-4xl lg:text-5xl font-bold text-amber-400 tracking-tight">
-                    Gold
-                  </h2>
-                </div>
-                
-                <p className="text-white/90 text-lg lg:text-xl mb-6 max-w-sm">
-                  Products you Love. Quality we Trust.
-                </p>
-                
-                <Link href="/products">
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    className="border-2 border-amber-400 text-amber-400 bg-transparent hover:bg-amber-400/10 px-8 py-6 text-base font-semibold"
-                    data-testid="button-shop-gold"
-                  >
-                    Shop Now
-                  </Button>
-                </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-8 h-8 text-primary" />
               </div>
+              <h3 className="font-serif text-xl font-semibold mb-3">Verified Vendors</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Every vendor undergoes rigorous KYC verification to ensure authenticity and reliability
+              </p>
             </div>
 
-            {/* Right Side - Category Cards in Arch Shape */}
-            <div className="flex-1 grid grid-cols-2 gap-4 lg:gap-6 max-w-lg">
-              {(featuredCollections.length > 0 ? featuredCollections.slice(0, 4) : [
-                { id: "1", title: "Lehengas", image: partyWearImage, link: "/products?category=sarees" },
-                { id: "2", title: "Kurtas", image: kurtaImage, link: "/products?category=kurtas" },
-                { id: "3", title: "Sarees", image: sareeImage, link: "/products?category=sarees" },
-                { id: "4", title: "Accessories", image: coordsImage, link: "/products?category=jewellery" },
-              ]).map((collection) => (
-                <Link key={collection.id} href={collection.link || "/products"} className="group">
-                  <div className="relative bg-gradient-to-b from-[#4a3428]/80 to-[#3d2518]/80 rounded-t-full rounded-b-lg p-3 pt-6 backdrop-blur-sm border border-amber-900/30 hover:border-amber-400/50 transition-colors duration-300">
-                    <div className="aspect-[3/4] rounded-t-full rounded-b-lg overflow-hidden mb-3">
-                      <img 
-                        src={collection.image || sareeImage} 
-                        alt={collection.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <p className="text-center text-white font-medium text-sm">{collection.title}</p>
-                  </div>
-                </Link>
-              ))}
+            <div className="text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold mb-3">Premium Quality</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Handpicked collections featuring the finest fabrics and impeccable craftsmanship
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold mb-3">Competitive Pricing</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Exclusive wholesale rates with bulk discounts to maximize your profit margins
+              </p>
+            </div>
+
+            <div className="text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <Truck className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold mb-3">Reliable Delivery</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Fast and secure shipping across India with real-time order tracking
+              </p>
             </div>
           </div>
         </div>
