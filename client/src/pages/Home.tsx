@@ -187,7 +187,16 @@ export default function Home() {
     { name: "PARTY WEAR", image: partyWearImage, slug: "party-wear" },
   ];
 
-  const shopCategories = dynamicShopCategories.length > 0 ? dynamicShopCategories : fallbackCategories;
+  // Ensure we always have at least 8 categories for the quick icons
+  const shopCategories = useMemo(() => {
+    const dbCategories = dynamicShopCategories.length > 0 ? dynamicShopCategories : [];
+    if (dbCategories.length >= 8) return dbCategories;
+    
+    // Fill in with fallback categories that aren't already in dbCategories
+    const dbSlugs = new Set(dbCategories.map(c => c.slug));
+    const additionalCategories = fallbackCategories.filter(c => !dbSlugs.has(c.slug));
+    return [...dbCategories, ...additionalCategories].slice(0, 11);
+  }, [dynamicShopCategories, fallbackCategories]);
 
   const testimonials = [
     {
