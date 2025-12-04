@@ -207,7 +207,7 @@ export function Header() {
       {/* Category Navigation Bar */}
       <div className="bg-white border-b border-gray-100 hidden md:block">
         <div className="container mx-auto px-4 lg:px-6">
-          <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
+          <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
             <Link 
               href="/products" 
               className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
