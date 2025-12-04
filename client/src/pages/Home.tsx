@@ -230,7 +230,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Banner - Compact Meesho Style */}
-      <section className="relative h-[280px] md:h-[340px] flex items-center overflow-hidden">
+      <section className="relative h-[360px] md:h-[420px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
