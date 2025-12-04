@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +50,69 @@ export default function Home() {
   const [categorySearch, setCategorySearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [showAllCategories, setShowAllCategories] = useState(false);
+  
+  const brandsSliderRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollState = useCallback(() => {
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    const { scrollLeft, scrollWidth, clientWidth } = slider;
+    const maxScroll = scrollWidth - clientWidth;
+    
+    if (maxScroll <= 0) {
+      setScrollProgress(100);
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+    } else {
+      const progress = (scrollLeft / maxScroll) * 100;
+      setScrollProgress(progress);
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < maxScroll - 1);
+    }
+  }, []);
+
+  useEffect(() => {
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    updateScrollState();
+    slider.addEventListener('scroll', updateScrollState);
+    window.addEventListener('resize', updateScrollState);
+    
+    return () => {
+      slider.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scrollSlider = (direction: 'left' | 'right') => {
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    const scrollAmount = 400;
+    slider.scrollBy({ 
+      left: direction === 'left' ? -scrollAmount : scrollAmount, 
+      behavior: 'smooth' 
+    });
+  };
+
+  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickPosition = (e.clientX - rect.left) / rect.width;
+    const maxScroll = slider.scrollWidth - slider.clientWidth;
+    
+    slider.scrollTo({
+      left: clickPosition * maxScroll,
+      behavior: 'smooth'
+    });
+  };
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
@@ -302,8 +365,26 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="relative group">
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory" id="brands-slider">
+          <div className="relative">
+            {/* Left Arrow */}
+            <button 
+              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 z-10 transition-all duration-200 ${
+                canScrollLeft 
+                  ? 'opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' 
+                  : 'opacity-40 cursor-not-allowed'
+              }`}
+              onClick={() => canScrollLeft && scrollSlider('left')}
+              aria-label="Scroll left"
+              data-testid="button-slider-left"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+
+            {/* Slider Content */}
+            <div 
+              ref={brandsSliderRef}
+              className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory mx-8"
+            >
               {shopCategories.slice(0, 8).map((category, index) => (
                 <Link key={category.name} href={`/products?category=${category.slug}`}>
                   <div 
@@ -327,16 +408,53 @@ export default function Home() {
               ))}
             </div>
             
-            {/* Slider Arrow */}
+            {/* Right Arrow */}
             <button 
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-gray-50 dark:hover:bg-gray-700"
-              onClick={() => {
-                const slider = document.getElementById('brands-slider');
-                if (slider) slider.scrollBy({ left: 200, behavior: 'smooth' });
-              }}
+              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 z-10 transition-all duration-200 ${
+                canScrollRight 
+                  ? 'opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' 
+                  : 'opacity-40 cursor-not-allowed'
+              }`}
+              onClick={() => canScrollRight && scrollSlider('right')}
               aria-label="Scroll right"
+              data-testid="button-slider-right"
             >
               <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="flex items-center gap-3 mt-4 px-8">
+            <button 
+              onClick={() => canScrollLeft && scrollSlider('left')}
+              className={`p-1 rounded transition-colors ${canScrollLeft ? 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            
+            <div 
+              className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer relative overflow-hidden"
+              onClick={handleProgressBarClick}
+              data-testid="slider-progress-bar"
+            >
+              <motion.div 
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-400 to-gray-500 dark:from-gray-500 dark:to-gray-400 rounded-full"
+                initial={{ width: '30%' }}
+                animate={{ 
+                  width: `${Math.max(30, 30 + (scrollProgress * 0.7))}%`,
+                  left: `${scrollProgress * 0.7}%`
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              />
+            </div>
+            
+            <button 
+              onClick={() => canScrollRight && scrollSlider('right')}
+              className={`p-1 rounded transition-colors ${canScrollRight ? 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
