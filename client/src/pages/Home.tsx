@@ -211,10 +211,9 @@ export default function Home() {
   ];
 
   const stats = [
-    { label: "Active Vendors", value: "500+", icon: Users },
-    { label: "Products", value: "50K+", icon: Package },
-    { label: "Happy Buyers", value: "10K+", icon: CheckCircle },
-    { label: "Growth Rate", value: "200%", icon: TrendingUp },
+    { label: "Happy Customers", value: "10K+", icon: Users },
+    { label: "Happy Vendors", value: "500+", icon: CheckCircle },
+    { label: "Growth Potential", value: "200%", icon: TrendingUp },
   ];
 
   const brandPartners = [
@@ -289,7 +288,7 @@ export default function Home() {
       {/* Stats Section */}
       <section className="py-16 bg-card">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
