@@ -302,10 +302,24 @@ export default function Vendors() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.8 }}
-              className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
             >
               Connect with KYC-verified vendors offering premium quality products, competitive wholesale pricing, and reliable delivery across India.
             </motion.p>
+
+            {/* Become a Vendor Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.3, duration: 0.8 }}
+              className="mb-12"
+            >
+              <Link href="/register?role=vendor">
+                <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor-hero">
+                  Become a Vendor
+                </Button>
+              </Link>
+            </motion.div>
 
             {/* Search Bar */}
             <motion.div
