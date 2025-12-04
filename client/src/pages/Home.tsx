@@ -52,94 +52,90 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   
   const brandsSliderRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
-  const autoSlideIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const SLIDE_INTERVAL = 3000;
-  const SLIDE_AMOUNT = 200;
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftStart, setScrollLeftStart] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
 
-  const updateScrollState = useCallback(() => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     const slider = brandsSliderRef.current;
     if (!slider) return;
     
-    const { scrollLeft, scrollWidth, clientWidth } = slider;
-    const maxScroll = scrollWidth - clientWidth;
-    
-    if (maxScroll <= 0) {
-      setScrollProgress(100);
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-    } else {
-      const progress = (scrollLeft / maxScroll) * 100;
-      setScrollProgress(progress);
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < maxScroll - 1);
-    }
-  }, []);
-
-  useEffect(() => {
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    updateScrollState();
-    slider.addEventListener('scroll', updateScrollState);
-    window.addEventListener('resize', updateScrollState);
-    
-    return () => {
-      slider.removeEventListener('scroll', updateScrollState);
-      window.removeEventListener('resize', updateScrollState);
-    };
-  }, [updateScrollState]);
-
-  useEffect(() => {
-    const slider = brandsSliderRef.current;
-    if (!slider || isPaused) return;
-
-    const autoSlide = () => {
-      const { scrollLeft, scrollWidth, clientWidth } = slider;
-      const maxScroll = scrollWidth - clientWidth;
-      
-      if (scrollLeft >= maxScroll - 1) {
-        slider.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        slider.scrollBy({ left: SLIDE_AMOUNT, behavior: 'smooth' });
-      }
-    };
-
-    autoSlideIntervalRef.current = setInterval(autoSlide, SLIDE_INTERVAL);
-
-    return () => {
-      if (autoSlideIntervalRef.current) {
-        clearInterval(autoSlideIntervalRef.current);
-      }
-    };
-  }, [isPaused]);
-
-  const scrollSlider = (direction: 'left' | 'right') => {
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    const scrollAmount = 400;
-    slider.scrollBy({ 
-      left: direction === 'left' ? -scrollAmount : scrollAmount, 
-      behavior: 'smooth' 
-    });
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - slider.offsetLeft);
+    setScrollLeftStart(slider.scrollLeft);
+    slider.style.cursor = 'grabbing';
   };
 
-  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
     const slider = brandsSliderRef.current;
     if (!slider) return;
     
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickPosition = (e.clientX - rect.left) / rect.width;
-    const maxScroll = slider.scrollWidth - slider.clientWidth;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 1.5;
     
-    slider.scrollTo({
-      left: clickPosition * maxScroll,
-      behavior: 'smooth'
-    });
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    
+    slider.scrollLeft = scrollLeftStart - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    const slider = brandsSliderRef.current;
+    if (slider) {
+      slider.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      const slider = brandsSliderRef.current;
+      if (slider) {
+        slider.style.cursor = 'grab';
+      }
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.touches[0].pageX - slider.offsetLeft);
+    setScrollLeftStart(slider.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const slider = brandsSliderRef.current;
+    if (!slider) return;
+    
+    const x = e.touches[0].pageX - slider.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    
+    slider.scrollLeft = scrollLeftStart - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (hasDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
@@ -393,101 +389,47 @@ export default function Home() {
             </Link>
           </div>
           
+          {/* Draggable Slider */}
           <div 
-            className="relative"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+            ref={brandsSliderRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 select-none"
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            {/* Left Arrow */}
-            <button 
-              className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 z-10 transition-all duration-200 ${
-                canScrollLeft 
-                  ? 'opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' 
-                  : 'opacity-40 cursor-not-allowed'
-              }`}
-              onClick={() => canScrollLeft && scrollSlider('left')}
-              aria-label="Scroll left"
-              data-testid="button-slider-left"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            </button>
-
-            {/* Slider Content */}
-            <div 
-              ref={brandsSliderRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory mx-8"
-            >
-              {shopCategories.slice(0, 8).map((category, index) => (
-                <Link key={category.name} href={`/products?category=${category.slug}`}>
-                  <div 
-                    className="flex-shrink-0 w-40 md:w-48 snap-start cursor-pointer group/card"
-                    data-testid={`brand-card-${index}`}
-                  >
-                    <div className="bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-950/20 rounded-xl p-4 h-44 md:h-52 flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={category.image} 
-                        alt={category.name}
-                        className="w-full h-full object-contain transition-transform duration-300 group-hover/card:scale-110"
-                      />
-                    </div>
-                    <div className="mt-2">
-                      <div className="bg-purple-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium">
-                        {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
-                      </div>
+            {shopCategories.slice(0, 8).map((category, index) => (
+              <Link 
+                key={category.name} 
+                href={`/products?category=${category.slug}`}
+                onClick={handleCardClick}
+                draggable={false}
+              >
+                <div 
+                  className="flex-shrink-0 w-40 md:w-48 cursor-pointer group/card"
+                  data-testid={`brand-card-${index}`}
+                  draggable={false}
+                >
+                  <div className="bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-950/20 rounded-xl p-4 h-44 md:h-52 flex items-center justify-center overflow-hidden pointer-events-none">
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-contain transition-transform duration-300 group-hover/card:scale-110"
+                      draggable={false}
+                    />
+                  </div>
+                  <div className="mt-2 pointer-events-none">
+                    <div className="bg-purple-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium">
+                      {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-            
-            {/* Right Arrow */}
-            <button 
-              className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 z-10 transition-all duration-200 ${
-                canScrollRight 
-                  ? 'opacity-100 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' 
-                  : 'opacity-40 cursor-not-allowed'
-              }`}
-              onClick={() => canScrollRight && scrollSlider('right')}
-              aria-label="Scroll right"
-              data-testid="button-slider-right"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            </button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="flex items-center gap-3 mt-4 px-8">
-            <button 
-              onClick={() => canScrollLeft && scrollSlider('left')}
-              className={`p-1 rounded transition-colors ${canScrollLeft ? 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            
-            <div 
-              className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer relative overflow-hidden"
-              onClick={handleProgressBarClick}
-              data-testid="slider-progress-bar"
-            >
-              <motion.div 
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-400 to-gray-500 dark:from-gray-500 dark:to-gray-400 rounded-full"
-                initial={{ width: '30%' }}
-                animate={{ 
-                  width: `${Math.max(30, 30 + (scrollProgress * 0.7))}%`,
-                  left: `${scrollProgress * 0.7}%`
-                }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
-            </div>
-            
-            <button 
-              onClick={() => canScrollRight && scrollSlider('right')}
-              className={`p-1 rounded transition-colors ${canScrollRight ? 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
