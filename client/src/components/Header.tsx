@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Truck, Shield, BadgePercent, Store, LogOut, LayoutGrid } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -41,12 +41,6 @@ export function Header() {
       handleSearch(e);
     }
   };
-
-  const trustBadges = [
-    { icon: Truck, label: "Free Shipping on Bulk Orders" },
-    { icon: Shield, label: "100% Genuine Products" },
-    { icon: BadgePercent, label: "Best Wholesale Prices" },
-  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:relative md:top-auto">
@@ -237,20 +231,6 @@ export function Header() {
               Contact
             </Link>
           </nav>
-        </div>
-      </div>
-
-      {/* Trust Badges Bar */}
-      <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-primary/10">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex items-center justify-center gap-6 lg:gap-12 py-2 overflow-x-auto scrollbar-hide">
-            {trustBadges.map((badge, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm whitespace-nowrap">
-                <badge.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-gray-700 font-medium">{badge.label}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
