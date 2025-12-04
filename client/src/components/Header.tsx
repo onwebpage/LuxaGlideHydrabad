@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Truck, Shield, BadgePercent, Store, TrendingUp, LogOut, LayoutGrid } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Truck, Shield, BadgePercent, Store, LogOut, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,9 +14,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
-import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/hooks/use-cart";
-import type { Category } from "@shared/schema";
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -29,10 +27,6 @@ export function Header() {
   const { cartItemCount } = useCart();
   
   const isLoggedIn = !!user;
-
-  const { data: categories = [] } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
-  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -225,28 +219,6 @@ export function Header() {
               Collection
             </Link>
             <Link 
-              href="/products" 
-              className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-              }`}
-              data-testid="link-category-all"
-            >
-              <TrendingUp className="w-4 h-4" />
-              Popular
-            </Link>
-            {categories.slice(0, 10).map((category) => (
-              <Link
-                key={category.id}
-                href={`/products?category=${category.slug}`}
-                className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                  location.includes(`category=${category.slug}`) ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
-                }`}
-                data-testid={`link-category-${category.slug}`}
-              >
-                {category.name}
-              </Link>
-            ))}
-            <Link 
               href="/vendors" 
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
                 location === '/vendors' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
@@ -301,44 +273,8 @@ export function Header() {
             className="md:hidden bg-white border-b border-gray-200 overflow-hidden shadow-lg"
           >
             <div className="container mx-auto px-4 py-4">
-              {/* Mobile Categories */}
-              <div className="mb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Categories</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href="/products"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                    data-testid="link-mobile-collection"
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                    Collection
-                  </Link>
-                  <Link
-                    href="/products"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                    data-testid="link-mobile-all-products"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    Popular
-                  </Link>
-                  {categories.slice(0, 6).map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/products?category=${category.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors truncate"
-                      data-testid={`link-mobile-category-${category.slug}`}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
               {/* Mobile Quick Links */}
-              <div className="border-t border-gray-100 pt-4">
+              <div className="pb-4">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Quick Links</h3>
                 <div className="space-y-1">
                   <Link
