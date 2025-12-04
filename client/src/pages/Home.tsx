@@ -55,6 +55,10 @@ export default function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoSlideIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const SLIDE_INTERVAL = 3000;
+  const SLIDE_AMOUNT = 200;
 
   const updateScrollState = useCallback(() => {
     const slider = brandsSliderRef.current;
@@ -88,6 +92,30 @@ export default function Home() {
       window.removeEventListener('resize', updateScrollState);
     };
   }, [updateScrollState]);
+
+  useEffect(() => {
+    const slider = brandsSliderRef.current;
+    if (!slider || isPaused) return;
+
+    const autoSlide = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = slider;
+      const maxScroll = scrollWidth - clientWidth;
+      
+      if (scrollLeft >= maxScroll - 1) {
+        slider.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        slider.scrollBy({ left: SLIDE_AMOUNT, behavior: 'smooth' });
+      }
+    };
+
+    autoSlideIntervalRef.current = setInterval(autoSlide, SLIDE_INTERVAL);
+
+    return () => {
+      if (autoSlideIntervalRef.current) {
+        clearInterval(autoSlideIntervalRef.current);
+      }
+    };
+  }, [isPaused]);
 
   const scrollSlider = (direction: 'left' | 'right') => {
     const slider = brandsSliderRef.current;
@@ -365,7 +393,11 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="relative">
+          <div 
+            className="relative"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             {/* Left Arrow */}
             <button 
               className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 z-10 transition-all duration-200 ${
