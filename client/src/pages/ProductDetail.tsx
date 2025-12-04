@@ -308,29 +308,17 @@ export default function ProductDetail() {
           </Button>
         </Link>
 
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
-          {/* Images */}
-          <div>
-            <motion.div
-              key={selectedColor + selectedImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="aspect-[3/4] bg-secondary rounded-2xl mb-4 overflow-hidden"
-            >
-              <img 
-                src={currentColorImages[selectedImage]} 
-                alt={`${product.name} - ${selectedColor}`}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-            <div className="grid grid-cols-3 gap-4">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
+          {/* Images - Meesho Style Layout */}
+          <div className="flex gap-4">
+            {/* Thumbnails on Left */}
+            <div className="flex flex-col gap-3 w-16 md:w-20 shrink-0">
               {currentColorImages.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square bg-secondary rounded-lg overflow-hidden transition-all hover-elevate ${
-                    selectedImage === index ? "ring-2 ring-primary" : ""
+                  className={`aspect-square bg-secondary rounded-lg overflow-hidden transition-all hover-elevate border-2 ${
+                    selectedImage === index ? "border-primary" : "border-transparent"
                   }`}
                   data-testid={`button-image-${index}`}
                 >
@@ -341,6 +329,23 @@ export default function ProductDetail() {
                   />
                 </button>
               ))}
+            </div>
+            
+            {/* Main Image */}
+            <div className="flex-1">
+              <motion.div
+                key={selectedColor + selectedImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="aspect-[3/4] bg-secondary rounded-2xl overflow-hidden"
+              >
+                <img 
+                  src={currentColorImages[selectedImage]} 
+                  alt={`${product.name} - ${selectedColor}`}
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
             </div>
           </div>
 
@@ -398,20 +403,45 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Size Selection */}
+            {/* Product Highlights - Meesho Style */}
+            <div className="mb-6 pb-6 border-b border-border">
+              <h3 className="text-base font-semibold mb-4">Product Highlights</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {product.fabric && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fabric</p>
+                    <p className="text-sm font-medium">{product.fabric}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-muted-foreground">Category</p>
+                  <p className="text-sm font-medium">{product.category}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">MOQ</p>
+                  <p className="text-sm font-medium">{product.moq} pieces</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Available Colors</p>
+                  <p className="text-sm font-medium">{product.colors.length} colors</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Size Selection - Circular Buttons like Meesho */}
             <div className="mb-6">
-              <Label className="text-sm uppercase tracking-wider mb-3 block">
+              <Label className="text-base font-semibold mb-3 block">
                 Select Size
               </Label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {product.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-lg border-2 transition-all hover-elevate ${
+                    className={`w-12 h-12 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center ${
                       selectedSize === size
-                        ? "border-primary bg-primary/10"
-                        : "border-border"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border hover:border-primary/50"
                     }`}
                     data-testid={`button-size-${size}`}
                   >
@@ -456,9 +486,10 @@ export default function ProductDetail() {
               </p>
             </div>
 
-            {/* Actions */}
+            {/* Actions - Meesho Style */}
             <div className="flex gap-3 mb-8">
               <Button 
+                variant="outline"
                 className="flex-1" 
                 size="lg" 
                 onClick={handleAddToCart}
@@ -473,6 +504,20 @@ export default function ProductDetail() {
                   <ShoppingCart className="w-5 h-5 mr-2" />
                 )}
                 {isAddingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
+              </Button>
+              <Button 
+                className="flex-1" 
+                size="lg"
+                onClick={async () => {
+                  await handleAddToCart();
+                  if (user) {
+                    setLocation("/cart");
+                  }
+                }}
+                disabled={isAddingToCart}
+                data-testid="button-buy-now"
+              >
+                Buy Now
               </Button>
             </div>
 
