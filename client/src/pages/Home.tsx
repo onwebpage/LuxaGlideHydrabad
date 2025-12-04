@@ -352,19 +352,9 @@ export default function Home() {
               <span className="text-primary"> Business</span>
             </h1>
             
-            <p className="text-base md:text-lg text-white/90 mb-6 leading-relaxed">
+            <p className="text-base md:text-lg text-white/90 leading-relaxed">
               Connect with verified vendors and access exclusive wholesale pricing.
             </p>
-            
-            <Link href="/register?role=vendor">
-              <Button
-                size="default"
-                className="px-8"
-                data-testid="button-become-vendor"
-              >
-                Become a Vendor
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
