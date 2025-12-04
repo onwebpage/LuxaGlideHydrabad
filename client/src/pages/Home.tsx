@@ -654,28 +654,81 @@ export default function Home() {
                   </button>
                   
                   <div className="space-y-3">
-                    <div className="relative h-2 bg-muted rounded-full">
+                    {/* Dual Range Slider */}
+                    <div className="relative h-2 pt-4 pb-4">
+                      {/* Track background */}
+                      <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                      
+                      {/* Active track */}
                       <div 
-                        className="absolute h-full bg-primary rounded-full"
-                        style={{ left: '5%', right: '40%' }}
+                        className="absolute top-1/2 -translate-y-1/2 h-1.5 bg-amber-500 rounded-full"
+                        style={{ 
+                          left: `${(priceRange[0] / 50000) * 100}%`, 
+                          right: `${100 - (priceRange[1] / 50000) * 100}%` 
+                        }}
+                      />
+                      
+                      {/* Min slider */}
+                      <input
+                        type="range"
+                        min="0"
+                        max="50000"
+                        step="500"
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (value < priceRange[1]) {
+                            setPriceRange([value, priceRange[1]]);
+                          }
+                        }}
+                        className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-amber-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                        data-testid="slider-price-min"
+                      />
+                      
+                      {/* Max slider */}
+                      <input
+                        type="range"
+                        min="0"
+                        max="50000"
+                        step="500"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (value > priceRange[0]) {
+                            setPriceRange([priceRange[0], value]);
+                          }
+                        }}
+                        className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-amber-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                        data-testid="slider-price-max"
                       />
                     </div>
+                    
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>₹{priceRange[0].toLocaleString()}</span>
-                      <span>₹{priceRange[1].toLocaleString()}</span>
+                      <span>₹0</span>
+                      <span>₹50,000</span>
                     </div>
                     <div className="flex gap-2">
                       <Input 
                         type="number" 
                         value={priceRange[0]} 
-                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          if (value < priceRange[1]) {
+                            setPriceRange([value, priceRange[1]]);
+                          }
+                        }}
                         className="h-8 text-xs text-center"
                         data-testid="input-price-min"
                       />
                       <Input 
                         type="number" 
                         value={priceRange[1]} 
-                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 50000;
+                          if (value > priceRange[0]) {
+                            setPriceRange([priceRange[0], value]);
+                          }
+                        }}
                         className="h-8 text-xs text-center"
                         data-testid="input-price-max"
                       />
