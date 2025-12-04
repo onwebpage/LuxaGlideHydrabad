@@ -262,25 +262,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Running Brand Marquee Bar - Meesho Style */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30 py-6 border-y border-purple-100 dark:border-purple-900/30">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />
-        
-        <div className="flex overflow-hidden">
-          <motion.div 
-            className="flex items-center gap-16 px-8"
-            animate={{ x: [0, -1200] }}
-            transition={{ x: { repeat: Infinity, duration: 20, ease: "linear" } }}
-          >
-            {[...brandPartners, ...brandPartners].map((brand, index) => (
-              <div key={index} className="flex-shrink-0">
-                <span className={`text-xl font-bold tracking-tight ${brand.color} whitespace-nowrap`}>
-                  {brand.name}
-                </span>
-              </div>
+      {/* Quick Category Icons - Meesho Style */}
+      <section className="py-6 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center gap-4 md:gap-8 overflow-x-auto scrollbar-hide pb-2">
+            {shopCategories.slice(0, 7).map((category, index) => (
+              <Link key={category.name} href={`/products?category=${category.slug}`}>
+                <div className="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                  <div className="w-16 h-20 md:w-20 md:h-24 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="text-xs md:text-sm text-center text-foreground font-medium">
+                    {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+                  </span>
+                </div>
+              </Link>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -664,6 +666,28 @@ export default function Home() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Running Brand Marquee Bar */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30 py-6 border-y border-purple-100 dark:border-purple-900/30">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />
+        
+        <div className="flex overflow-hidden">
+          <motion.div 
+            className="flex items-center gap-16 px-8"
+            animate={{ x: [0, -1200] }}
+            transition={{ x: { repeat: Infinity, duration: 20, ease: "linear" } }}
+          >
+            {[...brandPartners, ...brandPartners].map((brand, index) => (
+              <div key={index} className="flex-shrink-0">
+                <span className={`text-xl font-bold tracking-tight ${brand.color} whitespace-nowrap`}>
+                  {brand.name}
+                </span>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
