@@ -229,31 +229,30 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Simple and Clean */}
-      <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Banner - Compact Meesho Style */}
+      <section className="relative h-[280px] md:h-[340px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="font-serif text-5xl md:text-7xl font-semibold text-white leading-tight mb-8">
+        <div className="relative z-10 container mx-auto px-6">
+          <div className="max-w-xl">
+            <h1 className="font-serif text-3xl md:text-4xl font-semibold text-white leading-tight mb-4">
               Elevate Your Fashion
-              <br />
-              <span className="text-primary">Business</span>
+              <span className="text-primary"> Business</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Connect with verified vendors, access exclusive wholesale pricing, and grow your retail business with premium women's clothing.
+            <p className="text-base md:text-lg text-white/90 mb-6 leading-relaxed">
+              Connect with verified vendors and access exclusive wholesale pricing.
             </p>
             
             <Link href="/register?role=vendor">
               <Button
-                size="lg"
-                className="text-lg px-12 py-7"
+                size="default"
+                className="px-8"
                 data-testid="button-become-vendor"
               >
                 Become a Vendor
