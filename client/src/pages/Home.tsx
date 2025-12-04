@@ -324,14 +324,14 @@ export default function Home() {
   ];
 
   const brandPartners = [
-    { name: "FabricWorld", color: "text-purple-700 dark:text-purple-400" },
-    { name: "SilkCraft", color: "text-pink-600 dark:text-pink-400" },
-    { name: "TextileHub", color: "text-blue-600 dark:text-blue-400" },
-    { name: "WeaveMaster", color: "text-emerald-600 dark:text-emerald-400" },
-    { name: "FashionFirst", color: "text-orange-600 dark:text-orange-400" },
-    { name: "StyleKart", color: "text-red-600 dark:text-red-400" },
-    { name: "TrendyFab", color: "text-violet-600 dark:text-violet-400" },
-    { name: "EleganceHub", color: "text-amber-600 dark:text-amber-400" },
+    { name: "FashionFirst", color: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-100 dark:bg-orange-900/30", initial: "FF" },
+    { name: "StyleKart", color: "text-red-600 dark:text-red-400", bgColor: "bg-red-100 dark:bg-red-900/30", initial: "SK" },
+    { name: "TrendyFab", color: "text-violet-600 dark:text-violet-400", bgColor: "bg-violet-100 dark:bg-violet-900/30", initial: "TF" },
+    { name: "EleganceHub", color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-100 dark:bg-amber-900/30", initial: "EH" },
+    { name: "FabricWorld", color: "text-purple-700 dark:text-purple-400", bgColor: "bg-purple-100 dark:bg-purple-900/30", initial: "FW" },
+    { name: "SilkCraft", color: "text-pink-600 dark:text-pink-400", bgColor: "bg-pink-100 dark:bg-pink-900/30", initial: "SC" },
+    { name: "TextileHub", color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-100 dark:bg-blue-900/30", initial: "TH" },
+    { name: "WeaveMaster", color: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-100 dark:bg-emerald-900/30", initial: "WM" },
   ];
 
   return (
@@ -939,28 +939,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Running Brand Marquee Bar */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30 py-6 border-y border-purple-100 dark:border-purple-900/30">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />
-        
-        <div className="flex overflow-hidden">
-          <motion.div 
-            className="flex items-center gap-16 px-8"
-            animate={{ x: [0, -1200] }}
-            transition={{ x: { repeat: Infinity, duration: 20, ease: "linear" } }}
-          >
-            {[...brandPartners, ...brandPartners].map((brand, index) => (
-              <div key={index} className="flex-shrink-0">
-                <span className={`text-xl font-bold tracking-tight ${brand.color} whitespace-nowrap`}>
-                  {brand.name}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-6 text-center">
@@ -993,6 +971,28 @@ export default function Home() {
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Running Brand Marquee Bar */}
+      <section className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 py-5">
+        <div className="flex overflow-hidden">
+          <motion.div 
+            className="flex items-center gap-12 px-4"
+            animate={{ x: [0, -1600] }}
+            transition={{ x: { repeat: Infinity, duration: 25, ease: "linear" } }}
+          >
+            {[...brandPartners, ...brandPartners, ...brandPartners].map((brand, index) => (
+              <div key={index} className="flex-shrink-0 flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full ${brand.bgColor} flex items-center justify-center`}>
+                  <span className={`text-xs font-bold ${brand.color}`}>{brand.initial}</span>
+                </div>
+                <span className={`text-lg font-semibold tracking-tight ${brand.color} whitespace-nowrap`}>
+                  {brand.name}
+                </span>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
     </div>
