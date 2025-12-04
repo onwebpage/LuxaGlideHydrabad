@@ -263,20 +263,20 @@ export default function Home() {
       </section>
 
       {/* Quick Category Icons - Meesho Style */}
-      <section className="py-6 bg-background">
+      <section className="py-8 bg-background">
         <div className="container mx-auto px-4">
-          <div className="flex justify-center gap-4 md:gap-8 overflow-x-auto scrollbar-hide pb-2">
-            {shopCategories.slice(0, 7).map((category, index) => (
+          <div className="flex justify-center gap-6 md:gap-10 lg:gap-12 overflow-x-auto scrollbar-hide pb-2">
+            {shopCategories.slice(0, 8).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
-                <div className="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group" data-testid={`quick-category-${index}`}>
-                  <div className="w-16 h-20 md:w-20 md:h-24 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
+                <div className="flex flex-col items-center gap-3 min-w-[90px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                  <div className="w-20 h-24 md:w-24 md:h-28 lg:w-28 lg:h-32 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
                     <img 
                       src={category.image} 
                       alt={category.name}
                       className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
-                  <span className="text-xs md:text-sm text-center text-foreground font-medium">
+                  <span className="text-sm md:text-base text-center text-foreground font-medium">
                     {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
