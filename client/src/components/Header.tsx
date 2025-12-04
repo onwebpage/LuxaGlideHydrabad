@@ -92,15 +92,6 @@ export function Header() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-1 lg:gap-2">
-              {/* Become a Vendor - Desktop */}
-              <Link href="/register" className="hidden lg:flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="link-become-vendor">
-                <Store className="w-4 h-4" />
-                <div className="flex flex-col leading-tight">
-                  <span className="text-xs text-gray-500">Become a</span>
-                  <span className="font-medium">Vendor</span>
-                </div>
-              </Link>
-
               {/* Profile */}
               {isLoggedIn ? (
                 <DropdownMenu>
