@@ -21,14 +21,6 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import Papa from "papaparse";
-import {
-  sendNewOrderEmail,
-  sendVendorApprovedEmail,
-  sendOrderShippedEmail,
-  sendOrderDeliveredEmail,
-  sendPasswordResetEmail,
-  sendInvoiceEmail,
-} from "./email";
 
 // Set up file upload
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -486,20 +478,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Send password reset email
+      // Password reset token generated - email functionality removed
       const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
-      
-      try {
-        await sendPasswordResetEmail({
-          email: user.email,
-          name: user.fullName,
-          resetToken,
-          resetUrl,
-        });
-      } catch (emailError) {
-        console.error("Failed to send password reset email:", emailError);
-        // Don't fail the request - token is still valid even if email fails
-      }
+      console.log("Password reset URL generated:", resetUrl);
 
       res.json({ message: "If the email exists, a password reset link has been sent" });
     } catch (error: any) {
@@ -899,20 +880,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
-      }
-
-      // Send vendor approval email
-      try {
-        const user = await storage.getUser(vendor.userId);
-        if (user) {
-          await sendVendorApprovedEmail({
-            email: user.email,
-            businessName: vendor.businessName,
-            vendorName: user.fullName,
-          });
-        }
-      } catch (emailError) {
-        console.error("Failed to send vendor approval email:", emailError);
       }
 
       res.json(vendor);
@@ -1802,35 +1769,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear cart
       await storage.clearCart(userId);
 
-      // Send order confirmation email
-      try {
-        const user = await storage.getUser(userId);
-        const orderItems = await storage.getOrderItems(order.id);
-        
-        if (user) {
-          const itemsWithDetails = await Promise.all(
-            orderItems.map(async (item) => {
-              const product = await storage.getProduct(item.productId);
-              return {
-                productName: product?.name || 'Unknown Product',
-                quantity: item.quantity,
-                price: item.price,
-              };
-            })
-          );
-
-          await sendNewOrderEmail({
-            customerEmail: user.email,
-            customerName: user.fullName,
-            orderNumber: order.orderNumber,
-            totalAmount: order.totalAmount,
-            items: itemsWithDetails,
-          });
-        }
-      } catch (emailError) {
-        console.error("Failed to send order confirmation email:", emailError);
-      }
-
       res.status(201).json(order);
     } catch (error: any) {
       console.error("Create order error:", error);
@@ -1954,63 +1892,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
-      }
-
-      // Send email notifications for shipped and delivered statuses
-      try {
-        const user = await storage.getUser(order.userId);
-        
-        if (user) {
-          if (status === "shipped") {
-            await sendOrderShippedEmail({
-              customerEmail: user.email,
-              customerName: user.fullName,
-              orderNumber: order.orderNumber,
-              trackingNumber: order.trackingNumber || undefined,
-            });
-          } else if (status === "delivered") {
-            await sendOrderDeliveredEmail({
-              customerEmail: user.email,
-              customerName: user.fullName,
-              orderNumber: order.orderNumber,
-            });
-
-            // Also send invoice when order is delivered
-            const orderItems = await storage.getOrderItems(order.id);
-            const address = await storage.getAddress(order.shippingAddressId);
-            
-            if (address) {
-              const itemsWithDetails = await Promise.all(
-                orderItems.map(async (item) => {
-                  const product = await storage.getProduct(item.productId);
-                  return {
-                    productName: product?.name || 'Unknown Product',
-                    quantity: item.quantity,
-                    price: item.price,
-                  };
-                })
-              );
-
-              await sendInvoiceEmail({
-                customerEmail: user.email,
-                customerName: user.fullName,
-                orderNumber: order.orderNumber,
-                totalAmount: order.totalAmount,
-                items: itemsWithDetails,
-                shippingAddress: {
-                  fullName: address.fullName,
-                  addressLine1: address.addressLine1,
-                  addressLine2: address.addressLine2 || undefined,
-                  city: address.city,
-                  state: address.state,
-                  postalCode: address.postalCode,
-                },
-              });
-            }
-          }
-        }
-      } catch (emailError) {
-        console.error("Failed to send order status email:", emailError);
       }
 
       res.json(order);
