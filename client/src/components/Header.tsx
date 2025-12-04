@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -45,7 +46,7 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 md:relative md:top-auto">
       {/* Main Header - White Background */}
-      <div className="bg-white border-b border-gray-100 shadow-sm">
+      <div className="bg-white dark:bg-background border-b border-gray-100 dark:border-border shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
             {/* Logo */}
@@ -53,7 +54,7 @@ export function Header() {
               {cmsSettings?.siteMeta?.logo ? (
                 <img src={cmsSettings.siteMeta.logo} alt={siteName} className="h-8 lg:h-10 w-auto" />
               ) : (
-                <h1 className="font-serif text-xl lg:text-2xl font-bold text-primary tracking-tight">
+                <h1 className="font-serif text-xl lg:text-2xl font-bold text-primary dark:text-primary tracking-tight">
                   {siteName}
                 </h1>
               )}
@@ -70,7 +71,7 @@ export function Header() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleSearchKeyDown}
-                    className="w-full pl-12 pr-4 h-11 bg-gray-50 border-gray-200 rounded-l-lg rounded-r-none focus:bg-white focus:border-primary focus-visible:ring-1 focus-visible:ring-primary text-sm"
+                    className="w-full pl-12 pr-4 h-11 bg-gray-50 dark:bg-muted border-gray-200 dark:border-border rounded-l-lg rounded-r-none focus:bg-white dark:focus:bg-background focus:border-primary focus-visible:ring-1 focus-visible:ring-primary text-sm"
                     data-testid="input-search"
                   />
                 </div>
@@ -90,10 +91,10 @@ export function Header() {
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="button-profile-dropdown">
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" data-testid="button-profile-dropdown">
                       <User className="w-5 h-5" />
                       <div className="hidden lg:flex flex-col leading-tight">
-                        <span className="text-xs text-gray-500">Hello,</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Hello,</span>
                         <span className="font-medium truncate max-w-[80px]">{user?.fullName?.split(' ')[0] || 'User'}</span>
                       </div>
                       <ChevronDown className="w-4 h-4 hidden lg:block" />
@@ -125,17 +126,17 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors" data-testid="link-login">
+                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" data-testid="link-login">
                   <User className="w-5 h-5" />
                   <div className="hidden lg:flex flex-col leading-tight">
-                    <span className="text-xs text-gray-500">Sign In</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Sign In</span>
                     <span className="font-medium">Profile</span>
                   </div>
                 </Link>
               )}
 
               {/* Cart */}
-              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors relative" data-testid="link-cart">
+              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors relative dark:text-gray-300" data-testid="link-cart">
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5" />
                   {cartItemCount > 0 && (
@@ -145,10 +146,13 @@ export function Header() {
                   )}
                 </div>
                 <div className="hidden lg:flex flex-col leading-tight">
-                  <span className="text-xs text-gray-500">Your</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Your</span>
                   <span className="font-medium">Cart</span>
                 </div>
               </Link>
+
+              {/* Theme Toggle */}
+              <ThemeToggle />
 
               {/* Mobile Menu Button */}
               <Button
@@ -173,7 +177,7 @@ export function Header() {
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-10 bg-gray-50 border-gray-200 rounded-l-lg rounded-r-none text-sm"
+                  className="w-full pl-10 pr-4 h-10 bg-gray-50 dark:bg-muted border-gray-200 dark:border-border rounded-l-lg rounded-r-none text-sm"
                   data-testid="input-search-mobile"
                 />
               </div>
@@ -190,13 +194,13 @@ export function Header() {
       </div>
 
       {/* Category Navigation Bar */}
-      <div className="bg-white border-b border-gray-100 hidden md:block">
+      <div className="bg-white dark:bg-background border-b border-gray-100 dark:border-border hidden md:block">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
             <Link 
               href="/products" 
               className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
               }`}
               data-testid="link-shop-now"
             >
@@ -206,7 +210,7 @@ export function Header() {
             <Link 
               href="/vendors" 
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/vendors' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                location === '/vendors' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
               }`}
               data-testid="link-vendors"
             >
@@ -215,7 +219,7 @@ export function Header() {
             <Link 
               href="/about" 
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/about' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                location === '/about' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
               }`}
               data-testid="link-about"
             >
@@ -224,7 +228,7 @@ export function Header() {
             <Link 
               href="/contact" 
               className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/contact' ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
+                location === '/contact' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
               }`}
               data-testid="link-contact"
             >
@@ -241,45 +245,45 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-gray-200 overflow-hidden shadow-lg"
+            className="md:hidden bg-white dark:bg-background border-b border-gray-200 dark:border-border overflow-hidden shadow-lg"
           >
             <div className="container mx-auto px-4 py-4">
               {/* Mobile Quick Links */}
               <div className="pb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">Quick Links</h3>
+                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">Quick Links</h3>
                 <div className="space-y-1">
                   <Link
                     href="/vendors"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
                     data-testid="link-mobile-vendors"
                   >
-                    <Store className="w-4 h-4 text-gray-500" />
+                    <Store className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     All Vendors
                   </Link>
                   <Link
                     href="/about"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
                     data-testid="link-mobile-about"
                   >
-                    <Shield className="w-4 h-4 text-gray-500" />
+                    <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     About Us
                   </Link>
                   <Link
                     href="/contact"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
                     data-testid="link-mobile-contact"
                   >
-                    <Truck className="w-4 h-4 text-gray-500" />
+                    <Truck className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     Contact
                   </Link>
                 </div>
               </div>
 
               {/* Mobile Auth Actions */}
-              <div className="border-t border-gray-100 pt-4 mt-4">
+              <div className="border-t border-gray-100 dark:border-border pt-4 mt-4">
                 {isLoggedIn ? (
                   <div className="space-y-2">
                     <Link
@@ -297,7 +301,7 @@ export function Header() {
                         setMobileMenuOpen(false);
                         setLocation('/');
                       }}
-                      className="flex items-center justify-center gap-2 w-full py-3 border border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full py-3 border border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                       data-testid="button-mobile-logout"
                     >
                       <LogOut className="w-4 h-4" />
@@ -309,7 +313,7 @@ export function Header() {
                     <Link
                       href="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex-1 py-3 text-center border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors"
+                      className="flex-1 py-3 text-center border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
                       data-testid="link-mobile-login"
                     >
                       Sign In
@@ -317,7 +321,7 @@ export function Header() {
                     <Link
                       href="/register"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex-1 py-3 text-center bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                      className="flex-1 py-3 text-center bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
                       data-testid="link-mobile-register"
                     >
                       Register
