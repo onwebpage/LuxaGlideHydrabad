@@ -442,7 +442,7 @@ export default function Products() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
               {productsLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <Card key={i} className="overflow-hidden h-full flex flex-col">
@@ -495,23 +495,23 @@ export default function Products() {
                         />
 
                         {/* MOQ Badge */}
-                        <Badge className="absolute top-4 left-4 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-md">
+                        <Badge className="absolute top-2 left-2 md:top-4 md:left-4 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-md text-xs">
                           MOQ: {product.moq}
                         </Badge>
 
                         {/* Rating Badge */}
-                        <Badge className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm border shadow-md flex items-center gap-1">
+                        <Badge className="absolute bottom-2 left-2 md:bottom-4 md:left-4 bg-background/90 backdrop-blur-sm border shadow-md flex items-center gap-1 text-xs">
                           <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                           <span className="font-semibold">{product.rating}</span>
                         </Badge>
                       </div>
                     </Link>
 
-                    <CardContent className="p-6 flex-1 flex flex-col">
+                    <CardContent className="p-3 md:p-6 flex-1 flex flex-col">
                       {/* Product Name */}
                       <Link href={`/products/${product.id}`}>
                         <h3
-                          className="font-serif font-semibold text-xl mb-3 hover:text-primary transition-colors cursor-pointer leading-tight"
+                          className="font-serif font-semibold text-sm md:text-xl mb-1 md:mb-3 hover:text-primary transition-colors cursor-pointer leading-tight line-clamp-2"
                           data-testid={`link-product-${product.id}`}
                         >
                           {product.name}
@@ -519,16 +519,16 @@ export default function Products() {
                       </Link>
 
                       {/* Price */}
-                      <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      <div className="flex items-baseline gap-1 md:gap-2 mb-2 md:mb-4">
+                        <span className="text-lg md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                           ₹{product.price.toLocaleString()}
                         </span>
-                        <span className="text-sm text-muted-foreground">/piece</span>
+                        <span className="text-xs md:text-sm text-muted-foreground">/piece</span>
                       </div>
 
-                      {/* Colors */}
+                      {/* Colors - Hidden on mobile */}
                       {product.colors && product.colors.length > 0 && (
-                        <div className="flex items-center gap-3 mb-6">
+                        <div className="hidden md:flex items-center gap-3 mb-6">
                           <div className="flex gap-2 flex-wrap">
                             {product.colors.slice(0, 5).map((color: string, i: number) => (
                               <Badge key={i} variant="outline" className="text-xs">
@@ -544,20 +544,21 @@ export default function Products() {
                         </div>
                       )}
 
-                      {/* Fabric Badge */}
-                      <Badge variant="outline" className="mb-4 w-fit">
+                      {/* Fabric Badge - Hidden on mobile */}
+                      <Badge variant="outline" className="hidden md:inline-flex mb-4 w-fit">
                         {product.fabric}
                       </Badge>
 
                       {/* Add to Cart Button */}
                       <div className="mt-auto">
                         <Button
-                          className="w-full font-semibold"
-                          size="lg"
+                          className="w-full font-semibold text-xs md:text-sm"
+                          size="default"
                           data-testid={`button-add-cart-${product.id}`}
                         >
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          Add to Cart
+                          <ShoppingCart className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                          <span className="hidden md:inline">Add to Cart</span>
+                          <span className="md:hidden">Add</span>
                         </Button>
                       </div>
                     </CardContent>
