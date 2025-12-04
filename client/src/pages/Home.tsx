@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
+import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, BadgeCheck, Heart, LayoutGrid, List } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -46,10 +46,27 @@ const defaultCategoryImages: Record<string, string> = {
 };
 
 export default function Home() {
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy, setSortBy] = useState("popular");
   const [categorySearch, setCategorySearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
+  
+  const sizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  
+  const toggleSize = (size: string) => {
+    setSelectedSizes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(size)) {
+        newSet.delete(size);
+      } else {
+        newSet.add(size);
+      }
+      return newSet;
+    });
+  };
   
   const brandsSliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -554,48 +571,32 @@ export default function Home() {
       {/* Products For You Section */}
       <section className="py-12 bg-background" data-testid="section-products-for-you">
         <div className="container mx-auto px-4 lg:px-6">
-          <h2 className="font-serif text-2xl md:text-3xl font-semibold mb-8 text-foreground">
-            {sectionTitle}
-          </h2>
+          {/* Section Header */}
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground mb-1">Home &gt; Products</p>
+            <h2 className="text-xl font-medium text-foreground">
+              {products.length} results for products
+            </h2>
+          </div>
 
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Sidebar - Filters */}
-            <aside className="w-full lg:w-64 shrink-0">
+            <aside className="w-full lg:w-56 shrink-0">
               <div className="sticky top-24 space-y-6">
-                {/* Sort Dropdown */}
-                <div>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-full bg-background border" data-testid="select-sort-products">
-                      <span className="text-sm text-muted-foreground">Sort by :</span>
-                      <SelectValue placeholder="Relevance" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="relevance">Relevance</SelectItem>
-                      <SelectItem value="price-low">Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">Price: High to Low</SelectItem>
-                      <SelectItem value="rating">Highest Rated</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* Filter Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-foreground">Filter</h3>
+                  <button className="text-sm text-muted-foreground hover:text-foreground">Advanced</button>
                 </div>
 
-                {/* Filters Header */}
-                <div className="border-t pt-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-sm uppercase tracking-wide">Filters</h3>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {products.length}+ Products
-                  </p>
-                </div>
-
-                {/* Category Section */}
-                <div className="border-t pt-4">
+                {/* Brand/Category Section */}
+                <div className="space-y-4">
                   <button
-                    className="flex items-center justify-between w-full mb-4"
+                    className="flex items-center justify-between w-full"
                     onClick={() => setShowAllCategories(!showAllCategories)}
                     data-testid="button-toggle-categories"
                   >
-                    <h4 className="font-semibold text-sm">Category</h4>
+                    <h4 className="font-medium text-sm text-foreground">Brand</h4>
                     {showAllCategories ? (
                       <ChevronUp className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -604,19 +605,19 @@ export default function Home() {
                   </button>
 
                   {/* Category Search */}
-                  <div className="relative mb-4">
+                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search"
+                      placeholder="Search brand..."
                       value={categorySearch}
                       onChange={(e) => setCategorySearch(e.target.value)}
-                      className="pl-9 h-9 text-sm"
+                      className="pl-9 h-9 text-sm bg-muted/30 border-0"
                       data-testid="input-category-search"
                     />
                   </div>
 
                   {/* Category Checkboxes */}
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                  <div className="space-y-2.5 max-h-48 overflow-y-auto">
                     {categoriesLoading ? (
                       Array.from({ length: 5 }).map((_, i) => (
                         <Skeleton key={i} className="h-5 w-full" />
@@ -631,43 +632,134 @@ export default function Home() {
                           <Checkbox
                             checked={selectedCategories.has(category.id)}
                             onCheckedChange={() => toggleCategory(category.id)}
-                            className="border-muted-foreground/50"
+                            className="rounded-sm border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                          <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors flex-1">
                             {category.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {Math.floor(Math.random() * 50) + 10}
                           </span>
                         </label>
                       ))
                     )}
                   </div>
+                </div>
 
-                  {/* Show More */}
-                  {filteredCategories.length > 8 && (
-                    <button
-                      className="text-primary text-sm font-medium mt-4 hover:underline"
-                      onClick={() => setShowAllCategories(!showAllCategories)}
-                      data-testid="button-show-more-categories"
-                    >
-                      {showAllCategories ? "Show Less" : "Show More"}
-                    </button>
-                  )}
+                {/* Price Range */}
+                <div className="space-y-4 pt-4 border-t">
+                  <button className="flex items-center justify-between w-full">
+                    <h4 className="font-medium text-sm text-foreground">Price</h4>
+                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  
+                  <div className="space-y-3">
+                    <div className="relative h-2 bg-muted rounded-full">
+                      <div 
+                        className="absolute h-full bg-primary rounded-full"
+                        style={{ left: '5%', right: '40%' }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>₹{priceRange[0].toLocaleString()}</span>
+                      <span>₹{priceRange[1].toLocaleString()}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="number" 
+                        value={priceRange[0]} 
+                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                        className="h-8 text-xs text-center"
+                        data-testid="input-price-min"
+                      />
+                      <Input 
+                        type="number" 
+                        value={priceRange[1]} 
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                        className="h-8 text-xs text-center"
+                        data-testid="input-price-max"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Size Filter */}
+                <div className="space-y-4 pt-4 border-t">
+                  <button className="flex items-center justify-between w-full">
+                    <h4 className="font-medium text-sm text-foreground">Size</h4>
+                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  
+                  <div className="grid grid-cols-4 gap-2">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => toggleSize(size)}
+                        className={`h-9 text-xs font-medium rounded-md border transition-colors ${
+                          selectedSizes.has(size)
+                            ? 'bg-foreground text-background border-foreground'
+                            : 'bg-background text-foreground border-border hover:border-foreground'
+                        }`}
+                        data-testid={`button-size-${size}`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </aside>
 
             {/* Right Side - Product Grid */}
             <div className="flex-1">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {/* Top Bar */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+                    data-testid="button-view-grid"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+                    data-testid="button-view-list"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Sort by:</span>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-32 h-9 bg-background border-0 font-medium" data-testid="select-sort-products">
+                      <SelectValue placeholder="Popular" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popular">Popular</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Product Grid */}
+              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
                 {productsLoading ? (
-                  Array.from({ length: 10 }).map((_, i) => (
-                    <Card key={i} className="overflow-hidden border-0 shadow-sm">
-                      <Skeleton className="aspect-square w-full" />
-                      <div className="p-3 space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-5 w-20" />
+                  Array.from({ length: 9 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+                      <div className="space-y-2">
                         <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-20" />
                       </div>
-                    </Card>
+                    </div>
                   ))
                 ) : filteredProducts.length === 0 ? (
                   <div className="col-span-full py-12 text-center">
@@ -675,75 +767,69 @@ export default function Home() {
                     <p className="text-muted-foreground">No products found</p>
                   </div>
                 ) : (
-                  filteredProducts.map((product) => (
+                  filteredProducts.map((product, index) => (
                     <Link key={product.id} href={`/products/${product.id}`}>
-                      <Card
-                        className="group overflow-hidden border hover-elevate transition-all duration-300 cursor-pointer h-full"
+                      <div
+                        className="group cursor-pointer"
                         data-testid={`card-product-for-you-${product.id}`}
                       >
                         {/* Product Image */}
-                        <div className="relative aspect-square overflow-hidden bg-muted/30">
+                        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 mb-3">
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
-                          {/* Image Count Badge */}
-                          {product.imageCount > 1 && (
-                            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-sm">
-                              +{product.imageCount - 1} More
+                          
+                          {/* New Arrival Badge */}
+                          {index < 3 && (
+                            <div className="absolute top-3 left-3 bg-emerald-500 text-white text-xs px-2 py-1 rounded">
+                              New Arrival
                             </div>
                           )}
+                          
+                          {/* Wishlist Heart */}
+                          <button 
+                            className="absolute top-3 right-3 w-8 h-8 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            data-testid={`button-wishlist-${product.id}`}
+                          >
+                            <Heart className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors" />
+                          </button>
                         </div>
 
                         {/* Product Details */}
-                        <div className="p-3 space-y-1.5">
+                        <div className="space-y-1">
+                          {/* Brand */}
+                          <div className="flex items-center gap-1">
+                            <Heart className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">FabricMart</span>
+                          </div>
+                          
                           {/* Product Name */}
                           <h3 className="text-sm font-medium text-foreground truncate leading-tight">
                             {product.name}
                           </h3>
 
                           {/* Price */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-base font-bold text-foreground">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-pink-600 dark:text-pink-400">
                               ₹{product.price.toLocaleString()}
                             </span>
-                            {product.hasDiscount && product.originalPrice && (
-                              <>
-                                <span className="text-xs text-muted-foreground line-through">
-                                  ₹{product.originalPrice.toLocaleString()}
-                                </span>
-                                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                  {product.discountPercent}% off
-                                </span>
-                              </>
-                            )}
                           </div>
 
-                          {/* Free Delivery */}
+                          {/* Items Left */}
                           <div className="flex items-center gap-1">
-                            <Truck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                              Free Delivery
+                            <Package className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              {Math.floor(Math.random() * 20) + 5} items left
                             </span>
                           </div>
-
-                          {/* Rating */}
-                          {(product.rating > 0 || product.reviewCount > 0) && (
-                            <div className="flex items-center gap-1.5 pt-1">
-                              <div className="flex items-center gap-1 bg-emerald-600 dark:bg-emerald-500 text-white px-1.5 py-0.5 rounded-sm">
-                                <span className="text-xs font-semibold">{product.rating.toFixed(1)}</span>
-                                <Star className="w-2.5 h-2.5 fill-white" />
-                              </div>
-                              {product.reviewCount > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  {product.reviewCount.toLocaleString()} Reviews
-                                </span>
-                              )}
-                            </div>
-                          )}
                         </div>
-                      </Card>
+                      </div>
                     </Link>
                   ))
                 )}
@@ -751,7 +837,7 @@ export default function Home() {
 
               {/* View All Products Link */}
               {products.length > 10 && (
-                <div className="text-center mt-8">
+                <div className="text-center mt-10">
                   <Link href="/products">
                     <Button variant="outline" size="lg" data-testid="button-view-all-products">
                       View All Products
