@@ -212,10 +212,10 @@ export default function Products() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="font-serif text-5xl md:text-6xl font-semibold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Premium Collections
+            Shop Now
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
-            Discover our exquisite wholesale collection of designer wear
+            Discover our exquisite wholesale range of designer wear
           </p>
         </div>
 

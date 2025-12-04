@@ -213,10 +213,10 @@ export function Header() {
               className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
                 location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 hover:text-primary hover:bg-gray-50'
               }`}
-              data-testid="link-collection"
+              data-testid="link-shop-now"
             >
               <LayoutGrid className="w-4 h-4" />
-              Collection
+              Shop Now
             </Link>
             <Link 
               href="/vendors" 
