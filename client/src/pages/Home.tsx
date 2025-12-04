@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck } from "lucide-react";
+import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -219,12 +219,6 @@ export default function Home() {
     },
   ];
 
-  const stats = [
-    { label: "Happy Customers", value: "10K+", icon: Users },
-    { label: "Happy Vendors", value: "500+", icon: CheckCircle },
-    { label: "Growth Potential", value: "200%", icon: TrendingUp },
-  ];
-
   const brandPartners = [
     { name: "FabricWorld", color: "text-purple-700 dark:text-purple-400" },
     { name: "SilkCraft", color: "text-pink-600 dark:text-pink-400" },
@@ -295,19 +289,55 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-card">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <stat.icon className="w-8 h-8 text-primary" />
-                </div>
-                <div className="text-4xl font-serif font-semibold mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
+      {/* Original Brands Section - Meesho Style */}
+      <section className="py-8 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground">Original Brands</h2>
+              <BadgeCheck className="w-6 h-6 text-purple-600 fill-purple-100" />
+            </div>
+            <Link href="/products" className="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center gap-1">
+              VIEW ALL <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          
+          <div className="relative group">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory" id="brands-slider">
+              {shopCategories.slice(0, 8).map((category, index) => (
+                <Link key={category.name} href={`/products?category=${category.slug}`}>
+                  <div 
+                    className="flex-shrink-0 w-40 md:w-48 snap-start cursor-pointer group/card"
+                    data-testid={`brand-card-${index}`}
+                  >
+                    <div className="bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-950/20 rounded-xl p-4 h-44 md:h-52 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={category.image} 
+                        alt={category.name}
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover/card:scale-110"
+                      />
+                    </div>
+                    <div className="mt-2">
+                      <div className="bg-purple-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium">
+                        {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            {/* Slider Arrow */}
+            <button 
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white dark:bg-gray-800 shadow-lg rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={() => {
+                const slider = document.getElementById('brands-slider');
+                if (slider) slider.scrollBy({ left: 200, behavior: 'smooth' });
+              }}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
           </div>
         </div>
       </section>
