@@ -428,6 +428,29 @@ export default function ProductDetail() {
               </div>
             </div>
 
+            {/* Color Selection - Circular Buttons like Meesho */}
+            <div className="mb-6">
+              <Label className="text-base font-semibold mb-3 block">
+                Select Color
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-4 h-10 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center gap-2 ${
+                      selectedColor === color
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    data-testid={`button-color-${color}`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Size Selection - Circular Buttons like Meesho */}
             <div className="mb-6">
               <Label className="text-base font-semibold mb-3 block">
