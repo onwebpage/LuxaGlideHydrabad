@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -18,11 +18,21 @@ import {
   ShoppingBag,
   Eye,
   Ticket,
+  X,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+
+interface AppliedCoupon {
+  id: string;
+  code: string;
+  name: string;
+  discountType: "percentage" | "fixed";
+  discountValue: string;
+  minOrderValue: string | null;
+}
 
 export default function Cart() {
   const [, setLocation] = useLocation();
@@ -31,10 +41,6 @@ export default function Cart() {
   const {
     cartItems,
     cartItemCount,
-    cartSubtotal,
-    cartTotal,
-    cartDiscount,
-    getDiscountedPrice,
     isLoading,
     updateQuantity,
     removeFromCart,
@@ -46,15 +52,89 @@ export default function Cart() {
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
   const [removingItemId, setRemovingItemId] = useState<string | null>(null);
   const [viewerCounts, setViewerCounts] = useState<Record<string, number>>({});
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
-  useEffect(() => {
-    const fetchViewerCounts = async () => {
-      if (cartItems.length === 0) {
-        setViewerCounts({});
+  const cartSubtotal = cartItems.reduce((acc, item) => {
+    const price = item.product?.price ? parseFloat(String(item.product.price)) : 0;
+    return acc + (price * item.quantity);
+  }, 0);
+
+  const calculateCouponDiscount = (): number => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.discountType === "percentage") {
+      return cartSubtotal * (parseFloat(appliedCoupon.discountValue) / 100);
+    } else {
+      return Math.min(parseFloat(appliedCoupon.discountValue), cartSubtotal);
+    }
+  };
+
+  const couponDiscount = calculateCouponDiscount();
+  const cartTotal = cartSubtotal - couponDiscount;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setIsValidatingCoupon(true);
+    setCouponError(null);
+
+    try {
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, orderTotal: cartSubtotal }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.valid) {
+        setCouponError(data.message || "Coupon expired");
+        setAppliedCoupon(null);
         return;
       }
-      
-      const productIds = cartItems.map(item => item.productId);
+
+      setAppliedCoupon(data.coupon);
+      setCouponCode("");
+      toast({
+        title: "Coupon Applied",
+        description: data.message,
+      });
+    } catch (error) {
+      setCouponError("Coupon expired");
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+    setCouponCode("");
+    toast({
+      title: "Coupon Removed",
+      description: "Coupon has been removed from your order",
+    });
+  };
+
+  const productIdsString = useMemo(() => {
+    return cartItems.map(item => item.productId).sort().join(',');
+  }, [cartItems]);
+
+  useEffect(() => {
+    if (!productIdsString) {
+      setViewerCounts({});
+      return;
+    }
+
+    const fetchViewerCounts = async () => {
+      const productIds = productIdsString.split(',');
       try {
         const response = await fetch('/api/products/viewers/batch', {
           method: 'POST',
@@ -74,7 +154,7 @@ export default function Cart() {
     const interval = setInterval(fetchViewerCounts, 15000);
     
     return () => clearInterval(interval);
-  }, [cartItems]);
+  }, [productIdsString]);
 
   const handleUpdateQuantity = async (cartItemId: string, newQuantity: number, moq: number) => {
     if (newQuantity < moq) {
@@ -292,15 +372,6 @@ export default function Cart() {
                             </Badge>
                           )}
                           <Badge variant="outline">MOQ: {productMoq}</Badge>
-                          {item.product?.coupon && item.product.coupon.isActive && (
-                            <Badge className="bg-green-600 text-white" data-testid={`badge-coupon-${item.id}`}>
-                              <Ticket className="w-3 h-3 mr-1" />
-                              {item.product.coupon.discountType === "percentage"
-                                ? `${item.product.coupon.discountValue}% OFF`
-                                : `₹${item.product.coupon.discountValue} OFF`
-                              }
-                            </Badge>
-                          )}
                         </div>
 
                         {viewerCounts[item.productId] > 0 && (
@@ -352,28 +423,12 @@ export default function Cart() {
                           </div>
 
                           <div className="text-right">
-                            {item.product?.coupon && item.product.coupon.isActive ? (
-                              <>
-                                <p className="text-sm text-muted-foreground line-through">
-                                  ₹{productPrice.toLocaleString()} x {item.quantity}
-                                </p>
-                                <p className="text-sm text-green-600">
-                                  ₹{Math.round(getDiscountedPrice(item)).toLocaleString()} x {item.quantity}
-                                </p>
-                                <p className="text-xl font-semibold text-green-600" data-testid={`text-item-total-${item.id}`}>
-                                  ₹{Math.round(getDiscountedPrice(item) * item.quantity).toLocaleString()}
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                <p className="text-sm text-muted-foreground">
-                                  ₹{productPrice.toLocaleString()} x {item.quantity}
-                                </p>
-                                <p className="text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
-                                  ₹{(productPrice * item.quantity).toLocaleString()}
-                                </p>
-                              </>
-                            )}
+                            <p className="text-sm text-muted-foreground">
+                              ₹{productPrice.toLocaleString()} x {item.quantity}
+                            </p>
+                            <p className="text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
+                              ₹{(productPrice * item.quantity).toLocaleString()}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -421,13 +476,87 @@ export default function Cart() {
                   <span className="text-muted-foreground">Subtotal ({cartItemCount} items)</span>
                   <span className="font-medium" data-testid="text-subtotal">₹{Math.round(cartSubtotal).toLocaleString()}</span>
                 </div>
-                {cartDiscount > 0 && (
+
+                <Separator />
+                
+                <div className="space-y-3">
+                  <p className="text-sm font-medium flex items-center gap-2">
+                    <Ticket className="w-4 h-4" />
+                    Have a coupon?
+                  </p>
+                  {appliedCoupon ? (
+                    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-green-800 dark:text-green-200">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-xs text-green-700 dark:text-green-300">
+                            {appliedCoupon.discountType === "percentage"
+                              ? `${appliedCoupon.discountValue}% off`
+                              : `₹${appliedCoupon.discountValue} off`
+                            }
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-green-700 hover:text-destructive hover:bg-destructive/10"
+                          onClick={handleRemoveCoupon}
+                          data-testid="button-remove-coupon"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter coupon code"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase());
+                          setCouponError(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleApplyCoupon();
+                          }
+                        }}
+                        className={couponError ? "border-destructive" : ""}
+                        data-testid="input-coupon-code"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={handleApplyCoupon}
+                        disabled={isValidatingCoupon}
+                        data-testid="button-apply-coupon"
+                      >
+                        {isValidatingCoupon ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-sm text-destructive" data-testid="text-coupon-error">
+                      {couponError}
+                    </p>
+                  )}
+                </div>
+
+                <Separator />
+
+                {couponDiscount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-green-600 flex items-center gap-1">
                       <Ticket className="w-4 h-4" />
                       Coupon Discount
                     </span>
-                    <span className="text-green-600 font-medium" data-testid="text-discount">-₹{Math.round(cartDiscount).toLocaleString()}</span>
+                    <span className="text-green-600 font-medium" data-testid="text-discount">-₹{Math.round(couponDiscount).toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -443,9 +572,9 @@ export default function Cart() {
                   <span>Total</span>
                   <span data-testid="text-total">₹{Math.round(cartTotal).toLocaleString()}</span>
                 </div>
-                {cartDiscount > 0 && (
+                {couponDiscount > 0 && (
                   <p className="text-xs text-green-600 text-right">
-                    You're saving ₹{Math.round(cartDiscount).toLocaleString()} with coupon discounts!
+                    You're saving ₹{Math.round(couponDiscount).toLocaleString()} with your coupon!
                   </p>
                 )}
               </CardContent>
