@@ -133,21 +133,6 @@ export function Footer() {
                     Become a Vendor
                   </Link>
                 </li>
-                <li>
-                  <Link href="/register?role=buyer" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-wholesale-buyer">
-                    Wholesale Buyer
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Bulk Orders
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Partnership
-                  </a>
-                </li>
               </ul>
             </div>
 
