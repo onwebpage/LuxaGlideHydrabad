@@ -157,7 +157,6 @@ export default function Vendors() {
                 data-testid={`button-category-${index}`}
               >
                 {category.name}
-                <Badge variant="secondary" className="ml-2">{category.count}</Badge>
               </Button>
             ))}
           </motion.div>
