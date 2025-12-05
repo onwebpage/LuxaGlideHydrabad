@@ -205,7 +205,7 @@ export function Header() {
               data-testid="link-shop-now"
             >
               <LayoutGrid className="w-4 h-4" />
-              Shop Now
+              All Products
             </Link>
             <Link 
               href="/vendors" 
