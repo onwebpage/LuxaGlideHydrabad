@@ -223,10 +223,8 @@ export default function ProductDetail() {
   }, [sizes, selectedSize]);
 
   useEffect(() => {
-    if (productData?.moq) {
-      setQuantity(productData.moq);
-    }
-  }, [productData?.moq]);
+    setQuantity(1);
+  }, [productData?.id]);
 
   const handleAddToCart = async () => {
     try {
@@ -491,13 +489,13 @@ export default function ProductDetail() {
             {/* Quantity */}
             <div className="mb-6">
               <Label className="text-sm uppercase tracking-wider mb-3 block">
-                Quantity (Min: {product.moq})
+                Quantity (Min: 1)
               </Label>
               <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setQuantity(Math.max(product.moq, quantity - 1))}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   data-testid="button-decrease-quantity"
                 >
                   <Minus className="w-4 h-4" />
@@ -505,7 +503,7 @@ export default function ProductDetail() {
                 <Input
                   type="number"
                   value={quantity}
-                  onChange={(e) => setQuantity(Math.max(product.moq, parseInt(e.target.value) || product.moq))}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-24 text-center"
                   data-testid="input-quantity"
                 />
