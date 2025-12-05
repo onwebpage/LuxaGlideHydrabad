@@ -93,41 +93,6 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Newsletter Card */}
-            {showNewsletter && (
-              <div>
-                <Card className="border-2 shadow-lg">
-                  <CardContent className="p-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
-                        <Send className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-xl">{newsletterTitle}</h4>
-                        <p className="text-sm text-muted-foreground">Subscribe to our newsletter</p>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-6">
-                      {newsletterDescription}
-                    </p>
-                    <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="flex-1"
-                        data-testid="input-newsletter-email"
-                      />
-                      <Button type="submit" data-testid="button-newsletter-submit">
-                        <Send className="w-4 h-4" />
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
           </div>
 
           {/* Links Section */}
