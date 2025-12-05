@@ -727,7 +727,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stock,
         colors,
         sizes,
-        bulkPricing
+        bulkPricing,
+        couponId
       } = req.body;
 
       // Check if vendor exists and has approved KYC
@@ -2151,6 +2152,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!res.headersSent) {
         res.status(500).json({ message: error.message });
       }
+    }
+  });
+
+  // ============ Admin Coupon Management Routes ============
+
+  // Get all coupons (admin only)
+  app.get("/api/admin/coupons", requireAdminAuth, async (req, res) => {
+    try {
+      const { isActive, search, limit, offset } = req.query;
+      const coupons = await storage.getAllCoupons({
+        isActive: isActive === "true" ? true : isActive === "false" ? false : undefined,
+        search: search as string,
+        limit: limit ? Number(limit) : undefined,
+        offset: offset ? Number(offset) : undefined,
+      });
+      res.json(coupons);
+    } catch (error: any) {
+      console.error("Get coupons error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get single coupon (admin only)
+  app.get("/api/admin/coupons/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const coupon = await storage.getCoupon(req.params.id);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+      res.json(coupon);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create coupon (admin only)
+  app.post("/api/admin/coupons", requireAdminAuth, async (req, res) => {
+    try {
+      const { code, name, description, discountType, discountValue, minOrderValue, maxUses, isActive, startsAt, expiresAt } = req.body;
+
+      if (!code || !name || !discountValue) {
+        return res.status(400).json({ message: "Code, name, and discount value are required" });
+      }
+
+      // Check if code already exists
+      const existingCoupon = await storage.getCouponByCode(code);
+      if (existingCoupon) {
+        return res.status(400).json({ message: "Coupon code already exists" });
+      }
+
+      const coupon = await storage.createCoupon({
+        code,
+        name,
+        description,
+        discountType: discountType || "percentage",
+        discountValue: discountValue.toString(),
+        minOrderValue: minOrderValue ? minOrderValue.toString() : null,
+        maxUses: maxUses || null,
+        isActive: isActive !== false,
+        startsAt: startsAt ? new Date(startsAt) : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      });
+
+      res.status(201).json(coupon);
+    } catch (error: any) {
+      console.error("Create coupon error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update coupon (admin only)
+  app.put("/api/admin/coupons/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const { code, name, description, discountType, discountValue, minOrderValue, maxUses, isActive, startsAt, expiresAt } = req.body;
+
+      // Check if code exists for a different coupon
+      if (code) {
+        const existingCoupon = await storage.getCouponByCode(code);
+        if (existingCoupon && existingCoupon.id !== req.params.id) {
+          return res.status(400).json({ message: "Coupon code already exists" });
+        }
+      }
+
+      const updateData: any = {};
+      if (code !== undefined) updateData.code = code;
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (discountType !== undefined) updateData.discountType = discountType;
+      if (discountValue !== undefined) updateData.discountValue = discountValue.toString();
+      if (minOrderValue !== undefined) updateData.minOrderValue = minOrderValue ? minOrderValue.toString() : null;
+      if (maxUses !== undefined) updateData.maxUses = maxUses;
+      if (isActive !== undefined) updateData.isActive = isActive;
+      if (startsAt !== undefined) updateData.startsAt = startsAt ? new Date(startsAt) : null;
+      if (expiresAt !== undefined) updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
+
+      const coupon = await storage.updateCoupon(req.params.id, updateData);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+
+      res.json(coupon);
+    } catch (error: any) {
+      console.error("Update coupon error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Toggle coupon active status (admin only)
+  app.patch("/api/admin/coupons/:id/toggle", requireAdminAuth, async (req, res) => {
+    try {
+      const coupon = await storage.getCoupon(req.params.id);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+
+      const updatedCoupon = await storage.updateCoupon(req.params.id, { isActive: !coupon.isActive });
+      res.json(updatedCoupon);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete coupon (admin only)
+  app.delete("/api/admin/coupons/:id", requireAdminAuth, async (req, res) => {
+    try {
+      await storage.deleteCoupon(req.params.id);
+      res.json({ message: "Coupon deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete coupon error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Public Coupon Routes ============
+
+  // Get active coupons for vendors to select
+  app.get("/api/coupons/active", async (req, res) => {
+    try {
+      const coupons = await storage.getActiveCoupons();
+      res.json(coupons);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get coupon by ID (for product display)
+  app.get("/api/coupons/:id", async (req, res) => {
+    try {
+      const coupon = await storage.getCoupon(req.params.id);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+      res.json(coupon);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

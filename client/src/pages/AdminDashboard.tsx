@@ -29,6 +29,7 @@ import {
   CheckCheck,
   Users,
   Palette,
+  Ticket,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -298,6 +299,18 @@ export default function AdminDashboard() {
                   <p className="text-muted-foreground text-sm">Customize website content and appearance</p>
                 </div>
                 <Palette className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/coupons")} data-testid="card-coupon-management">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Coupon Management</h3>
+                  <p className="text-muted-foreground text-sm">Create and manage discount coupons</p>
+                </div>
+                <Ticket className="w-10 h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>

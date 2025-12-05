@@ -29,6 +29,7 @@ import AdminOrders from "@/pages/AdminOrders";
 import AdminCustomers from "@/pages/AdminCustomers";
 import AdminVendors from "@/pages/AdminVendors";
 import AdminSiteSettings from "@/pages/AdminSiteSettings";
+import AdminCoupons from "@/pages/AdminCoupons";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/dashboard/admin/customers" component={AdminCustomers} />
       <Route path="/dashboard/admin/vendors" component={AdminVendors} />
       <Route path="/dashboard/admin/site-settings" component={AdminSiteSettings} />
+      <Route path="/dashboard/admin/coupons" component={AdminCoupons} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
       {/* Redirect /dashboard to role-specific dashboard - will be dynamic based on user role */}
       <Route path="/dashboard" component={BuyerDashboard} />

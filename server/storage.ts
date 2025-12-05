@@ -4,6 +4,7 @@ import {
   buyers,
   addresses,
   categories,
+  coupons,
   products,
   reviews,
   wishlist,
@@ -25,6 +26,8 @@ import {
   type InsertAddress,
   type Category,
   type InsertCategory,
+  type Coupon,
+  type InsertCoupon,
   type Product,
   type InsertProduct,
   type Review,
@@ -84,6 +87,16 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, data: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: string): Promise<void>;
+
+  // Coupons
+  getCoupon(id: string): Promise<Coupon | undefined>;
+  getCouponByCode(code: string): Promise<Coupon | undefined>;
+  getAllCoupons(filters?: { isActive?: boolean; search?: string; limit?: number; offset?: number }): Promise<Coupon[]>;
+  getActiveCoupons(): Promise<Coupon[]>;
+  createCoupon(coupon: InsertCoupon): Promise<Coupon>;
+  updateCoupon(id: string, data: Partial<InsertCoupon>): Promise<Coupon | undefined>;
+  deleteCoupon(id: string): Promise<void>;
+  incrementCouponUsage(id: string): Promise<Coupon | undefined>;
 
   // Products
   getProduct(id: string): Promise<Product | undefined>;
@@ -341,6 +354,103 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCategory(id: string): Promise<void> {
     await db.delete(categories).where(eq(categories.id, id));
+  }
+
+  // Coupons
+  async getCoupon(id: string): Promise<Coupon | undefined> {
+    const [coupon] = await db.select().from(coupons).where(eq(coupons.id, id));
+    return coupon || undefined;
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | undefined> {
+    const [coupon] = await db.select().from(coupons).where(eq(coupons.code, code.toUpperCase()));
+    return coupon || undefined;
+  }
+
+  async getAllCoupons(filters?: { isActive?: boolean; search?: string; limit?: number; offset?: number }): Promise<Coupon[]> {
+    let query = db.select().from(coupons);
+    
+    const conditions = [];
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(coupons.isActive, filters.isActive));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        or(
+          like(coupons.code, `%${filters.search.toUpperCase()}%`),
+          like(coupons.name, `%${filters.search}%`)
+        )
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(coupons.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async getActiveCoupons(): Promise<Coupon[]> {
+    const now = new Date();
+    return await db.select().from(coupons).where(
+      and(
+        eq(coupons.isActive, true),
+        or(
+          sql`${coupons.startsAt} IS NULL`,
+          lte(coupons.startsAt, now)
+        ),
+        or(
+          sql`${coupons.expiresAt} IS NULL`,
+          gte(coupons.expiresAt, now)
+        ),
+        or(
+          sql`${coupons.maxUses} IS NULL`,
+          sql`${coupons.usedCount} < ${coupons.maxUses}`
+        )
+      )
+    ).orderBy(desc(coupons.createdAt));
+  }
+
+  async createCoupon(insertCoupon: InsertCoupon): Promise<Coupon> {
+    const [coupon] = await db.insert(coupons).values({
+      ...insertCoupon,
+      code: insertCoupon.code.toUpperCase(),
+    }).returning();
+    return coupon;
+  }
+
+  async updateCoupon(id: string, data: Partial<InsertCoupon>): Promise<Coupon | undefined> {
+    const updateData = { ...data, updatedAt: new Date() };
+    if (updateData.code) {
+      updateData.code = updateData.code.toUpperCase();
+    }
+    const [coupon] = await db.update(coupons).set(updateData).where(eq(coupons.id, id)).returning();
+    return coupon || undefined;
+  }
+
+  async deleteCoupon(id: string): Promise<void> {
+    await db.update(products).set({ couponId: null }).where(eq(products.couponId, id));
+    await db.delete(coupons).where(eq(coupons.id, id));
+  }
+
+  async incrementCouponUsage(id: string): Promise<Coupon | undefined> {
+    const [coupon] = await db.update(coupons)
+      .set({ usedCount: sql`${coupons.usedCount} + 1`, updatedAt: new Date() })
+      .where(eq(coupons.id, id))
+      .returning();
+    return coupon || undefined;
   }
 
   // Products

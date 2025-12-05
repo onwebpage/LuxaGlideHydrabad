@@ -48,7 +48,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useQuery } from "@tanstack/react-query";
-import type { Order, Product, Vendor } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Order, Product, Vendor, Coupon } from "@shared/schema";
 import { useAuth, getAuthToken } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { X, FileText, CheckCircle } from "lucide-react";
@@ -95,6 +102,9 @@ export default function VendorDashboard() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [deleteProductLoading, setDeleteProductLoading] = useState(false);
   
+  const [productCouponId, setProductCouponId] = useState<string>("none");
+  const [editProductCouponId, setEditProductCouponId] = useState<string>("none");
+  
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
 
@@ -124,6 +134,10 @@ export default function VendorDashboard() {
   const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: [`/api/orders/vendor/${vendorId}`],
     enabled: !!vendorId,
+  });
+
+  const { data: activeCoupons = [] } = useQuery<Coupon[]>({
+    queryKey: ["/api/coupons/active"],
   });
 
   const kycStatus = vendorProfile?.kycStatus || "pending";
@@ -339,6 +353,7 @@ export default function VendorDashboard() {
     setProductMoq("1");
     setProductDescription("");
     setProductImages([]);
+    setProductCouponId("none");
   };
 
   const handleProductSubmit = async () => {
@@ -397,6 +412,9 @@ export default function VendorDashboard() {
       formData.append('price', productPrice);
       formData.append('moq', productMoq || '1');
       formData.append('stock', '100');
+      if (productCouponId && productCouponId !== "none") {
+        formData.append('couponId', productCouponId);
+      }
       
       productImages.forEach((file) => {
         formData.append('images', file);
@@ -530,6 +548,7 @@ export default function VendorDashboard() {
     setEditProductMoq(String(product.moq));
     setEditProductStock(String(product.stock));
     setEditProductDescription(product.description);
+    setEditProductCouponId(product.couponId || "none");
     setIsEditProductOpen(true);
   };
 
@@ -572,6 +591,7 @@ export default function VendorDashboard() {
       formData.append('price', editProductPrice);
       formData.append('moq', editProductMoq || '1');
       formData.append('stock', editProductStock || '0');
+      formData.append('couponId', editProductCouponId === "none" ? "" : editProductCouponId);
 
       const response = await fetch(`/api/vendor/products/${editingProduct.id}`, {
         method: 'PUT',
@@ -997,6 +1017,27 @@ export default function VendorDashboard() {
                           onChange={(e) => setProductDescription(e.target.value)}
                         />
                       </div>
+                      {activeCoupons.length > 0 && (
+                        <div>
+                          <Label htmlFor="coupon">Apply Coupon (Optional)</Label>
+                          <Select value={productCouponId} onValueChange={setProductCouponId}>
+                            <SelectTrigger data-testid="select-product-coupon">
+                              <SelectValue placeholder="No coupon" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">No coupon</SelectItem>
+                              {activeCoupons.map((coupon) => (
+                                <SelectItem key={coupon.id} value={coupon.id}>
+                                  {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Select a coupon to offer a discount on this product
+                          </p>
+                        </div>
+                      )}
                       <div>
                         <Label>Product Images *</Label>
                         <div 
@@ -1187,6 +1228,25 @@ export default function VendorDashboard() {
                     value={editProductDescription}
                     onChange={(e) => setEditProductDescription(e.target.value)}
                   />
+                </div>
+                <div>
+                  <Label htmlFor="editCoupon">Apply Coupon (Optional)</Label>
+                  <Select value={editProductCouponId} onValueChange={setEditProductCouponId}>
+                    <SelectTrigger data-testid="select-edit-product-coupon">
+                      <SelectValue placeholder="No coupon" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No coupon</SelectItem>
+                      {activeCoupons.map((coupon) => (
+                        <SelectItem key={coupon.id} value={coupon.id}>
+                          {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Select a coupon to offer a discount on this product
+                  </p>
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button 

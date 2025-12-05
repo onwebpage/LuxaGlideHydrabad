@@ -11,6 +11,7 @@ export const productStatusEnum = pgEnum("product_status", ["pending", "approved"
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed", "refunded"]);
 export const rfqStatusEnum = pgEnum("rfq_status", ["pending", "quoted", "accepted", "rejected"]);
+export const discountTypeEnum = pgEnum("discount_type", ["percentage", "fixed"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -82,6 +83,24 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Coupons
+export const coupons = pgTable("coupons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  discountType: discountTypeEnum("discount_type").notNull().default("percentage"),
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  minOrderValue: decimal("min_order_value", { precision: 10, scale: 2 }),
+  maxUses: integer("max_uses"),
+  usedCount: integer("used_count").notNull().default(0),
+  isActive: boolean("is_active").default(true),
+  startsAt: timestamp("starts_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Products
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -90,6 +109,7 @@ export const products = pgTable("products", {
   slug: text("slug").notNull().unique(),
   description: text("description").notNull(),
   categoryId: varchar("category_id").references(() => categories.id),
+  couponId: varchar("coupon_id").references(() => coupons.id, { onDelete: "set null" }),
   fabric: text("fabric"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   moq: integer("moq").notNull().default(1), // Minimum Order Quantity
@@ -226,11 +246,16 @@ export const buyersRelations = relations(buyers, ({ one }) => ({
 export const productsRelations = relations(products, ({ one, many }) => ({
   vendor: one(vendors, { fields: [products.vendorId], references: [vendors.id] }),
   category: one(categories, { fields: [products.categoryId], references: [categories.id] }),
+  coupon: one(coupons, { fields: [products.couponId], references: [coupons.id] }),
   reviews: many(reviews),
   wishlistItems: many(wishlist),
   cartItems: many(cart),
   orderItems: many(orderItems),
   rfqs: many(rfqs),
+}));
+
+export const couponsRelations = relations(coupons, ({ many }) => ({
+  products: many(products),
 }));
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -257,6 +282,7 @@ export const insertVendorSchema = createInsertSchema(vendors).omit({ id: true, c
 export const insertBuyerSchema = createInsertSchema(buyers).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAddressSchema = createInsertSchema(addresses).omit({ id: true, createdAt: true });
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
+export const insertCouponSchema = createInsertSchema(coupons).omit({ id: true, createdAt: true, updatedAt: true, usedCount: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, createdAt: true });
 export const insertWishlistSchema = createInsertSchema(wishlist).omit({ id: true, createdAt: true });
@@ -295,6 +321,8 @@ export type Address = typeof addresses.$inferSelect;
 export type InsertAddress = z.infer<typeof insertAddressSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Coupon = typeof coupons.$inferSelect;
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Review = typeof reviews.$inferSelect;
