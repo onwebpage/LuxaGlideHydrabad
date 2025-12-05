@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, BadgeCheck, Heart, LayoutGrid, List } from "lucide-react";
+import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -52,92 +52,6 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const brandsSliderRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeftStart, setScrollLeftStart] = useState(0);
-  const [hasDragged, setHasDragged] = useState(false);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    setIsDragging(true);
-    setHasDragged(false);
-    setStartX(e.pageX - slider.offsetLeft);
-    setScrollLeftStart(slider.scrollLeft);
-    slider.style.cursor = 'grabbing';
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    e.preventDefault();
-    const x = e.pageX - slider.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    
-    if (Math.abs(walk) > 5) {
-      setHasDragged(true);
-    }
-    
-    slider.scrollLeft = scrollLeftStart - walk;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    const slider = brandsSliderRef.current;
-    if (slider) {
-      slider.style.cursor = 'grab';
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      const slider = brandsSliderRef.current;
-      if (slider) {
-        slider.style.cursor = 'grab';
-      }
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    setIsDragging(true);
-    setHasDragged(false);
-    setStartX(e.touches[0].pageX - slider.offsetLeft);
-    setScrollLeftStart(slider.scrollLeft);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const slider = brandsSliderRef.current;
-    if (!slider) return;
-    
-    const x = e.touches[0].pageX - slider.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    
-    if (Math.abs(walk) > 5) {
-      setHasDragged(true);
-    }
-    
-    slider.scrollLeft = scrollLeftStart - walk;
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (hasDragged) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
@@ -355,64 +269,6 @@ export default function Home() {
                   <span className="text-sm md:text-base text-center text-foreground font-medium">
                     {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Original Brands Section - Meesho Style */}
-      <section className="py-8 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl md:text-2xl font-semibold text-foreground">Original Brands</h2>
-              <BadgeCheck className="w-6 h-6 text-purple-600 fill-purple-100" />
-            </div>
-            <Link href="/products" className="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center gap-1">
-              VIEW ALL <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          
-          {/* Draggable Slider */}
-          <div 
-            ref={brandsSliderRef}
-            className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 select-none"
-            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {shopCategories.slice(0, 8).map((category, index) => (
-              <Link 
-                key={category.name} 
-                href={`/products?category=${category.slug}`}
-                onClick={handleCardClick}
-                draggable={false}
-              >
-                <div 
-                  className="flex-shrink-0 w-40 md:w-48 cursor-pointer group/card"
-                  data-testid={`brand-card-${index}`}
-                  draggable={false}
-                >
-                  <div className="bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-950/20 rounded-xl p-4 h-44 md:h-52 flex items-center justify-center overflow-hidden pointer-events-none">
-                    <img 
-                      src={category.image} 
-                      alt={category.name}
-                      className="w-full h-full object-contain transition-transform duration-300 group-hover/card:scale-110"
-                      draggable={false}
-                    />
-                  </div>
-                  <div className="mt-2 pointer-events-none">
-                    <div className="bg-purple-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium">
-                      {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
-                    </div>
-                  </div>
                 </div>
               </Link>
             ))}
