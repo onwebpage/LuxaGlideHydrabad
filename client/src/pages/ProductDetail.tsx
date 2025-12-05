@@ -70,6 +70,15 @@ const colorImageMap: Record<string, string[]> = {
   Green: [greenSaree1, greenSaree2, greenSaree3],
 };
 
+interface AppliedCoupon {
+  id: string;
+  code: string;
+  name: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderValue?: number | null;
+}
+
 export default function ProductDetail() {
   const [, params] = useRoute("/products/:id");
   const [, setLocation] = useLocation();
@@ -80,6 +89,10 @@ export default function ProductDetail() {
   const [selectedHeight, setSelectedHeight] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
   const currentProductIdRef = useRef<string | null>(null);
   

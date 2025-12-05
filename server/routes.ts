@@ -733,6 +733,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Validate and apply coupon code
+  app.post("/api/coupons/validate", async (req, res) => {
+    try {
+      const { code, orderTotal } = req.body;
+      
+      if (!code) {
+        return res.status(400).json({ valid: false, message: "Coupon code is required" });
+      }
+
+      const coupon = await storage.getCouponByCode(code.toUpperCase());
+      
+      if (!coupon) {
+        return res.status(404).json({ valid: false, message: "Coupon expired" });
+      }
+
+      if (!coupon.isActive) {
+        return res.status(400).json({ valid: false, message: "Coupon expired" });
+      }
+
+      const now = new Date();
+      
+      if (coupon.startsAt && new Date(coupon.startsAt) > now) {
+        return res.status(400).json({ valid: false, message: "Coupon expired" });
+      }
+
+      if (coupon.expiresAt && new Date(coupon.expiresAt) < now) {
+        return res.status(400).json({ valid: false, message: "Coupon expired" });
+      }
+
+      if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+        return res.status(400).json({ valid: false, message: "Coupon expired" });
+      }
+
+      if (coupon.minOrderValue && orderTotal && Number(orderTotal) < Number(coupon.minOrderValue)) {
+        return res.status(400).json({ 
+          valid: false, 
+          message: `Minimum order value of ₹${Number(coupon.minOrderValue).toLocaleString()} required` 
+        });
+      }
+
+      res.json({ 
+        valid: true, 
+        coupon: {
+          id: coupon.id,
+          code: coupon.code,
+          name: coupon.name,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+          minOrderValue: coupon.minOrderValue,
+        },
+        message: "Coupon applied successfully" 
+      });
+    } catch (error: any) {
+      console.error("Validate coupon error:", error);
+      res.status(500).json({ valid: false, message: error.message });
+    }
+  });
+
   // Create product (vendor only - requires approved KYC)
   app.post("/api/products", upload.array("images", 10), async (req, res) => {
     try {
