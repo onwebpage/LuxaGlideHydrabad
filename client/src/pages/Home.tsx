@@ -349,7 +349,6 @@ export default function Home() {
           <div className="max-w-xl">
             <h1 className="font-serif text-3xl md:text-4xl font-semibold text-white leading-tight mb-4">
               Elevate Your Fashion
-              <span className="text-primary"> Business</span>
             </h1>
           </div>
         </div>
