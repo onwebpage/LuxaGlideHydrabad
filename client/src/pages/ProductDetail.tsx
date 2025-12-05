@@ -76,6 +76,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedHeight, setSelectedHeight] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
   const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
@@ -446,6 +447,29 @@ export default function ProductDetail() {
                     data-testid={`button-color-${color}`}
                   >
                     {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Height Selection */}
+            <div className="mb-6">
+              <Label className="text-base font-semibold mb-3 block">
+                Select Height
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {["4'8\" - 5'0\"", "5'0\" - 5'4\"", "5'4\" - 5'8\"", "5'8\" - 6'0\"", "6'0\" +"].map((height) => (
+                  <button
+                    key={height}
+                    onClick={() => setSelectedHeight(height)}
+                    className={`px-4 h-10 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center ${
+                      selectedHeight === height
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    data-testid={`button-height-${height.replace(/['"]/g, '')}`}
+                  >
+                    {height}
                   </button>
                 ))}
               </div>
