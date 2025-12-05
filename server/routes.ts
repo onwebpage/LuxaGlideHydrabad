@@ -1851,7 +1851,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentStatus: "pending",
       });
 
-      // Create order items
+      // Track used coupons to avoid duplicate increments
+      const usedCouponIds = new Set<string>();
+
+      // Create order items and track coupon usage
       for (const item of items) {
         await storage.createOrderItem({
           orderId: order.id,
@@ -1861,6 +1864,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           selectedColor: item.selectedColor,
           selectedSize: item.selectedSize,
         });
+
+        // Increment coupon usage if the product has an active coupon
+        const product = await storage.getProduct(item.productId);
+        if (product?.couponId && !usedCouponIds.has(product.couponId)) {
+          const coupon = await storage.getCoupon(product.couponId);
+          if (coupon?.isActive) {
+            await storage.incrementCouponUsage(product.couponId);
+            usedCouponIds.add(product.couponId);
+          }
+        }
       }
 
       // Clear cart

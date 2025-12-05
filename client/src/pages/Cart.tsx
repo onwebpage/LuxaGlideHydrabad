@@ -17,6 +17,7 @@ import {
   Loader2,
   ShoppingBag,
   Eye,
+  Ticket,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/lib/auth-context";
@@ -30,7 +31,10 @@ export default function Cart() {
   const {
     cartItems,
     cartItemCount,
+    cartSubtotal,
     cartTotal,
+    cartDiscount,
+    getDiscountedPrice,
     isLoading,
     updateQuantity,
     removeFromCart,
@@ -288,6 +292,15 @@ export default function Cart() {
                             </Badge>
                           )}
                           <Badge variant="outline">MOQ: {productMoq}</Badge>
+                          {item.product?.coupon && item.product.coupon.isActive && (
+                            <Badge className="bg-green-600 text-white" data-testid={`badge-coupon-${item.id}`}>
+                              <Ticket className="w-3 h-3 mr-1" />
+                              {item.product.coupon.discountType === "percentage"
+                                ? `${item.product.coupon.discountValue}% OFF`
+                                : `₹${item.product.coupon.discountValue} OFF`
+                              }
+                            </Badge>
+                          )}
                         </div>
 
                         {viewerCounts[item.productId] > 0 && (
@@ -339,12 +352,28 @@ export default function Cart() {
                           </div>
 
                           <div className="text-right">
-                            <p className="text-sm text-muted-foreground">
-                              ₹{productPrice.toLocaleString()} x {item.quantity}
-                            </p>
-                            <p className="text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
-                              ₹{(productPrice * item.quantity).toLocaleString()}
-                            </p>
+                            {item.product?.coupon && item.product.coupon.isActive ? (
+                              <>
+                                <p className="text-sm text-muted-foreground line-through">
+                                  ₹{productPrice.toLocaleString()} x {item.quantity}
+                                </p>
+                                <p className="text-sm text-green-600">
+                                  ₹{Math.round(getDiscountedPrice(item)).toLocaleString()} x {item.quantity}
+                                </p>
+                                <p className="text-xl font-semibold text-green-600" data-testid={`text-item-total-${item.id}`}>
+                                  ₹{Math.round(getDiscountedPrice(item) * item.quantity).toLocaleString()}
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-sm text-muted-foreground">
+                                  ₹{productPrice.toLocaleString()} x {item.quantity}
+                                </p>
+                                <p className="text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
+                                  ₹{(productPrice * item.quantity).toLocaleString()}
+                                </p>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -390,8 +419,17 @@ export default function Cart() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal ({cartItemCount} items)</span>
-                  <span className="font-medium" data-testid="text-subtotal">₹{cartTotal.toLocaleString()}</span>
+                  <span className="font-medium" data-testid="text-subtotal">₹{Math.round(cartSubtotal).toLocaleString()}</span>
                 </div>
+                {cartDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 flex items-center gap-1">
+                      <Ticket className="w-4 h-4" />
+                      Coupon Discount
+                    </span>
+                    <span className="text-green-600 font-medium" data-testid="text-discount">-₹{Math.round(cartDiscount).toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-green-600 font-medium">Free</span>
@@ -403,8 +441,13 @@ export default function Cart() {
                 <Separator />
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
-                  <span data-testid="text-total">₹{cartTotal.toLocaleString()}</span>
+                  <span data-testid="text-total">₹{Math.round(cartTotal).toLocaleString()}</span>
                 </div>
+                {cartDiscount > 0 && (
+                  <p className="text-xs text-green-600 text-right">
+                    You're saving ₹{Math.round(cartDiscount).toLocaleString()} with coupon discounts!
+                  </p>
+                )}
               </CardContent>
               <CardFooter className="flex flex-col gap-3">
                 <Button 

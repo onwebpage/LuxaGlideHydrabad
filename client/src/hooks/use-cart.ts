@@ -1,9 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth, getAuthToken } from "@/lib/auth-context";
-import type { Cart, Product } from "@shared/schema";
+import type { Cart, Product, Coupon } from "@shared/schema";
+
+export interface ProductWithCoupon extends Product {
+  coupon?: Coupon | null;
+}
 
 export interface CartItemWithProduct extends Cart {
-  product?: Product;
+  product?: ProductWithCoupon;
 }
 
 function getAuthHeaders(): HeadersInit {
@@ -160,15 +164,39 @@ export function useCart() {
 
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   
-  const cartTotal = cartItems.reduce((acc, item) => {
+  const getDiscountedPrice = (item: CartItemWithProduct): number => {
+    const price = item.product?.price ? parseFloat(String(item.product.price)) : 0;
+    const coupon = item.product?.coupon;
+    
+    if (coupon && coupon.isActive) {
+      if (coupon.discountType === "percentage") {
+        return price * (1 - parseFloat(String(coupon.discountValue)) / 100);
+      } else {
+        return Math.max(0, price - parseFloat(String(coupon.discountValue)));
+      }
+    }
+    return price;
+  };
+  
+  const cartSubtotal = cartItems.reduce((acc, item) => {
     const price = item.product?.price ? parseFloat(String(item.product.price)) : 0;
     return acc + (price * item.quantity);
   }, 0);
+  
+  const cartTotal = cartItems.reduce((acc, item) => {
+    const discountedPrice = getDiscountedPrice(item);
+    return acc + (discountedPrice * item.quantity);
+  }, 0);
+  
+  const cartDiscount = cartSubtotal - cartTotal;
 
   return {
     cartItems,
     cartItemCount,
+    cartSubtotal,
     cartTotal,
+    cartDiscount,
+    getDiscountedPrice,
     isLoading,
     refetch,
     addToCart: addToCartMutation.mutateAsync,
