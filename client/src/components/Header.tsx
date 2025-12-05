@@ -24,7 +24,7 @@ export function Header() {
   const { user, logout } = useAuth();
   const { data: cmsSettings } = useCmsSettings();
   
-  const siteName = cmsSettings?.siteMeta?.siteName || "FabricMart";
+  const siteName = cmsSettings?.siteMeta?.siteName || "Queen 4Feel";
   const { cartItemCount } = useCart();
   
   const isLoggedIn = !!user;
