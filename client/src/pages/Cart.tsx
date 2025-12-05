@@ -225,29 +225,6 @@ export default function Cart() {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen py-12">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <Card className="text-center py-16">
-            <CardContent>
-              <ShoppingCart className="w-20 h-20 mx-auto mb-6 text-muted-foreground/30" />
-              <h2 className="text-2xl font-semibold mb-4">Please Login</h2>
-              <p className="text-muted-foreground mb-8">
-                You need to be logged in to view your cart
-              </p>
-              <Link href="/login">
-                <Button size="lg" data-testid="button-login">
-                  Login to Continue
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
       <div className="min-h-screen py-12">
