@@ -17,8 +17,8 @@ export default function Vendors() {
   });
 
   const stats = [
-    { icon: Shield, value: "500+", label: "Verified Vendors" },
-    { icon: Star, value: "4.8", label: "Avg. Rating" },
+    { icon: Shield, value: "500+", label: "Happy Vendors" },
+    { icon: Users, value: "10K+", label: "Happy Customers" },
     { icon: Package, value: "50K+", label: "Products" },
     { icon: TrendingUp, value: "98%", label: "Satisfaction" }
   ];
