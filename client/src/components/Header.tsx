@@ -198,6 +198,15 @@ export function Header() {
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
             <Link 
+              href="/" 
+              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-home-nav"
+            >
+              Home
+            </Link>
+            <Link 
               href="/products" 
               className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
                 location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
@@ -252,6 +261,15 @@ export function Header() {
               <div className="pb-4">
                 <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">Quick Links</h3>
                 <div className="space-y-1">
+                  <Link
+                    href="/"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
+                    data-testid="link-mobile-home"
+                  >
+                    <LayoutGrid className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    Home
+                  </Link>
                   <Link
                     href="/vendors"
                     onClick={() => setMobileMenuOpen(false)}
