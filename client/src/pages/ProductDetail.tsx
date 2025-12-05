@@ -229,16 +229,6 @@ export default function ProductDetail() {
   }, [productData?.moq]);
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to add items to your cart",
-        variant: "destructive",
-      });
-      setLocation("/login");
-      return;
-    }
-
     try {
       await addToCart({
         productId: product.id,

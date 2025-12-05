@@ -11,18 +11,28 @@ function getAuthHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function getOrCreateGuestId(): string {
+  const GUEST_ID_KEY = 'guest_cart_id';
+  let guestId = localStorage.getItem(GUEST_ID_KEY);
+  if (!guestId) {
+    guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(GUEST_ID_KEY, guestId);
+  }
+  return guestId;
+}
+
 export function useCart() {
   const { user, token } = useAuth();
   const queryClient = useQueryClient();
+  
+  const effectiveUserId = user?.id || getOrCreateGuestId();
 
   const { data: cartItems = [], isLoading, refetch } = useQuery<CartItemWithProduct[]>({
-    queryKey: ['/api/cart', user?.id],
+    queryKey: ['/api/cart', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`/api/cart/${user.id}`, {
+      const response = await fetch(`/api/cart/${effectiveUserId}`, {
         headers: authHeaders,
       });
       if (!response.ok) return [];
@@ -42,7 +52,6 @@ export function useCart() {
         product: productMap.get(item.productId),
       }));
     },
-    enabled: !!user?.id,
     staleTime: 1000 * 60,
   });
 
@@ -53,8 +62,6 @@ export function useCart() {
       selectedColor?: string;
       selectedSize?: string;
     }) => {
-      if (!user?.id) throw new Error("Please login to add items to cart");
-      
       const authHeaders = getAuthHeaders();
       
       const response = await fetch("/api/cart", {
@@ -64,7 +71,7 @@ export function useCart() {
           ...authHeaders,
         },
         body: JSON.stringify({
-          userId: user.id,
+          userId: effectiveUserId,
           productId: data.productId,
           quantity: data.quantity,
           selectedColor: data.selectedColor,
@@ -80,7 +87,7 @@ export function useCart() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', effectiveUserId] });
     },
   });
 
@@ -105,7 +112,7 @@ export function useCart() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', effectiveUserId] });
     },
   });
 
@@ -126,17 +133,15 @@ export function useCart() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', effectiveUserId] });
     },
   });
 
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      if (!user?.id) throw new Error("Not authenticated");
-      
       const authHeaders = getAuthHeaders();
       
-      const response = await fetch(`/api/cart/user/${user.id}`, {
+      const response = await fetch(`/api/cart/user/${effectiveUserId}`, {
         method: "DELETE",
         headers: authHeaders,
       });
@@ -149,7 +154,7 @@ export function useCart() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', effectiveUserId] });
     },
   });
 
