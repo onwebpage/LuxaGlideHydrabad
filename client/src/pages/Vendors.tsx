@@ -83,7 +83,7 @@ export default function Vendors() {
             <div className="mb-10">
               <Link href="/register?role=vendor">
                 <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor-hero">
-                  Become a Vendor
+                  Apply as a Vendor
                 </Button>
               </Link>
             </div>
@@ -334,7 +334,7 @@ export default function Vendors() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-6">
-              Become a Vendor Partner
+              Apply as a Vendor Partner
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
               Join our platform and reach thousands of buyers across India. Grow your wholesale business with our verified marketplace.

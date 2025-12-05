@@ -130,7 +130,7 @@ export function Footer() {
               <ul className="space-y-4">
                 <li>
                   <Link href="/register?role=vendor" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-become-vendor">
-                    Become a Vendor
+                    Apply as a Vendor
                   </Link>
                 </li>
               </ul>
