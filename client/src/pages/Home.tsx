@@ -52,22 +52,6 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
-  
-  const sizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  
-  const toggleSize = (size: string) => {
-    setSelectedSizes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(size)) {
-        newSet.delete(size);
-      } else {
-        newSet.add(size);
-      }
-      return newSet;
-    });
-  };
-  
   const brandsSliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -721,30 +705,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Size Filter */}
-                <div className="space-y-4 pt-4 border-t">
-                  <button className="flex items-center justify-between w-full">
-                    <h4 className="font-medium text-sm text-foreground">Size</h4>
-                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                  
-                  <div className="grid grid-cols-4 gap-2">
-                    {sizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => toggleSize(size)}
-                        className={`h-9 text-xs font-medium rounded-md border transition-colors ${
-                          selectedSizes.has(size)
-                            ? 'bg-foreground text-background border-foreground'
-                            : 'bg-background text-foreground border-border hover:border-foreground'
-                        }`}
-                        data-testid={`button-size-${size}`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </aside>
 
