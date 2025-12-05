@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { ShoppingCart, Search, SlidersHorizontal, Star, Package2 } from "lucide-react";
+import { ShoppingCart, Search, SlidersHorizontal, Star, Package2, Ticket } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sheet,
@@ -504,6 +504,17 @@ export default function Products() {
                           <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                           <span className="font-semibold">{product.rating}</span>
                         </Badge>
+
+                        {/* Coupon Badge */}
+                        {(product as any).coupon && (product as any).coupon.isActive && (
+                          <Badge className="absolute top-2 right-2 md:top-4 md:right-4 bg-green-600 text-white backdrop-blur-sm shadow-md flex items-center gap-1 text-xs">
+                            <Ticket className="w-3 h-3" />
+                            {(product as any).coupon.discountType === "percentage" 
+                              ? `${(product as any).coupon.discountValue}% OFF`
+                              : `₹${(product as any).coupon.discountValue} OFF`
+                            }
+                          </Badge>
+                        )}
                       </div>
                     </Link>
 
@@ -518,11 +529,25 @@ export default function Products() {
                         </h3>
                       </Link>
 
-                      {/* Price */}
+                      {/* Price with Coupon Discount */}
                       <div className="flex items-baseline gap-1 md:gap-2 mb-2 md:mb-4">
-                        <span className="text-lg md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                          ₹{product.price.toLocaleString()}
-                        </span>
+                        {(product as any).coupon && (product as any).coupon.isActive ? (
+                          <>
+                            <span className="text-lg md:text-3xl font-bold text-green-600">
+                              ₹{(product as any).coupon.discountType === "percentage"
+                                ? Math.round(product.price * (1 - (product as any).coupon.discountValue / 100)).toLocaleString()
+                                : Math.max(0, product.price - Number((product as any).coupon.discountValue)).toLocaleString()
+                              }
+                            </span>
+                            <span className="text-sm md:text-lg text-muted-foreground line-through">
+                              ₹{product.price.toLocaleString()}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-lg md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                            ₹{product.price.toLocaleString()}
+                          </span>
+                        )}
                         <span className="text-xs md:text-sm text-muted-foreground">/piece</span>
                       </div>
 

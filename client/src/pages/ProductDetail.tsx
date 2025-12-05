@@ -19,6 +19,7 @@ import {
   Loader2,
   Check,
   Eye,
+  Ticket,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -372,11 +373,51 @@ export default function ProductDetail() {
             </div>
 
             <div className="mb-6 pb-6 border-b border-border">
+              {/* Coupon Banner */}
+              {(productData as any)?.coupon && (productData as any).coupon.isActive && (
+                <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-4 flex items-center gap-3">
+                  <div className="bg-green-600 text-white p-2 rounded-lg">
+                    <Ticket className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-green-800 dark:text-green-200">
+                      {(productData as any).coupon.discountType === "percentage"
+                        ? `${(productData as any).coupon.discountValue}% OFF`
+                        : `₹${(productData as any).coupon.discountValue} OFF`
+                      }
+                    </p>
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      Coupon: <span className="font-medium">{(productData as any).coupon.code}</span>
+                      {(productData as any).coupon.minOrderValue && Number((productData as any).coupon.minOrderValue) > 0 && (
+                        <span className="ml-2">| Min order: ₹{Number((productData as any).coupon.minOrderValue).toLocaleString()}</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-4xl font-serif font-semibold">
-                  ₹{product.price}
-                </span>
-                <span className="text-muted-foreground">/piece</span>
+                {(productData as any)?.coupon && (productData as any).coupon.isActive ? (
+                  <>
+                    <span className="text-4xl font-serif font-semibold text-green-600">
+                      ₹{(productData as any).coupon.discountType === "percentage"
+                        ? Math.round(product.price * (1 - (productData as any).coupon.discountValue / 100))
+                        : Math.max(0, product.price - Number((productData as any).coupon.discountValue))
+                      }
+                    </span>
+                    <span className="text-2xl text-muted-foreground line-through">
+                      ₹{product.price}
+                    </span>
+                    <span className="text-muted-foreground">/piece</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-4xl font-serif font-semibold">
+                      ₹{product.price}
+                    </span>
+                    <span className="text-muted-foreground">/piece</span>
+                  </>
+                )}
               </div>
               <p className="text-sm text-muted-foreground">
                 Minimum Order Quantity: {product.moq} pieces

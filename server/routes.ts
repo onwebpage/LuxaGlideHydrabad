@@ -625,7 +625,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         offset: offset ? Number(offset) : 0,
       });
 
-      res.json(products);
+      const productsWithCoupons = await Promise.all(
+        products.map(async (product) => {
+          if (product.couponId) {
+            const coupon = await storage.getCoupon(product.couponId);
+            if (coupon && coupon.isActive) {
+              return { ...product, coupon };
+            }
+          }
+          return { ...product, coupon: null };
+        })
+      );
+
+      res.json(productsWithCoupons);
     } catch (error: any) {
       console.error("Get products error:", error);
       res.status(500).json({ message: error.message });
@@ -640,7 +652,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      res.json(product);
+      let coupon = null;
+      if (product.couponId) {
+        const productCoupon = await storage.getCoupon(product.couponId);
+        if (productCoupon && productCoupon.isActive) {
+          coupon = productCoupon;
+        }
+      }
+
+      res.json({ ...product, coupon });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -763,6 +783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         colors: colors ? JSON.stringify(JSON.parse(colors)) : null,
         sizes: sizes ? JSON.stringify(JSON.parse(sizes)) : null,
         bulkPricing: bulkPricing ? JSON.stringify(JSON.parse(bulkPricing)) : null,
+        couponId: couponId && couponId !== "none" ? couponId : null,
       });
 
       res.status(201).json(product);
@@ -984,7 +1005,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You can only edit your own products" });
       }
 
-      const { name, description, price, moq, stock, fabric, categoryId } = req.body;
+      const { name, description, price, moq, stock, fabric, categoryId, couponId } = req.body;
       
       const updates: any = {};
       if (name && typeof name === 'string' && name.trim()) {
@@ -1015,6 +1036,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (fabric !== undefined) updates.fabric = fabric;
       if (categoryId !== undefined) updates.categoryId = categoryId;
+      if (couponId !== undefined) {
+        updates.couponId = couponId === "" || couponId === "none" ? null : couponId;
+      }
 
       const files = req.files as Express.Multer.File[];
       if (files && files.length > 0) {
@@ -1058,6 +1082,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Product deleted successfully" });
     } catch (error: any) {
       console.error("Delete vendor product error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Vendor Coupon Routes ============
+
+  // Create coupon (vendor - creates an active coupon they can apply to their products)
+  app.post("/api/vendor/coupons", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(403).json({ message: "Vendor profile not found" });
+      }
+
+      const { code, name, description, discountType, discountValue, minOrderValue, maxUses, startsAt, expiresAt } = req.body;
+
+      if (!code || !name || discountValue === undefined) {
+        return res.status(400).json({ message: "Code, name, and discount value are required" });
+      }
+
+      const existingCoupon = await storage.getCouponByCode(code);
+      if (existingCoupon) {
+        return res.status(400).json({ message: "Coupon code already exists" });
+      }
+
+      const coupon = await storage.createCoupon({
+        code: code.toUpperCase(),
+        name,
+        description: description || null,
+        discountType: discountType || "percentage",
+        discountValue: discountValue.toString(),
+        minOrderValue: minOrderValue ? minOrderValue.toString() : null,
+        maxUses: maxUses ? parseInt(maxUses) : null,
+        isActive: true,
+        startsAt: startsAt ? new Date(startsAt) : null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      });
+
+      res.status(201).json(coupon);
+    } catch (error: any) {
+      console.error("Vendor create coupon error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get vendor's coupons (includes all active coupons they can use)
+  app.get("/api/vendor/coupons", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(403).json({ message: "Vendor profile not found" });
+      }
+
+      const coupons = await storage.getActiveCoupons();
+      res.json(coupons);
+    } catch (error: any) {
+      console.error("Get vendor coupons error:", error);
       res.status(500).json({ message: error.message });
     }
   });

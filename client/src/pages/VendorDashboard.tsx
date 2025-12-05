@@ -58,7 +58,8 @@ import {
 import type { Order, Product, Vendor, Coupon } from "@shared/schema";
 import { useAuth, getAuthToken } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { X, FileText, CheckCircle } from "lucide-react";
+import { X, FileText, CheckCircle, Ticket, Percent } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { queryClient } from "@/lib/queryClient";
 
 const salesData = [
@@ -104,6 +105,24 @@ export default function VendorDashboard() {
   
   const [productCouponId, setProductCouponId] = useState<string>("none");
   const [editProductCouponId, setEditProductCouponId] = useState<string>("none");
+  
+  const [applyCoupon, setApplyCoupon] = useState(false);
+  const [couponMode, setCouponMode] = useState<"select" | "create">("select");
+  const [newCouponCode, setNewCouponCode] = useState("");
+  const [newCouponName, setNewCouponName] = useState("");
+  const [newCouponDiscountType, setNewCouponDiscountType] = useState<"percentage" | "fixed">("percentage");
+  const [newCouponDiscountValue, setNewCouponDiscountValue] = useState("");
+  const [newCouponMinOrder, setNewCouponMinOrder] = useState("");
+  const [creatingCoupon, setCreatingCoupon] = useState(false);
+  
+  const [editApplyCoupon, setEditApplyCoupon] = useState(false);
+  const [editCouponMode, setEditCouponMode] = useState<"select" | "create">("select");
+  const [editNewCouponCode, setEditNewCouponCode] = useState("");
+  const [editNewCouponName, setEditNewCouponName] = useState("");
+  const [editNewCouponDiscountType, setEditNewCouponDiscountType] = useState<"percentage" | "fixed">("percentage");
+  const [editNewCouponDiscountValue, setEditNewCouponDiscountValue] = useState("");
+  const [editNewCouponMinOrder, setEditNewCouponMinOrder] = useState("");
+  const [editCreatingCoupon, setEditCreatingCoupon] = useState(false);
   
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
@@ -354,6 +373,13 @@ export default function VendorDashboard() {
     setProductDescription("");
     setProductImages([]);
     setProductCouponId("none");
+    setApplyCoupon(false);
+    setCouponMode("select");
+    setNewCouponCode("");
+    setNewCouponName("");
+    setNewCouponDiscountType("percentage");
+    setNewCouponDiscountValue("");
+    setNewCouponMinOrder("");
   };
 
   const handleProductSubmit = async () => {
@@ -405,6 +431,48 @@ export default function VendorDashboard() {
 
     setProductSaving(true);
     try {
+      let couponIdToUse: string | null = null;
+      
+      if (applyCoupon && couponMode === "select" && productCouponId !== "none") {
+        couponIdToUse = productCouponId;
+      } else if (applyCoupon && couponMode === "create") {
+        if (!newCouponCode.trim() || !newCouponName.trim() || !newCouponDiscountValue) {
+          toast({
+            title: "Validation Error",
+            description: "Please fill in coupon code, name, and discount value",
+            variant: "destructive",
+          });
+          setProductSaving(false);
+          return;
+        }
+        
+        setCreatingCoupon(true);
+        const couponResponse = await fetch('/api/vendor/coupons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            code: newCouponCode.trim().toUpperCase(),
+            name: newCouponName.trim(),
+            discountType: newCouponDiscountType,
+            discountValue: parseFloat(newCouponDiscountValue),
+            minOrderValue: newCouponMinOrder ? parseFloat(newCouponMinOrder) : null,
+          }),
+        });
+        
+        if (!couponResponse.ok) {
+          const errorData = await couponResponse.json();
+          throw new Error(errorData.message || 'Failed to create coupon');
+        }
+        
+        const createdCoupon = await couponResponse.json();
+        couponIdToUse = createdCoupon.id;
+        setCreatingCoupon(false);
+        queryClient.invalidateQueries({ queryKey: ['/api/coupons/active'] });
+      }
+      
       const formData = new FormData();
       formData.append('vendorId', vendorId || '');
       formData.append('name', productName.trim());
@@ -412,8 +480,8 @@ export default function VendorDashboard() {
       formData.append('price', productPrice);
       formData.append('moq', productMoq || '1');
       formData.append('stock', '100');
-      if (productCouponId && productCouponId !== "none") {
-        formData.append('couponId', productCouponId);
+      if (couponIdToUse) {
+        formData.append('couponId', couponIdToUse);
       }
       
       productImages.forEach((file) => {
@@ -435,7 +503,9 @@ export default function VendorDashboard() {
 
       toast({
         title: "Product Added",
-        description: "Your product has been added successfully and is pending approval.",
+        description: applyCoupon && couponMode === "create" 
+          ? "Your product and coupon have been added successfully!" 
+          : "Your product has been added successfully and is pending approval.",
       });
 
       resetProductForm();
@@ -449,6 +519,7 @@ export default function VendorDashboard() {
       });
     } finally {
       setProductSaving(false);
+      setCreatingCoupon(false);
     }
   };
 
@@ -549,6 +620,13 @@ export default function VendorDashboard() {
     setEditProductStock(String(product.stock));
     setEditProductDescription(product.description);
     setEditProductCouponId(product.couponId || "none");
+    setEditApplyCoupon(!!product.couponId);
+    setEditCouponMode("select");
+    setEditNewCouponCode("");
+    setEditNewCouponName("");
+    setEditNewCouponDiscountType("percentage");
+    setEditNewCouponDiscountValue("");
+    setEditNewCouponMinOrder("");
     setIsEditProductOpen(true);
   };
 
@@ -585,13 +663,55 @@ export default function VendorDashboard() {
 
     setEditProductSaving(true);
     try {
+      let couponIdToUse = "";
+      
+      if (editApplyCoupon && editCouponMode === "select" && editProductCouponId !== "none") {
+        couponIdToUse = editProductCouponId;
+      } else if (editApplyCoupon && editCouponMode === "create") {
+        if (!editNewCouponCode.trim() || !editNewCouponName.trim() || !editNewCouponDiscountValue) {
+          toast({
+            title: "Validation Error",
+            description: "Please fill in coupon code, name, and discount value",
+            variant: "destructive",
+          });
+          setEditProductSaving(false);
+          return;
+        }
+        
+        setEditCreatingCoupon(true);
+        const couponResponse = await fetch('/api/vendor/coupons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            code: editNewCouponCode.trim().toUpperCase(),
+            name: editNewCouponName.trim(),
+            discountType: editNewCouponDiscountType,
+            discountValue: parseFloat(editNewCouponDiscountValue),
+            minOrderValue: editNewCouponMinOrder ? parseFloat(editNewCouponMinOrder) : null,
+          }),
+        });
+        
+        if (!couponResponse.ok) {
+          const errorData = await couponResponse.json();
+          throw new Error(errorData.message || 'Failed to create coupon');
+        }
+        
+        const createdCoupon = await couponResponse.json();
+        couponIdToUse = createdCoupon.id;
+        setEditCreatingCoupon(false);
+        queryClient.invalidateQueries({ queryKey: ['/api/coupons/active'] });
+      }
+      
       const formData = new FormData();
       formData.append('name', editProductName.trim());
       formData.append('description', editProductDescription.trim());
       formData.append('price', editProductPrice);
       formData.append('moq', editProductMoq || '1');
       formData.append('stock', editProductStock || '0');
-      formData.append('couponId', editProductCouponId === "none" ? "" : editProductCouponId);
+      formData.append('couponId', couponIdToUse);
 
       const response = await fetch(`/api/vendor/products/${editingProduct.id}`, {
         method: 'PUT',
@@ -608,7 +728,9 @@ export default function VendorDashboard() {
 
       toast({
         title: "Product Updated",
-        description: "Your product has been updated successfully.",
+        description: editApplyCoupon && editCouponMode === "create"
+          ? "Your product and coupon have been updated successfully!"
+          : "Your product has been updated successfully.",
       });
 
       setIsEditProductOpen(false);
@@ -622,6 +744,7 @@ export default function VendorDashboard() {
       });
     } finally {
       setEditProductSaving(false);
+      setEditCreatingCoupon(false);
     }
   };
 
@@ -1017,27 +1140,137 @@ export default function VendorDashboard() {
                           onChange={(e) => setProductDescription(e.target.value)}
                         />
                       </div>
-                      {activeCoupons.length > 0 && (
-                        <div>
-                          <Label htmlFor="coupon">Apply Coupon (Optional)</Label>
-                          <Select value={productCouponId} onValueChange={setProductCouponId}>
-                            <SelectTrigger data-testid="select-product-coupon">
-                              <SelectValue placeholder="No coupon" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">No coupon</SelectItem>
-                              {activeCoupons.map((coupon) => (
-                                <SelectItem key={coupon.id} value={coupon.id}>
-                                  {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Select a coupon to offer a discount on this product
-                          </p>
+                      <div className="border rounded-lg p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Ticket className="w-5 h-5 text-primary" />
+                            <div>
+                              <Label className="text-base font-medium">Apply Coupon</Label>
+                              <p className="text-xs text-muted-foreground">Offer a discount on this product</p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={applyCoupon}
+                            onCheckedChange={(checked) => {
+                              setApplyCoupon(checked);
+                              if (!checked) {
+                                setProductCouponId("none");
+                                setCouponMode("select");
+                              }
+                            }}
+                            data-testid="switch-apply-coupon"
+                          />
                         </div>
-                      )}
+                        
+                        {applyCoupon && (
+                          <div className="space-y-4 pt-2">
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant={couponMode === "select" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCouponMode("select")}
+                                data-testid="button-coupon-select-mode"
+                              >
+                                Select Existing
+                              </Button>
+                              <Button
+                                type="button"
+                                variant={couponMode === "create" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCouponMode("create")}
+                                data-testid="button-coupon-create-mode"
+                              >
+                                Create New
+                              </Button>
+                            </div>
+                            
+                            {couponMode === "select" ? (
+                              <div>
+                                <Select value={productCouponId} onValueChange={setProductCouponId}>
+                                  <SelectTrigger data-testid="select-product-coupon">
+                                    <SelectValue placeholder="Select a coupon" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">No coupon selected</SelectItem>
+                                    {activeCoupons.map((coupon) => (
+                                      <SelectItem key={coupon.id} value={coupon.id}>
+                                        {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {activeCoupons.length === 0 && (
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    No coupons available. Create a new one instead.
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="space-y-3 bg-muted/30 p-3 rounded-lg">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label htmlFor="newCouponCode" className="text-sm">Coupon Code *</Label>
+                                    <Input
+                                      id="newCouponCode"
+                                      placeholder="e.g., SAVE20"
+                                      value={newCouponCode}
+                                      onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
+                                      data-testid="input-new-coupon-code"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="newCouponName" className="text-sm">Coupon Name *</Label>
+                                    <Input
+                                      id="newCouponName"
+                                      placeholder="e.g., Summer Sale"
+                                      value={newCouponName}
+                                      onChange={(e) => setNewCouponName(e.target.value)}
+                                      data-testid="input-new-coupon-name"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label htmlFor="newCouponDiscountType" className="text-sm">Discount Type</Label>
+                                    <Select value={newCouponDiscountType} onValueChange={(v: "percentage" | "fixed") => setNewCouponDiscountType(v)}>
+                                      <SelectTrigger data-testid="select-new-coupon-type">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                                        <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="newCouponDiscountValue" className="text-sm">Discount Value *</Label>
+                                    <Input
+                                      id="newCouponDiscountValue"
+                                      type="number"
+                                      placeholder={newCouponDiscountType === "percentage" ? "e.g., 20" : "e.g., 500"}
+                                      value={newCouponDiscountValue}
+                                      onChange={(e) => setNewCouponDiscountValue(e.target.value)}
+                                      data-testid="input-new-coupon-value"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label htmlFor="newCouponMinOrder" className="text-sm">Min Order Value (Optional)</Label>
+                                  <Input
+                                    id="newCouponMinOrder"
+                                    type="number"
+                                    placeholder="e.g., 1000"
+                                    value={newCouponMinOrder}
+                                    onChange={(e) => setNewCouponMinOrder(e.target.value)}
+                                    data-testid="input-new-coupon-min"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <div>
                         <Label>Product Images *</Label>
                         <div 
@@ -1229,24 +1462,136 @@ export default function VendorDashboard() {
                     onChange={(e) => setEditProductDescription(e.target.value)}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="editCoupon">Apply Coupon (Optional)</Label>
-                  <Select value={editProductCouponId} onValueChange={setEditProductCouponId}>
-                    <SelectTrigger data-testid="select-edit-product-coupon">
-                      <SelectValue placeholder="No coupon" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No coupon</SelectItem>
-                      {activeCoupons.map((coupon) => (
-                        <SelectItem key={coupon.id} value={coupon.id}>
-                          {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Select a coupon to offer a discount on this product
-                  </p>
+                <div className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Ticket className="w-5 h-5 text-primary" />
+                      <div>
+                        <Label className="text-base font-medium">Apply Coupon</Label>
+                        <p className="text-xs text-muted-foreground">Offer a discount on this product</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={editApplyCoupon}
+                      onCheckedChange={(checked) => {
+                        setEditApplyCoupon(checked);
+                        if (!checked) {
+                          setEditProductCouponId("none");
+                          setEditCouponMode("select");
+                        }
+                      }}
+                      data-testid="switch-edit-apply-coupon"
+                    />
+                  </div>
+                  
+                  {editApplyCoupon && (
+                    <div className="space-y-4 pt-2">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={editCouponMode === "select" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEditCouponMode("select")}
+                          data-testid="button-edit-coupon-select-mode"
+                        >
+                          Select Existing
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={editCouponMode === "create" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEditCouponMode("create")}
+                          data-testid="button-edit-coupon-create-mode"
+                        >
+                          Create New
+                        </Button>
+                      </div>
+                      
+                      {editCouponMode === "select" ? (
+                        <div>
+                          <Select value={editProductCouponId} onValueChange={setEditProductCouponId}>
+                            <SelectTrigger data-testid="select-edit-product-coupon">
+                              <SelectValue placeholder="Select a coupon" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">No coupon selected</SelectItem>
+                              {activeCoupons.map((coupon) => (
+                                <SelectItem key={coupon.id} value={coupon.id}>
+                                  {coupon.code} - {coupon.discountType === "percentage" ? `${coupon.discountValue}% off` : `₹${coupon.discountValue} off`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {activeCoupons.length === 0 && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                              No coupons available. Create a new one instead.
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-3 bg-muted/30 p-3 rounded-lg">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="editNewCouponCode" className="text-sm">Coupon Code *</Label>
+                              <Input
+                                id="editNewCouponCode"
+                                placeholder="e.g., SAVE20"
+                                value={editNewCouponCode}
+                                onChange={(e) => setEditNewCouponCode(e.target.value.toUpperCase())}
+                                data-testid="input-edit-new-coupon-code"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="editNewCouponName" className="text-sm">Coupon Name *</Label>
+                              <Input
+                                id="editNewCouponName"
+                                placeholder="e.g., Summer Sale"
+                                value={editNewCouponName}
+                                onChange={(e) => setEditNewCouponName(e.target.value)}
+                                data-testid="input-edit-new-coupon-name"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="editNewCouponDiscountType" className="text-sm">Discount Type</Label>
+                              <Select value={editNewCouponDiscountType} onValueChange={(v: "percentage" | "fixed") => setEditNewCouponDiscountType(v)}>
+                                <SelectTrigger data-testid="select-edit-new-coupon-type">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="percentage">Percentage (%)</SelectItem>
+                                  <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="editNewCouponDiscountValue" className="text-sm">Discount Value *</Label>
+                              <Input
+                                id="editNewCouponDiscountValue"
+                                type="number"
+                                placeholder={editNewCouponDiscountType === "percentage" ? "e.g., 20" : "e.g., 500"}
+                                value={editNewCouponDiscountValue}
+                                onChange={(e) => setEditNewCouponDiscountValue(e.target.value)}
+                                data-testid="input-edit-new-coupon-value"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="editNewCouponMinOrder" className="text-sm">Min Order Value (Optional)</Label>
+                            <Input
+                              id="editNewCouponMinOrder"
+                              type="number"
+                              placeholder="e.g., 1000"
+                              value={editNewCouponMinOrder}
+                              onChange={(e) => setEditNewCouponMinOrder(e.target.value)}
+                              data-testid="input-edit-new-coupon-min"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button 
