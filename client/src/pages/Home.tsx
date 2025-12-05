@@ -959,27 +959,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Running Brand Marquee Bar */}
-      <section className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 py-5">
-        <div className="flex overflow-hidden">
-          <motion.div 
-            className="flex items-center gap-12 px-4"
-            animate={{ x: [0, -1600] }}
-            transition={{ x: { repeat: Infinity, duration: 25, ease: "linear" } }}
-          >
-            {[...brandPartners, ...brandPartners, ...brandPartners].map((brand, index) => (
-              <div key={index} className="flex-shrink-0 flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full ${brand.bgColor} flex items-center justify-center`}>
-                  <span className={`text-xs font-bold ${brand.color}`}>{brand.initial}</span>
-                </div>
-                <span className={`text-lg font-semibold tracking-tight ${brand.color} whitespace-nowrap`}>
-                  {brand.name}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }
