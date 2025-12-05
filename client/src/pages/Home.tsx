@@ -351,10 +351,6 @@ export default function Home() {
               Elevate Your Fashion
               <span className="text-primary"> Business</span>
             </h1>
-            
-            <p className="text-base md:text-lg text-white/90 leading-relaxed">
-              Connect with verified vendors and access exclusive wholesale pricing.
-            </p>
           </div>
         </div>
       </section>
