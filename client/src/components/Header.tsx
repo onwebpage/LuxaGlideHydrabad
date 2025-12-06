@@ -163,7 +163,7 @@ export function Header() {
           </div>
 
           {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="md:hidden pb-3">
+          <form onSubmit={handleSearch} className="md:hidden pb-2">
             <div className="relative flex">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -185,10 +185,50 @@ export function Header() {
               </Button>
             </div>
           </form>
+
+          {/* Mobile Navigation - Below Search Bar */}
+          <nav className="md:hidden flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide pb-2">
+            <Link 
+              href="/" 
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-mobile-home-nav"
+            >
+              Home
+            </Link>
+            <Link 
+              href="/vendors" 
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/vendors' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-mobile-vendors-nav"
+            >
+              Vendor
+            </Link>
+            <Link 
+              href="/about" 
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/about' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-mobile-about-nav"
+            >
+              About Us
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/contact' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-mobile-contact-nav"
+            >
+              Contact
+            </Link>
+          </nav>
         </div>
       </div>
 
-      {/* Category Navigation Bar */}
+      {/* Category Navigation Bar - Desktop Only */}
       <div className="bg-white dark:bg-background border-b border-gray-100 dark:border-border hidden md:block">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
