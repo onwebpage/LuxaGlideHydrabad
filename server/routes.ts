@@ -1808,9 +1808,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ============ Cart Routes ============
   
+  // In-memory storage for guest carts (keyed by guestId)
+  const guestCarts = new Map<string, Array<{
+    id: string;
+    userId: string;
+    productId: string;
+    quantity: number;
+    selectedColor: string | null;
+    selectedSize: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }>>();
+
+  function isGuestUser(userId: string): boolean {
+    return userId.startsWith('guest_');
+  }
+
+  function generateGuestCartItemId(): string {
+    return `gcart_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+  
   app.get("/api/cart/:userId", async (req, res) => {
     try {
-      const cartItems = await storage.getUserCart(req.params.userId);
+      const userId = req.params.userId;
+      
+      if (isGuestUser(userId)) {
+        const guestCart = guestCarts.get(userId) || [];
+        return res.json(guestCart);
+      }
+      
+      const cartItems = await storage.getUserCart(userId);
       res.json(cartItems);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1819,6 +1846,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/cart", async (req, res) => {
     try {
+      const { userId, productId, quantity, selectedColor, selectedSize } = req.body;
+      
+      if (isGuestUser(userId)) {
+        let guestCart = guestCarts.get(userId) || [];
+        
+        // Check if item already exists in guest cart
+        const existingIndex = guestCart.findIndex(item => item.productId === productId);
+        
+        if (existingIndex >= 0) {
+          // Update quantity
+          guestCart[existingIndex].quantity += quantity;
+          guestCart[existingIndex].updatedAt = new Date();
+        } else {
+          // Add new item
+          const newItem = {
+            id: generateGuestCartItemId(),
+            userId,
+            productId,
+            quantity,
+            selectedColor: selectedColor || null,
+            selectedSize: selectedSize || null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          guestCart.push(newItem);
+        }
+        
+        guestCarts.set(userId, guestCart);
+        return res.status(201).json(guestCart[existingIndex >= 0 ? existingIndex : guestCart.length - 1]);
+      }
+      
       const cartItem = await storage.addToCart(req.body);
       res.status(201).json(cartItem);
     } catch (error: any) {
@@ -1829,7 +1887,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/cart/:id", async (req, res) => {
     try {
       const { quantity } = req.body;
-      const cartItem = await storage.updateCartItem(req.params.id, quantity);
+      const cartItemId = req.params.id;
+      
+      // Check if this is a guest cart item
+      if (cartItemId.startsWith('gcart_')) {
+        for (const [guestId, cart] of guestCarts.entries()) {
+          const itemIndex = cart.findIndex(item => item.id === cartItemId);
+          if (itemIndex >= 0) {
+            cart[itemIndex].quantity = quantity;
+            cart[itemIndex].updatedAt = new Date();
+            guestCarts.set(guestId, cart);
+            return res.json(cart[itemIndex]);
+          }
+        }
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+      
+      const cartItem = await storage.updateCartItem(cartItemId, quantity);
       if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }
@@ -1842,7 +1916,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/cart/:id", async (req, res) => {
     try {
-      await storage.removeFromCart(req.params.id);
+      const cartItemId = req.params.id;
+      
+      // Check if this is a guest cart item
+      if (cartItemId.startsWith('gcart_')) {
+        for (const [guestId, cart] of guestCarts.entries()) {
+          const itemIndex = cart.findIndex(item => item.id === cartItemId);
+          if (itemIndex >= 0) {
+            cart.splice(itemIndex, 1);
+            guestCarts.set(guestId, cart);
+            return res.json({ message: "Item removed from cart" });
+          }
+        }
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+      
+      await storage.removeFromCart(cartItemId);
       res.json({ message: "Item removed from cart" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1851,7 +1940,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/cart/user/:userId", async (req, res) => {
     try {
-      await storage.clearCart(req.params.userId);
+      const userId = req.params.userId;
+      
+      if (isGuestUser(userId)) {
+        guestCarts.delete(userId);
+        return res.json({ message: "Cart cleared successfully" });
+      }
+      
+      await storage.clearCart(userId);
       res.json({ message: "Cart cleared successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
