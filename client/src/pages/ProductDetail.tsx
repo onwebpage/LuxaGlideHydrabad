@@ -289,29 +289,29 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-          <Link href="/" className="hover:text-primary">Home</Link>
+        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-8 overflow-x-auto">
+          <Link href="/" className="hover:text-primary whitespace-nowrap">Home</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-primary">Products</Link>
+          <Link href="/products" className="hover:text-primary whitespace-nowrap">Products</Link>
           <span>/</span>
-          <span className="text-foreground">{product.name}</span>
+          <span className="text-foreground truncate max-w-[150px] sm:max-w-none">{product.name}</span>
         </div>
 
         <Link href="/products">
-          <Button variant="ghost" className="mb-6 -ml-4" data-testid="button-back">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Products
+          <Button variant="ghost" className="mb-4 sm:mb-6 -ml-2 sm:-ml-4" size="sm" data-testid="button-back">
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Back to Products</span>
           </Button>
         </Link>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 mb-8 sm:mb-16">
           {/* Images - Meesho Style Layout */}
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-4">
             {/* Thumbnails on Left */}
-            <div className="flex flex-col gap-3 w-16 md:w-20 shrink-0">
+            <div className="flex flex-col gap-2 sm:gap-3 w-12 sm:w-16 md:w-20 shrink-0">
               {currentColorImages.map((img, index) => (
                 <button
                   key={index}
@@ -350,9 +350,9 @@ export default function ProductDetail() {
 
           {/* Product Info */}
           <div>
-            <div className="mb-4">
-              <Badge className="mb-2">{product.category}</Badge>
-              <h1 className="font-serif text-4xl font-semibold mb-2">
+            <div className="mb-3 sm:mb-4">
+              <Badge className="mb-2 text-xs">{product.category}</Badge>
+              <h1 className="font-serif text-xl sm:text-2xl md:text-4xl font-semibold mb-2">
                 {product.name}
               </h1>
               <div className="flex items-center gap-4 mb-4">
@@ -381,12 +381,12 @@ export default function ProductDetail() {
               </Link>
             </div>
 
-            <div className="mb-6 pb-6 border-b border-border">
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-4xl font-serif font-semibold">
+            <div className="mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-border">
+              <div className="flex items-baseline gap-2 sm:gap-3 mb-2">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold">
                   ₹{product.price}
                 </span>
-                <span className="text-muted-foreground">/piece</span>
+                <span className="text-sm sm:text-base text-muted-foreground">/piece</span>
               </div>
               <p className="text-sm text-green-600 mt-1">
                 {product.stock} pieces in stock
@@ -425,16 +425,16 @@ export default function ProductDetail() {
             </div>
 
             {/* Color Selection - Circular Buttons like Meesho */}
-            <div className="mb-6">
-              <Label className="text-base font-semibold mb-3 block">
+            <div className="mb-4 sm:mb-6">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">
                 Select Color
               </Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {product.colors.map((color) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`px-4 h-10 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center gap-2 ${
+                    className={`px-2.5 sm:px-4 h-8 sm:h-10 rounded-full border-2 transition-all text-xs sm:text-sm font-medium flex items-center justify-center gap-1 sm:gap-2 ${
                       selectedColor === color
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border hover:border-primary/50"
@@ -448,16 +448,16 @@ export default function ProductDetail() {
             </div>
 
             {/* Height Selection */}
-            <div className="mb-6">
-              <Label className="text-base font-semibold mb-3 block">
+            <div className="mb-4 sm:mb-6">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">
                 Select Height
               </Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {["4'8\" - 5'0\"", "5'0\" - 5'4\"", "5'4\" - 5'8\"", "5'8\" - 6'0\"", "6'0\" +"].map((height) => (
                   <button
                     key={height}
                     onClick={() => setSelectedHeight(height)}
-                    className={`px-4 h-10 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center ${
+                    className={`px-2 sm:px-4 h-8 sm:h-10 rounded-full border-2 transition-all text-xs sm:text-sm font-medium flex items-center justify-center ${
                       selectedHeight === height
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border hover:border-primary/50"
@@ -471,16 +471,16 @@ export default function ProductDetail() {
             </div>
 
             {/* Size Selection - Circular Buttons like Meesho */}
-            <div className="mb-6">
-              <Label className="text-base font-semibold mb-3 block">
+            <div className="mb-4 sm:mb-6">
+              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">
                 Select Size
               </Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {product.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-12 h-12 rounded-full border-2 transition-all text-sm font-medium flex items-center justify-center ${
+                    className={`w-9 h-9 sm:w-12 sm:h-12 rounded-full border-2 transition-all text-xs sm:text-sm font-medium flex items-center justify-center ${
                       selectedSize === size
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border hover:border-primary/50"
@@ -529,27 +529,27 @@ export default function ProductDetail() {
             </div>
 
             {/* Actions - Meesho Style */}
-            <div className="flex gap-3 mb-8">
+            <div className="flex gap-2 sm:gap-3 mb-6 sm:mb-8">
               <Button 
                 variant="outline"
-                className="flex-1" 
-                size="lg" 
+                className="flex-1 text-xs sm:text-sm" 
+                size="default"
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || addedToCart}
                 data-testid="button-add-to-cart"
               >
                 {isAddingToCart ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 animate-spin" />
                 ) : addedToCart ? (
-                  <Check className="w-5 h-5 mr-2" />
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 ) : (
-                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 )}
                 {isAddingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
               </Button>
               <Button 
-                className="flex-1" 
-                size="lg"
+                className="flex-1 text-xs sm:text-sm" 
+                size="default"
                 onClick={async () => {
                   await handleAddToCart();
                   if (user) {
@@ -564,18 +564,18 @@ export default function ProductDetail() {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-3 gap-4 p-6 bg-secondary/50 rounded-xl">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 p-3 sm:p-6 bg-secondary/50 rounded-xl">
               <div className="text-center">
-                <Package className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <p className="text-xs text-muted-foreground">Great Value</p>
+                <Package className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Great Value</p>
               </div>
               <div className="text-center">
-                <Truck className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <p className="text-xs text-muted-foreground">Fast Delivery</p>
+                <Truck className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Fast Delivery</p>
               </div>
               <div className="text-center">
-                <Shield className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <p className="text-xs text-muted-foreground">Quality Assured</p>
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-primary" />
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Quality Assured</p>
               </div>
             </div>
           </div>

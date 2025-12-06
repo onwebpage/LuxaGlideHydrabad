@@ -330,19 +330,19 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-background to-secondary/20">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen py-6 sm:py-12 bg-gradient-to-b from-background to-secondary/20">
+      <div className="container mx-auto px-3 sm:px-6 max-w-6xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="font-serif text-4xl font-semibold mb-2">Shopping Cart</h1>
-            <p className="text-muted-foreground">
+            <h1 className="font-serif text-2xl sm:text-4xl font-semibold mb-1 sm:mb-2">Shopping Cart</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               {cartItemCount} {cartItemCount === 1 ? "item" : "items"} in your cart
             </p>
           </div>
           <Link href="/products">
-            <Button variant="outline" data-testid="button-continue-shopping">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Continue Shopping
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" data-testid="button-continue-shopping">
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+              <span className="text-xs sm:text-sm">Continue Shopping</span>
             </Button>
           </Link>
         </div>
@@ -356,10 +356,10 @@ export default function Cart() {
 
               return (
                 <Card key={item.id} data-testid={`cart-item-${item.id}`}>
-                  <CardContent className="p-6">
-                    <div className="flex gap-6">
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex gap-3 sm:gap-6">
                       <Link href={`/products/${item.productId}`}>
-                        <div className="w-32 h-32 bg-secondary rounded-lg overflow-hidden shrink-0 hover-elevate">
+                        <div className="w-20 h-20 sm:w-32 sm:h-32 bg-secondary rounded-lg overflow-hidden shrink-0 hover-elevate">
                           <img
                             src={productImage}
                             alt={item.product?.name || "Product"}
@@ -369,20 +369,36 @@ export default function Cart() {
                       </Link>
 
                       <div className="flex-1 min-w-0">
-                        <Link href={`/products/${item.productId}`}>
-                          <h3 className="font-semibold text-lg mb-1 hover:text-primary transition-colors truncate" data-testid={`text-product-name-${item.id}`}>
-                            {item.product?.name || "Product"}
-                          </h3>
-                        </Link>
+                        <div className="flex items-start justify-between gap-2">
+                          <Link href={`/products/${item.productId}`} className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm sm:text-lg mb-1 hover:text-primary transition-colors line-clamp-2 sm:truncate" data-testid={`text-product-name-${item.id}`}>
+                              {item.product?.name || "Product"}
+                            </h3>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-2 sm:hidden"
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={removingItemId === item.id}
+                            data-testid={`button-remove-mobile-${item.id}`}
+                          >
+                            {removingItemId === item.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
 
-                        <div className="flex flex-wrap gap-2 mb-3">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                           {item.selectedColor && (
-                            <Badge variant="secondary" data-testid={`badge-color-${item.id}`}>
+                            <Badge variant="secondary" className="text-xs" data-testid={`badge-color-${item.id}`}>
                               {item.selectedColor}
                             </Badge>
                           )}
                           {item.selectedSize && (
-                            <Badge variant="secondary" data-testid={`badge-size-${item.id}`}>
+                            <Badge variant="secondary" className="text-xs" data-testid={`badge-size-${item.id}`}>
                               {item.selectedSize}
                             </Badge>
                           )}
@@ -390,13 +406,13 @@ export default function Cart() {
 
                         {viewerCounts[item.productId] > 0 && (
                           <div className="flex items-center gap-1.5 text-xs text-orange-600 mb-2" data-testid={`text-viewers-${item.id}`}>
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             <span>{viewerCounts[item.productId]} {viewerCounts[item.productId] === 1 ? 'person' : 'people'} viewing</span>
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-2 sm:mt-4">
+                          <div className="flex items-center gap-2 sm:gap-3">
                             <Button
                               variant="outline"
                               size="icon"
@@ -419,7 +435,7 @@ export default function Cart() {
                                       handleUpdateQuantity(item.id, val);
                                     }
                                   }}
-                                  className="w-20 text-center"
+                                  className="w-16 sm:w-20 text-center text-sm"
                                   min={1}
                                   data-testid={`input-quantity-${item.id}`}
                                 />
@@ -436,11 +452,11 @@ export default function Cart() {
                             </Button>
                           </div>
 
-                          <div className="text-right">
-                            <p className="text-sm text-muted-foreground">
+                          <div className="text-left sm:text-right">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               ₹{productPrice.toLocaleString()} x {item.quantity}
                             </p>
-                            <p className="text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
+                            <p className="text-base sm:text-xl font-semibold" data-testid={`text-item-total-${item.id}`}>
                               ₹{(productPrice * item.quantity).toLocaleString()}
                             </p>
                           </div>
@@ -450,7 +466,7 @@ export default function Cart() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10 hidden sm:flex"
                         onClick={() => handleRemoveItem(item.id)}
                         disabled={removingItemId === item.id}
                         data-testid={`button-remove-${item.id}`}
@@ -481,11 +497,11 @@ export default function Cart() {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+            <Card className="sticky top-20 sm:top-24">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-4 sm:pb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal ({cartItemCount} items)</span>
                   <span className="font-medium" data-testid="text-subtotal">₹{Math.round(cartSubtotal).toLocaleString()}</span>
