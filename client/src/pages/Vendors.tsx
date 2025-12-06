@@ -137,22 +137,30 @@ export default function Vendors() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Join Queen4Feel Section */}
       <section className="py-20 bg-primary/5">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-6">
-              Apply as a Vendor Partner
+              Join Queen4Feel
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Join our platform and reach thousands of buyers across India.
+              Become a part of India's leading B2B women's fashion marketplace. Connect with verified vendors and grow your business.
             </p>
-            <Link href="/register?role=vendor">
-              <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor">
-                Apply as Vendor
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/register?role=vendor">
+                <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor">
+                  Apply as Vendor
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="lg" variant="outline" className="text-lg px-10 py-6" data-testid="button-register-buyer">
+                  Register as Buyer
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
