@@ -22,15 +22,6 @@ export default function Vendors() {
     { icon: TrendingUp, value: "98%", label: "Satisfaction" }
   ];
 
-  const categories = [
-    { name: "All Vendors", count: 500 },
-    { name: "Ethnic Wear", count: 180 },
-    { name: "Western Wear", count: 120 },
-    { name: "Party Wear", count: 95 },
-    { name: "Bridal Wear", count: 65 },
-    { name: "Casual Wear", count: 140 }
-  ];
-
   const benefits = [
     {
       icon: CheckCircle,
@@ -111,29 +102,6 @@ export default function Vendors() {
                 <div className="text-4xl font-serif font-semibold mb-2">{stat.value}</div>
                 <div className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Filter */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-10">
-            <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-4">Browse by Category</h2>
-            <p className="text-muted-foreground">Filter vendors by their specialization</p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            {categories.map((category, index) => (
-              <Button
-                key={category.name}
-                variant={index === 0 ? "default" : "outline"}
-                className="px-6 py-5 rounded-full"
-                data-testid={`button-category-${index}`}
-              >
-                {category.name}
-              </Button>
             ))}
           </div>
         </div>
