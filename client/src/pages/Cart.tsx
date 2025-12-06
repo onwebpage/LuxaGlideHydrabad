@@ -392,7 +392,6 @@ export default function Cart() {
                               {item.selectedSize}
                             </Badge>
                           )}
-                          <Badge variant="outline">MOQ: {productMoq}</Badge>
                         </div>
 
                         {viewerCounts[item.productId] > 0 && (
