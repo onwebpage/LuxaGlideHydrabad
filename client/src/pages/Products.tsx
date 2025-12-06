@@ -207,14 +207,14 @@ export default function Products() {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-background to-secondary/20">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <div className="min-h-screen py-6 sm:py-8 md:py-12 bg-gradient-to-b from-background to-secondary/20">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="font-serif text-5xl md:text-6xl font-semibold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8 md:mb-12">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold mb-2 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Shop Now
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl">
             Discover our exquisite collection of designer wear
           </p>
         </div>

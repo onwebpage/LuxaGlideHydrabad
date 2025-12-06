@@ -71,8 +71,8 @@ function AppContent() {
   return (
     <TooltipProvider>
       {!isAuthPage && <Header />}
-      {/* Spacer for fixed header on mobile - header height is approximately 140px on mobile */}
-      {!isAuthPage && <div className="h-36 md:hidden" />}
+      {/* Spacer for fixed header on mobile - header height is approximately 160px on mobile */}
+      {!isAuthPage && <div className="h-40 md:hidden" />}
       <Router />
       {!isAuthPage && <Footer />}
       <Toaster />

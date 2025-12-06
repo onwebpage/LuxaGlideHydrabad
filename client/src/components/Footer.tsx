@@ -46,21 +46,21 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative mt-32">
+    <footer className="relative mt-16 sm:mt-24 md:mt-32">
       {/* Decorative Top Border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
       
       {/* Main Footer Content */}
       <div className="bg-gradient-to-b from-secondary/30 via-background to-card">
-        <div className="container mx-auto px-6 pt-20 pb-12">
+        <div className="container mx-auto px-4 sm:px-6 pt-10 sm:pt-14 md:pt-20 pb-8 sm:pb-10 md:pb-12">
           {/* Top Section - Brand & Newsletter */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12 md:mb-16">
             {/* Brand Section */}
             <div>
               <Link href="/" className="inline-block mb-6" data-testid="link-footer-home">
-                <img src={logoImage} alt={siteName} className="h-16 w-16 rounded-full object-cover" />
+                <img src={logoImage} alt={siteName} className="h-12 w-auto object-contain" />
               </Link>
-              <p className="text-muted-foreground text-lg mb-8 max-w-md leading-relaxed">
+              <p className="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-md leading-relaxed">
                 {tagline}
               </p>
               <div className="flex gap-3">
@@ -97,11 +97,11 @@ export function Footer() {
           </div>
 
           {/* Links Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-10 sm:mb-12 md:mb-16">
             {/* Quick Links */}
             <div>
-              <h4 className="font-semibold mb-6 text-foreground">Quick Links</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Quick Links</h4>
+              <ul className="space-y-2 sm:space-y-4">
                 <li>
                   <Link href="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-products">
                     Collections
@@ -127,8 +127,8 @@ export function Footer() {
 
             {/* For Business */}
             <div>
-              <h4 className="font-semibold mb-6 text-foreground">For Business</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">For Business</h4>
+              <ul className="space-y-2 sm:space-y-4">
                 <li>
                   <Link href="/register?role=vendor" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-become-vendor">
                     Apply as a Vendor
@@ -139,8 +139,8 @@ export function Footer() {
 
             {/* Support */}
             <div>
-              <h4 className="font-semibold mb-6 text-foreground">Support</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Support</h4>
+              <ul className="space-y-2 sm:space-y-4">
                 <li>
                   <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                     Help Center
@@ -166,8 +166,8 @@ export function Footer() {
 
             {/* Contact Info */}
             <div>
-              <h4 className="font-semibold mb-6 text-foreground">Contact Us</h4>
-              <ul className="space-y-4">
+              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Contact Us</h4>
+              <ul className="space-y-2 sm:space-y-4">
                 <li className="flex items-start gap-2">
                   <Mail className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
                   <span className="text-sm text-muted-foreground">{contactEmail}</span>

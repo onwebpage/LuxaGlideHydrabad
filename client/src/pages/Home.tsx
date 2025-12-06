@@ -235,7 +235,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Banner - Compact Meesho Style */}
-      <section className="relative h-[360px] md:h-[420px] flex items-center overflow-hidden">
+      <section className="relative h-[280px] sm:h-[320px] md:h-[420px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -243,9 +243,9 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6">
           <div className="max-w-xl">
-            <h1 className="font-serif text-3xl md:text-4xl font-semibold text-white leading-tight mb-4">
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold text-white leading-tight mb-4">
               Elevate Your Fashion
             </h1>
           </div>
@@ -253,20 +253,20 @@ export default function Home() {
       </section>
 
       {/* Quick Category Icons - Meesho Style */}
-      <section className="py-8 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center gap-6 md:gap-10 lg:gap-12 overflow-x-auto scrollbar-hide pb-2">
+      <section className="py-4 sm:py-6 md:py-8 bg-background">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex justify-start sm:justify-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 overflow-x-auto scrollbar-hide pb-2 px-2">
             {shopCategories.slice(0, 8).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
-                <div className="flex flex-col items-center gap-3 min-w-[90px] cursor-pointer group" data-testid={`quick-category-${index}`}>
-                  <div className="w-20 h-24 md:w-24 md:h-28 lg:w-28 lg:h-32 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
+                <div className="flex flex-col items-center gap-2 sm:gap-3 min-w-[70px] sm:min-w-[90px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                  <div className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 lg:w-28 lg:h-32 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
                     <img 
                       src={category.image} 
                       alt={category.name}
                       className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
-                  <span className="text-sm md:text-base text-center text-foreground font-medium">
+                  <span className="text-xs sm:text-sm md:text-base text-center text-foreground font-medium leading-tight">
                     {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
@@ -277,15 +277,15 @@ export default function Home() {
       </section>
 
       {/* Shop by Category - Image Grid */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-10">
-            <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground mb-4">
+      <section className="py-8 sm:py-12 md:py-16 bg-background">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+          <div className="text-center mb-6 sm:mb-8 md:mb-10">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground mb-2 sm:mb-4">
               SHOP BY CATEGORIES
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
             {shopCategories.map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
                 <div 
@@ -325,8 +325,8 @@ export default function Home() {
                     </div>
                   )}
                   
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-white font-semibold text-sm md:text-base tracking-wide uppercase text-center">
+                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4">
+                    <h3 className="text-white font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-wide uppercase text-center leading-tight">
                       {category.name}
                     </h3>
                   </div>
@@ -338,54 +338,54 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 bg-gradient-to-b from-secondary/20 to-background" data-testid="section-why-choose-us">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
+      <section className="py-10 sm:py-14 md:py-20 bg-gradient-to-b from-secondary/20 to-background" data-testid="section-why-choose-us">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4">
               Why Shop With Us
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
               Discover the best fashion from multiple trusted sellers, all in one place
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-8 h-8 text-primary" />
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Trusted Sellers</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Trusted Sellers</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                 Every seller is verified to ensure you receive authentic, quality products
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-8 h-8 text-primary" />
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Quality Products</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Quality Products</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                 Curated collections featuring the finest fabrics and trendy designs
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <TrendingUp className="w-8 h-8 text-primary" />
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Great Prices</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Great Prices</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                 Competitive prices with regular deals and discounts on your favorite styles
               </p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                <Truck className="w-8 h-8 text-primary" />
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Fast Delivery</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Fast Delivery</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                 Quick and secure shipping across India with real-time order tracking
               </p>
             </div>
