@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -19,6 +19,8 @@ import {
   Eye,
   Ticket,
   X,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/lib/auth-context";
@@ -56,6 +58,9 @@ export default function Cart() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponSuccess, setCouponSuccess] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastValidatedCodeRef = useRef<string>("");
 
   const cartSubtotal = cartItems.reduce((acc, item) => {
     const price = item.product?.price ? parseFloat(String(item.product.price)) : 0;
@@ -75,48 +80,87 @@ export default function Cart() {
   const couponDiscount = calculateCouponDiscount();
   const cartTotal = cartSubtotal - couponDiscount;
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      setCouponError("Please enter a coupon code");
+  const validateCoupon = useCallback(async (code: string) => {
+    if (!code.trim() || code === lastValidatedCodeRef.current) {
       return;
     }
 
+    lastValidatedCodeRef.current = code;
     setIsValidatingCoupon(true);
     setCouponError(null);
+    setCouponSuccess(false);
 
     try {
       const response = await fetch("/api/coupons/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode, orderTotal: cartSubtotal }),
+        body: JSON.stringify({ code, orderTotal: cartSubtotal }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.valid) {
-        setCouponError(data.message || "Coupon expired");
+        setCouponError(data.message || "Invalid coupon code");
         setAppliedCoupon(null);
+        setCouponSuccess(false);
         return;
       }
 
       setAppliedCoupon(data.coupon);
-      setCouponCode("");
+      setCouponSuccess(true);
+      setCouponError(null);
       toast({
-        title: "Coupon Applied",
-        description: data.message,
+        title: "Coupon Applied!",
+        description: `You're saving ${data.coupon.discountType === "percentage" 
+          ? `${data.coupon.discountValue}%` 
+          : `₹${data.coupon.discountValue}`}`,
       });
     } catch (error) {
-      setCouponError("Coupon expired");
+      setCouponError("Failed to validate coupon");
       setAppliedCoupon(null);
+      setCouponSuccess(false);
     } finally {
       setIsValidatingCoupon(false);
     }
-  };
+  }, [cartSubtotal, toast]);
+
+  const handleCouponChange = useCallback((value: string) => {
+    const upperValue = value.toUpperCase();
+    setCouponCode(upperValue);
+    setCouponError(null);
+    setCouponSuccess(false);
+    
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (!upperValue.trim()) {
+      setAppliedCoupon(null);
+      lastValidatedCodeRef.current = "";
+      return;
+    }
+
+    if (upperValue.length >= 3) {
+      debounceTimerRef.current = setTimeout(() => {
+        validateCoupon(upperValue);
+      }, 500);
+    }
+  }, [validateCoupon]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
     setCouponError(null);
     setCouponCode("");
+    setCouponSuccess(false);
+    lastValidatedCodeRef.current = "";
     toast({
       title: "Coupon Removed",
       description: "Coupon has been removed from your order",
@@ -459,26 +503,57 @@ export default function Cart() {
                 <div className="space-y-3">
                   <p className="text-sm font-medium flex items-center gap-2">
                     <Ticket className="w-4 h-4" />
-                    Have a coupon?
+                    Apply Coupon
                   </p>
-                  {appliedCoupon ? (
-                    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-green-800 dark:text-green-200">
-                            {appliedCoupon.code}
-                          </p>
-                          <p className="text-xs text-green-700 dark:text-green-300">
-                            {appliedCoupon.discountType === "percentage"
-                              ? `${appliedCoupon.discountValue}% off`
-                              : `₹${appliedCoupon.discountValue} off`
-                            }
-                          </p>
+                  
+                  <div className="relative">
+                    <Input
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={(e) => handleCouponChange(e.target.value)}
+                      className={`pr-10 transition-all ${
+                        couponSuccess && appliedCoupon
+                          ? "border-green-500 bg-green-50 dark:bg-green-950/30 focus-visible:ring-green-500"
+                          : couponError
+                          ? "border-destructive bg-red-50 dark:bg-red-950/30"
+                          : ""
+                      }`}
+                      data-testid="input-coupon-code"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {isValidatingCoupon ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      ) : couponSuccess && appliedCoupon ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : couponError ? (
+                        <AlertCircle className="w-4 h-4 text-destructive" />
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {couponSuccess && appliedCoupon && (
+                    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-green-800 dark:text-green-200 text-sm">
+                              {appliedCoupon.name}
+                            </p>
+                            <p className="text-xs text-green-700 dark:text-green-300">
+                              {appliedCoupon.discountType === "percentage"
+                                ? `${appliedCoupon.discountValue}% off applied`
+                                : `₹${parseFloat(appliedCoupon.discountValue).toLocaleString()} off applied`
+                              }
+                            </p>
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-green-700 hover:text-destructive hover:bg-destructive/10"
+                          className="text-green-700 hover:text-destructive hover:bg-destructive/10 shrink-0"
                           onClick={handleRemoveCoupon}
                           data-testid="button-remove-coupon"
                         >
@@ -486,41 +561,18 @@ export default function Cart() {
                         </Button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Enter coupon code"
-                        value={couponCode}
-                        onChange={(e) => {
-                          setCouponCode(e.target.value.toUpperCase());
-                          setCouponError(null);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleApplyCoupon();
-                          }
-                        }}
-                        className={couponError ? "border-destructive" : ""}
-                        data-testid="input-coupon-code"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={handleApplyCoupon}
-                        disabled={isValidatingCoupon}
-                        data-testid="button-apply-coupon"
-                      >
-                        {isValidatingCoupon ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          "Apply"
-                        )}
-                      </Button>
+                  )}
+
+                  {couponError && (
+                    <div className="flex items-center gap-2 text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200" data-testid="text-coupon-error">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{couponError}</span>
                     </div>
                   )}
-                  {couponError && (
-                    <p className="text-sm text-destructive" data-testid="text-coupon-error">
-                      {couponError}
+
+                  {!couponCode && !appliedCoupon && (
+                    <p className="text-xs text-muted-foreground">
+                      Enter your coupon code above to get instant discount
                     </p>
                   )}
                 </div>
