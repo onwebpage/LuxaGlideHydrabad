@@ -215,7 +215,7 @@ export default function Products() {
             Shop Now
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
-            Discover our exquisite wholesale range of designer wear
+            Discover our exquisite collection of designer wear
           </p>
         </div>
 
@@ -493,11 +493,6 @@ export default function Products() {
                           alt={product.name}
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-
-                        {/* MOQ Badge */}
-                        <Badge className="absolute top-2 left-2 md:top-4 md:left-4 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-md text-xs">
-                          MOQ: {product.moq}
-                        </Badge>
 
                         {/* Rating Badge */}
                         <Badge className="absolute bottom-2 left-2 md:bottom-4 md:left-4 bg-background/90 backdrop-blur-sm border shadow-md flex items-center gap-1 text-xs">

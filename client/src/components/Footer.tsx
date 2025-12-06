@@ -12,15 +12,15 @@ export function Footer() {
   const { toast } = useToast();
   const { data: cmsSettings } = useCmsSettings();
   
-  const siteName = cmsSettings?.siteMeta?.siteName || "LuxeWholesale";
-  const tagline = cmsSettings?.siteMeta?.tagline || "India's premier B2B wholesale marketplace for women's fashion. Connect with verified vendors and grow your retail business.";
-  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "support@luxewholesale.com";
+  const siteName = cmsSettings?.siteMeta?.siteName || "LuxeFashion";
+  const tagline = cmsSettings?.siteMeta?.tagline || "India's premier fashion marketplace for women. Discover exquisite designer collections from verified vendors.";
+  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "support@luxefashion.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const showNewsletter = cmsSettings?.footer?.showNewsletter !== false;
   const newsletterTitle = cmsSettings?.footer?.newsletterTitle || "Stay Updated";
-  const newsletterDescription = cmsSettings?.footer?.newsletterDescription || "Get exclusive wholesale deals, new arrivals, and industry insights delivered to your inbox.";
+  const newsletterDescription = cmsSettings?.footer?.newsletterDescription || "Get exclusive deals, new arrivals, and style inspiration delivered to your inbox.";
   const socialLinks = cmsSettings?.footer?.socialLinks || [];
   
   const getSocialIcon = (platform: string) => {

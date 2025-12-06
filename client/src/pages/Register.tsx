@@ -64,7 +64,7 @@ export default function Register() {
 
       toast({
         title: "Account created!",
-        description: `Welcome to LuxeWholesale as a ${activeTab}.`,
+        description: `Welcome to LuxeFashion as a ${activeTab}.`,
       });
       setLocation(getDashboardPath(user.role));
     } catch (error: any) {
@@ -90,9 +90,9 @@ export default function Register() {
         className="w-full max-w-2xl"
       >
         <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl font-semibold mb-2">Join LuxeWholesale</h1>
+          <h1 className="font-serif text-4xl font-semibold mb-2">Join LuxeFashion</h1>
           <p className="text-muted-foreground">
-            Create your account and start your wholesale journey
+            Create your account and start your shopping journey
           </p>
         </div>
 

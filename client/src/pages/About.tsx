@@ -56,38 +56,38 @@ export default function About() {
     {
       icon: Shield,
       title: "Trust & Security",
-      description: "We verify every vendor through rigorous KYC processes to ensure safe and secure transactions for all our partners."
+      description: "We verify every seller to ensure safe and secure transactions for all our customers."
     },
     {
       icon: Star,
       title: "Customer First",
-      description: "Our buyers and vendors are at the center of everything we do. We strive to exceed expectations in every interaction."
+      description: "Our customers are at the center of everything we do. We strive to exceed expectations in every interaction."
     },
     {
       icon: Zap,
       title: "Innovation",
-      description: "We continuously evolve our platform with cutting-edge technology to provide the best B2B marketplace experience."
+      description: "We continuously evolve our platform with cutting-edge technology to provide the best shopping experience."
     },
     {
       icon: Globe,
       title: "Sustainability",
-      description: "We're committed to supporting sustainable fashion practices and connecting ethical vendors with conscious buyers."
+      description: "We're committed to supporting sustainable fashion practices and connecting ethical sellers with conscious shoppers."
     }
   ];
 
   const stats = [
-    { icon: Users, value: 500, suffix: "+", label: "Verified Vendors" },
-    { icon: TrendingUp, value: 50, suffix: "K+", label: "Product Listings" },
-    { icon: Award, value: 10, suffix: "K+", label: "Active Buyers" },
+    { icon: Users, value: 500, suffix: "+", label: "Trusted Sellers" },
+    { icon: TrendingUp, value: 50, suffix: "K+", label: "Products" },
+    { icon: Award, value: 100, suffix: "K+", label: "Happy Customers" },
     { icon: Target, value: 98, suffix: "%", label: "Satisfaction Rate" }
   ];
 
   const milestones = [
-    { year: "2020", title: "Foundation", description: "LuxeWholesale was founded with a vision to revolutionize B2B fashion commerce" },
-    { year: "2021", title: "Growth", description: "Expanded to 100+ vendors and launched our verified vendor program" },
-    { year: "2022", title: "Innovation", description: "Introduced advanced bulk pricing features and streamlined ordering" },
-    { year: "2023", title: "Expansion", description: "Reached 500+ vendors and 10,000+ buyers across India" },
-    { year: "2024", title: "Excellence", description: "Became India's leading wholesale fashion marketplace" }
+    { year: "2020", title: "Foundation", description: "Queen 4Feel was founded with a vision to revolutionize online fashion shopping" },
+    { year: "2021", title: "Growth", description: "Expanded to 100+ sellers and launched our verified seller program" },
+    { year: "2022", title: "Innovation", description: "Introduced advanced features and a seamless shopping experience" },
+    { year: "2023", title: "Expansion", description: "Reached 500+ sellers and 100,000+ happy customers across India" },
+    { year: "2024", title: "Excellence", description: "Became India's leading multi-vendor fashion marketplace" }
   ];
 
   return (
@@ -107,15 +107,15 @@ export default function About() {
             </Badge>
             
             <h1 className="font-serif text-6xl md:text-8xl font-bold mb-8 leading-tight">
-              Transforming Wholesale
+              Your Destination for
               <br />
               <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                Fashion Commerce
+                Fashion Shopping
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              We're building India's most trusted B2B marketplace, connecting premium fashion vendors with retailers nationwide.
+              We're building India's most trusted multi-vendor marketplace, connecting you with premium fashion from sellers nationwide.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -199,10 +199,10 @@ export default function About() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-lg leading-relaxed">
-                    To empower fashion businesses across India by creating a transparent, efficient, and trustworthy B2B marketplace that connects quality vendors with ambitious retailers.
+                    To make premium fashion accessible to everyone by creating a transparent, efficient, and trustworthy marketplace that connects quality sellers with fashion-conscious shoppers.
                   </p>
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    We believe in democratizing access to premium wholesale fashion, enabling small and medium retailers to compete with larger players through fair pricing, verified quality, and seamless logistics.
+                    We believe in democratizing access to stylish fashion through fair pricing, verified quality, and seamless delivery to your doorstep.
                   </p>
                 </div>
               </Card>
@@ -220,10 +220,10 @@ export default function About() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-lg leading-relaxed">
-                    To become the most trusted and innovative B2B fashion platform in India, setting new standards for quality, transparency, and customer success.
+                    To become India's most loved fashion marketplace, setting new standards for quality, variety, and customer satisfaction.
                   </p>
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    We envision a future where every fashion retailer has access to premium products, verified suppliers, and tools that help them grow their business sustainably.
+                    We envision a future where every fashion lover has access to premium styles from trusted sellers at prices that feel right.
                   </p>
                 </div>
               </Card>
@@ -341,7 +341,7 @@ export default function About() {
                 </h2>
 
                 <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed relative">
-                  Whether you're a vendor looking to expand or a retailer seeking quality products, we're here to help you succeed.
+                  Whether you're a seller looking to grow or a shopper seeking trendy styles, we're here to help you find what you love.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative">

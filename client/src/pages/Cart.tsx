@@ -200,13 +200,8 @@ export default function Cart() {
     return () => clearInterval(interval);
   }, [productIdsString]);
 
-  const handleUpdateQuantity = async (cartItemId: string, newQuantity: number, moq: number) => {
-    if (newQuantity < moq) {
-      toast({
-        title: "Minimum Order Quantity",
-        description: `Minimum order quantity is ${moq} pieces`,
-        variant: "destructive",
-      });
+  const handleUpdateQuantity = async (cartItemId: string, newQuantity: number) => {
+    if (newQuantity < 1) {
       return;
     }
 
@@ -358,7 +353,6 @@ export default function Cart() {
               const productImages = parseProductImages(item.product?.images);
               const productImage = productImages[0] || "/placeholder.jpg";
               const productPrice = parseFloat(String(item.product?.price || "0"));
-              const productMoq = item.product?.moq || 1;
 
               return (
                 <Card key={item.id} data-testid={`cart-item-${item.id}`}>
@@ -406,8 +400,8 @@ export default function Cart() {
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, productMoq)}
-                              disabled={updatingItemId === item.id || item.quantity <= productMoq}
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                              disabled={updatingItemId === item.id || item.quantity <= 1}
                               data-testid={`button-decrease-${item.id}`}
                             >
                               <Minus className="w-4 h-4" />
@@ -421,12 +415,12 @@ export default function Cart() {
                                   value={item.quantity}
                                   onChange={(e) => {
                                     const val = parseInt(e.target.value);
-                                    if (val >= productMoq) {
-                                      handleUpdateQuantity(item.id, val, productMoq);
+                                    if (val >= 1) {
+                                      handleUpdateQuantity(item.id, val);
                                     }
                                   }}
                                   className="w-20 text-center"
-                                  min={productMoq}
+                                  min={1}
                                   data-testid={`input-quantity-${item.id}`}
                                 />
                               )}
@@ -434,7 +428,7 @@ export default function Cart() {
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, productMoq)}
+                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                               disabled={updatingItemId === item.id}
                               data-testid={`button-increase-${item.id}`}
                             >

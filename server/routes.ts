@@ -2675,16 +2675,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const defaultCmsSettings: AllCmsSettings = {
     siteMeta: {
       siteName: "Queen 4Feel",
-      tagline: "Premium Fashion & Fabrics",
+      tagline: "Your Style, Your Way",
       contactEmail: "contact@queen4feel.com",
       contactPhone: "+91 98765 43210",
       address: "Mumbai, India",
-      seoTitle: "Queen 4Feel - Premium Fashion & Fabrics",
-      seoDescription: "Discover premium fashion and fabrics from trusted vendors. Quality materials for fashion designers and businesses.",
+      seoTitle: "Queen 4Feel - Shop Premium Fashion Online",
+      seoDescription: "Shop the latest fashion trends from multiple trusted sellers. Discover women's wear, men's fashion, ethnic wear and more with fast delivery.",
     },
     hero: {
-      headline: "Discover Premium Fabrics",
-      subheadline: "Connect with trusted vendors and find the perfect materials for your next project",
+      headline: "Discover Your Style",
+      subheadline: "Shop the latest fashion trends from trusted sellers at amazing prices",
       ctaText: "Shop Now",
       ctaLink: "/products",
       isVisible: true,
@@ -2693,16 +2693,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     featuredCollections: {
       sectionTitle: "Featured Collections",
       collections: [
-        { id: "1", title: "Cotton Collection", description: "Premium cotton fabrics for everyday wear", link: "/products?category=cotton", isVisible: true },
-        { id: "2", title: "Silk Collection", description: "Luxurious silk fabrics for special occasions", link: "/products?category=silk", isVisible: true },
-        { id: "3", title: "Linen Collection", description: "Breathable linen fabrics for comfort", link: "/products?category=linen", isVisible: true },
+        { id: "1", title: "Trending Now", description: "Discover what's hot this season", link: "/products?category=womens-wear", isVisible: true },
+        { id: "2", title: "Ethnic Elegance", description: "Beautiful traditional wear for every occasion", link: "/products?category=ethnic-wear", isVisible: true },
+        { id: "3", title: "Everyday Essentials", description: "Comfortable and stylish casual wear", link: "/products?category=casual-wear", isVisible: true },
       ],
     },
     testimonials: {
       sectionTitle: "What Our Customers Say",
       testimonials: [
-        { id: "1", customerName: "Priya Sharma", customerRole: "Fashion Designer", quote: "Excellent quality fabrics and great customer service. Highly recommended!", rating: 5, isVisible: true },
-        { id: "2", customerName: "Rahul Mehta", customerRole: "Boutique Owner", quote: "The variety and quality of fabrics available is unmatched. My go-to platform for sourcing materials.", rating: 5, isVisible: true },
+        { id: "1", customerName: "Priya Sharma", customerRole: "Verified Buyer", quote: "Amazing quality and fast delivery! The dress I ordered was exactly as shown. Will definitely shop here again!", rating: 5, isVisible: true },
+        { id: "2", customerName: "Rahul Mehta", customerRole: "Happy Customer", quote: "Great variety of products from different sellers. Love the easy returns and excellent customer service.", rating: 5, isVisible: true },
       ],
     },
     promotions: {

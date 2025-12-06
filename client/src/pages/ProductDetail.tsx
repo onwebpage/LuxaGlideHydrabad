@@ -217,16 +217,12 @@ export default function ProductDetail() {
     category: "Fashion",
     colors: colors.length > 0 ? colors : ["Red", "Blue", "Gold", "Pink", "Green"],
     sizes: sizes.length > 0 ? sizes : ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
-    bulkPricing: bulkPricing.length > 0 ? bulkPricing : [
-      { quantity: 1, price: parseFloat(String(productData?.price || "2500")) },
-      { quantity: 50, price: parseFloat(String(productData?.price || "2500")) * 0.92 },
-      { quantity: 100, price: parseFloat(String(productData?.price || "2500")) * 0.84 },
-    ],
+    bulkPricing: bulkPricing.length > 0 ? bulkPricing : [],
     features: [
       productData?.fabric ? `Made with ${productData.fabric}` : "Premium Quality",
       "Handcrafted",
-      `MOQ: ${productData?.moq || 1} pieces`,
-      "Bulk Discounts Available",
+      "Free Shipping",
+      "Easy Returns",
     ],
   };
 
@@ -392,9 +388,6 @@ export default function ProductDetail() {
                 </span>
                 <span className="text-muted-foreground">/piece</span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Minimum Order Quantity: {product.moq} pieces
-              </p>
               <p className="text-sm text-green-600 mt-1">
                 {product.stock} pieces in stock
               </p>
@@ -421,8 +414,8 @@ export default function ProductDetail() {
                   <p className="text-sm font-medium">{product.category}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">MOQ</p>
-                  <p className="text-sm font-medium">{product.moq} pieces</p>
+                  <p className="text-xs text-muted-foreground">Shipping</p>
+                  <p className="text-sm font-medium">Free Delivery</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Available Colors</p>
@@ -503,7 +496,7 @@ export default function ProductDetail() {
             {/* Quantity */}
             <div className="mb-6">
               <Label className="text-sm uppercase tracking-wider mb-3 block">
-                Quantity (Min: 1)
+                Quantity
               </Label>
               <div className="flex items-center gap-3">
                 <Button
@@ -574,7 +567,7 @@ export default function ProductDetail() {
             <div className="grid grid-cols-3 gap-4 p-6 bg-secondary/50 rounded-xl">
               <div className="text-center">
                 <Package className="w-6 h-6 mx-auto mb-2 text-primary" />
-                <p className="text-xs text-muted-foreground">Bulk Pricing</p>
+                <p className="text-xs text-muted-foreground">Great Value</p>
               </div>
               <div className="text-center">
                 <Truck className="w-6 h-6 mx-auto mb-2 text-primary" />
@@ -592,7 +585,7 @@ export default function ProductDetail() {
         <Tabs defaultValue="description" className="mb-16">
           <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="description" data-testid="tab-description">Description</TabsTrigger>
-            <TabsTrigger value="pricing" data-testid="tab-pricing">Bulk Pricing</TabsTrigger>
+            <TabsTrigger value="shipping" data-testid="tab-shipping">Shipping</TabsTrigger>
             <TabsTrigger value="reviews" data-testid="tab-reviews">Reviews ({product.reviewCount})</TabsTrigger>
           </TabsList>
 
@@ -615,8 +608,8 @@ export default function ProductDetail() {
                         <dd className="font-medium">{product.category}</dd>
                       </div>
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">MOQ:</dt>
-                        <dd className="font-medium">{product.moq} pieces</dd>
+                        <dt className="text-muted-foreground">Shipping:</dt>
+                        <dd className="font-medium">Free Delivery</dd>
                       </div>
                     </dl>
                   </div>
@@ -636,34 +629,33 @@ export default function ProductDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="pricing" className="mt-8">
+          <TabsContent value="shipping" className="mt-8">
             <Card>
               <CardContent className="p-8">
-                <h3 className="font-semibold mb-6">Bulk Purchase Pricing</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Price per Piece</TableHead>
-                      <TableHead>Total Amount</TableHead>
-                      <TableHead>Savings</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {product.bulkPricing.map((tier, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{tier.quantity}+ pieces</TableCell>
-                        <TableCell>₹{tier.price}</TableCell>
-                        <TableCell>₹{(tier.price * tier.quantity).toLocaleString()}</TableCell>
-                        <TableCell className="text-green-600">
-                          {index === 0
-                            ? "-"
-                            : `${Math.round(((product.bulkPricing[0].price - tier.price) / product.bulkPricing[0].price) * 100)}%`}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <h3 className="font-semibold mb-6">Shipping Information</h3>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <Truck className="w-6 h-6 text-primary mt-1" />
+                    <div>
+                      <h4 className="font-medium mb-1">Free Standard Delivery</h4>
+                      <p className="text-muted-foreground text-sm">Delivered within 5-7 business days across India</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <Package className="w-6 h-6 text-primary mt-1" />
+                    <div>
+                      <h4 className="font-medium mb-1">Express Shipping Available</h4>
+                      <p className="text-muted-foreground text-sm">Get your order in 2-3 business days (additional charges apply)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <Shield className="w-6 h-6 text-primary mt-1" />
+                    <div>
+                      <h4 className="font-medium mb-1">Secure Packaging</h4>
+                      <p className="text-muted-foreground text-sm">All items are carefully packed to ensure safe delivery</p>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

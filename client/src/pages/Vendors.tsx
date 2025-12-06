@@ -71,7 +71,7 @@ export default function Vendors() {
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Connect with KYC-verified vendors offering premium quality products, competitive wholesale pricing, and reliable delivery across India.
+              Connect with KYC-verified vendors offering premium quality products, competitive pricing, and reliable delivery across India.
             </p>
 
             <div className="mb-10">
@@ -147,7 +147,7 @@ export default function Vendors() {
               Why Buy from Our Vendors
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Experience the benefits of working with verified wholesale partners
+              Experience the benefits of shopping with verified vendor partners
             </p>
           </div>
 

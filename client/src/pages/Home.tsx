@@ -203,20 +203,20 @@ export default function Home() {
   const testimonials = [
     {
       name: "Priya Sharma",
-      role: "Boutique Owner, Delhi",
-      content: "LuxeWholesale transformed my business. The quality of products and vendor relationships are exceptional.",
+      role: "Verified Buyer, Delhi",
+      content: "Love shopping here! The quality is amazing and delivery is super fast. Already ordered multiple times!",
       rating: 5,
     },
     {
       name: "Rajesh Kumar",
-      role: "Fashion Retailer, Mumbai",
-      content: "Best B2B platform for wholesale fashion. Competitive pricing and reliable delivery every time.",
+      role: "Happy Customer, Mumbai",
+      content: "Great variety of products from different sellers. Easy returns and excellent customer service.",
       rating: 5,
     },
     {
       name: "Anjali Patel",
-      role: "Online Store Owner",
-      content: "The variety of products and ease of bulk ordering make this my go-to wholesale marketplace.",
+      role: "Fashion Enthusiast",
+      content: "Finally found a marketplace with trendy styles at affordable prices. The seller options are fantastic!",
       rating: 5,
     },
   ];
@@ -342,10 +342,10 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
-              The LuxeWholesale Promise
+              Why Shop With Us
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Experience premium wholesale fashion with unmatched quality and service
+              Discover the best fashion from multiple trusted sellers, all in one place
             </p>
           </div>
 
@@ -354,9 +354,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Verified Vendors</h3>
+              <h3 className="font-serif text-xl font-semibold mb-3">Trusted Sellers</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Every vendor undergoes rigorous KYC verification to ensure authenticity and reliability
+                Every seller is verified to ensure you receive authentic, quality products
               </p>
             </div>
 
@@ -364,9 +364,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Premium Quality</h3>
+              <h3 className="font-serif text-xl font-semibold mb-3">Quality Products</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Handpicked collections featuring the finest fabrics and impeccable craftsmanship
+                Curated collections featuring the finest fabrics and trendy designs
               </p>
             </div>
 
@@ -374,9 +374,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <TrendingUp className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Competitive Pricing</h3>
+              <h3 className="font-serif text-xl font-semibold mb-3">Great Prices</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Exclusive wholesale rates with bulk discounts to maximize your profit margins
+                Competitive prices with regular deals and discounts on your favorite styles
               </p>
             </div>
 
@@ -384,9 +384,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <Truck className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">Reliable Delivery</h3>
+              <h3 className="font-serif text-xl font-semibold mb-3">Fast Delivery</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Fast and secure shipping across India with real-time order tracking
+                Quick and secure shipping across India with real-time order tracking
               </p>
             </div>
           </div>
@@ -747,7 +747,7 @@ export default function Home() {
             Ready to Grow Your Business?
           </h2>
           <p className="text-lg mb-10 max-w-2xl mx-auto opacity-90">
-            Join thousands of retailers who trust us for quality wholesale fashion
+            Join thousands of customers who trust us for quality fashion
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">

@@ -869,7 +869,7 @@ export default function VendorDashboard() {
             <DialogHeader>
               <DialogTitle>Complete KYC Verification</DialogTitle>
               <DialogDescription>
-                Please upload your business documents to verify your account. This is required to start selling on LuxeWholesale.
+                Please upload your business documents to verify your account. This is required to start selling on LuxeFashion.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 mt-4">

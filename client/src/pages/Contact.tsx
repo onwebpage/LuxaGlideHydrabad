@@ -23,7 +23,7 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email Us",
-      detail: "support@luxewholesale.com",
+      detail: "support@queen4feel.com",
       description: "We'll respond within 24 hours"
     },
     {
@@ -93,7 +93,7 @@ export default function Contact() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Have questions? We're here to help you succeed in your wholesale fashion business.
+              Have questions? We're here to help you with your shopping experience.
             </p>
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function Contact() {
                     Why Contact Us?
                   </h3>
                   <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                    Whether you're a buyer looking for the perfect wholesale partner or a vendor wanting to expand your reach, our team is ready to assist you.
+                    Whether you're looking for the perfect outfit or a seller wanting to reach more customers, our team is ready to assist you.
                   </p>
                 </CardContent>
               </Card>
@@ -283,8 +283,8 @@ export default function Contact() {
                   </p>
                   <ul className="space-y-3">
                     {[
-                      "Vendor onboarding inquiries",
-                      "Buyer partnership opportunities",
+                      "Order and delivery inquiries",
+                      "Returns and refunds",
                       "Technical support",
                       "General questions"
                     ].map((item, index) => (
@@ -339,20 +339,20 @@ export default function Contact() {
           <div className="max-w-4xl mx-auto grid gap-6">
             {[
               {
-                question: "How do I become a verified vendor?",
-                answer: "Register as a vendor, complete your profile, and submit your KYC documents. Our team will review and verify your account within 2-3 business days."
+                question: "How do I track my order?",
+                answer: "Once your order ships, you'll receive a tracking link via email and SMS. You can also view order status in your account dashboard."
               },
               {
-                question: "What are the minimum order quantities?",
-                answer: "MOQ varies by vendor and product. Each product listing clearly shows the minimum order quantity required."
+                question: "What payment methods do you accept?",
+                answer: "We support multiple secure payment methods including UPI, credit/debit cards, net banking, and cash on delivery."
               },
               {
-                question: "How does payment work?",
-                answer: "We support multiple secure payment methods including bank transfers, UPI, and credit cards. Payment terms can be discussed with individual vendors."
+                question: "How long does delivery take?",
+                answer: "Standard delivery takes 3-7 business days depending on your location. Express delivery options are available at checkout."
               },
               {
-                question: "What is your refund policy?",
-                answer: "Refund policies vary by vendor. Please check individual vendor policies before placing an order. We mediate disputes to ensure fair resolution."
+                question: "What is your return policy?",
+                answer: "We offer hassle-free returns within 7 days of delivery. Simply initiate a return from your orders page and we'll arrange pickup."
               }
             ].map((faq, index) => (
               <div key={index}>
