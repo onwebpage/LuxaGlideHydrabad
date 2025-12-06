@@ -219,7 +219,7 @@ export default function Vendors() {
               Apply as a Vendor Partner
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Join our platform and reach thousands of buyers across India. Grow your wholesale business with our verified marketplace.
+              Join our platform and reach thousands of buyers across India.
             </p>
             <Link href="/register?role=vendor">
               <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor">
