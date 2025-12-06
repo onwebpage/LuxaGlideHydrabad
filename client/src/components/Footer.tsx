@@ -1,12 +1,12 @@
 import { Link } from "wouter";
-import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, Send } from "lucide-react";
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
-import logoImage from "@assets/logoluxa2-removebg-preview_1764994021520.png";
+import logoImage from "@assets/logoluxa2-removebg-preview-removebg-preview_1765004368610.png";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -30,6 +30,7 @@ export function Footer() {
       instagram: Instagram,
       twitter: Twitter,
       linkedin: Linkedin,
+      youtube: Youtube,
     };
     return icons[platform.toLowerCase()] || Facebook;
   };
@@ -88,6 +89,9 @@ export function Footer() {
                     </Button>
                     <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-linkedin">
                       <Linkedin className="w-5 h-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-youtube">
+                      <Youtube className="w-5 h-5" />
                     </Button>
                   </>
                 )}
