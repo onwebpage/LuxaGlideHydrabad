@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
+import logoImage from "@assets/logoluxa2-removebg-preview_1764994021520.png";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -56,9 +57,9 @@ export function Footer() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
             {/* Brand Section */}
             <div>
-              <h3 className="font-serif text-3xl font-semibold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                {siteName}
-              </h3>
+              <Link href="/" className="inline-block mb-6" data-testid="link-footer-home">
+                <img src={logoImage} alt={siteName} className="h-14 w-auto" />
+              </Link>
               <p className="text-muted-foreground text-lg mb-8 max-w-md leading-relaxed">
                 {tagline}
               </p>

@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import logoImage from "@assets/logoluxa2-removebg-preview_1764994021520.png";
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -51,13 +52,7 @@ export function Header() {
           <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0" data-testid="link-home">
-              {cmsSettings?.siteMeta?.logo ? (
-                <img src={cmsSettings.siteMeta.logo} alt={siteName} className="h-8 lg:h-10 w-auto" />
-              ) : (
-                <h1 className="font-serif text-xl lg:text-2xl font-bold text-primary dark:text-primary tracking-tight">
-                  {siteName}
-                </h1>
-              )}
+              <img src={logoImage} alt={siteName} className="h-10 lg:h-12 w-auto" />
             </Link>
 
             {/* Search Bar - Desktop */}
