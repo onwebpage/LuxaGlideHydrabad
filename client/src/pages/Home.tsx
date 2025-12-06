@@ -710,10 +710,10 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
-              What Our Clients Say
+              What Our Vendors Said
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Trusted by thousands of retailers across India
+              Trusted by thousands of vendors across India
             </p>
           </div>
 
