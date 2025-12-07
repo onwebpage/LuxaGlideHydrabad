@@ -59,7 +59,7 @@ export function Footer() {
             {/* Brand Section */}
             <div>
               <Link href="/" className="inline-block mb-6" data-testid="link-footer-home">
-                <img src={logoImage} alt={siteName} className="h-12 w-auto object-contain" />
+                <img src={logoImage} alt={siteName} className="h-20 w-auto object-contain" />
               </Link>
               <p className="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-md leading-relaxed">
                 {tagline}

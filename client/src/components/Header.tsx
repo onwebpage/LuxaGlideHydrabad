@@ -52,7 +52,7 @@ export function Header() {
           <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0" data-testid="link-home">
-              <img src={logoImage} alt={siteName} className="h-14 w-auto lg:h-16 object-contain" />
+              <img src={logoImage} alt={siteName} className="h-20 w-auto lg:h-24 object-contain" />
             </Link>
 
             {/* Search Bar - Desktop */}
