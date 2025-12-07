@@ -202,18 +202,18 @@ export default function BuyerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-serif text-4xl font-semibold mb-2">Buyer Dashboard</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Buyer Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage your orders, profile, and preferences
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {statsCards.map((stat, index) => (
             <motion.div
               key={stat.label}

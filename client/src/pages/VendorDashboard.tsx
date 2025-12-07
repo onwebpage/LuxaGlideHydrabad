@@ -800,12 +800,12 @@ export default function VendorDashboard() {
   };
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-serif text-4xl font-semibold mb-2">Vendor Dashboard</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Vendor Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage your products, orders, and business analytics
           </p>
         </div>

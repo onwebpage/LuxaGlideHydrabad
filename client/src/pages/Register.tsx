@@ -83,15 +83,15 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-secondary/30">
+    <div className="min-h-screen flex items-center justify-center py-6 sm:py-12 px-4 sm:px-6 bg-secondary/30">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-2xl"
       >
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl font-semibold mb-2">Join LuxeFashion</h1>
-          <p className="text-muted-foreground">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Join LuxeFashion</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Create your account and start your shopping journey
           </p>
         </div>

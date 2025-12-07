@@ -186,12 +186,12 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-6">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-6">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-serif text-4xl font-semibold mb-2" data-testid="text-title">Admin Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2" data-testid="text-title">Admin Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Platform overview and management controls
             </p>
           </div>
@@ -199,13 +199,14 @@ export default function AdminDashboard() {
             variant="outline" 
             onClick={handleLogout}
             data-testid="button-logout"
+            className="w-full sm:w-auto"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {statsCards.map((stat, index) => (
             <motion.div
               key={stat.label}

@@ -425,7 +425,7 @@ export default function Products() {
 
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger
-                    className="w-[200px]"
+                    className="w-full sm:w-[200px]"
                     data-testid="select-sort"
                   >
                     <SelectValue placeholder="Sort by" />
@@ -565,14 +565,17 @@ export default function Products() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-16 flex justify-center items-center gap-2">
+              <div className="mt-8 sm:mt-12 md:mt-16 flex flex-wrap justify-center items-center gap-1 sm:gap-2">
                 <Button
                   variant="outline"
+                  size="sm"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                   data-testid="button-prev-page"
+                  className="text-xs sm:text-sm"
                 >
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
                 </Button>
                 
                 {currentPage > 3 && totalPages > 5 && (
@@ -615,9 +618,11 @@ export default function Products() {
                 
                 <Button
                   variant="outline"
+                  size="sm"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                   data-testid="button-next-page"
+                  className="text-xs sm:text-sm"
                 >
                   Next
                 </Button>

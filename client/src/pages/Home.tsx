@@ -13,7 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -397,16 +404,111 @@ export default function Home() {
       <section className="py-12 bg-background" data-testid="section-products-for-you">
         <div className="container mx-auto px-4 lg:px-6">
           {/* Section Header */}
-          <div className="mb-6">
-            <p className="text-sm text-muted-foreground mb-1">Home &gt; Products</p>
-            <h2 className="text-xl font-medium text-foreground">
-              {products.length} results for products
-            </h2>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Home &gt; Products</p>
+              <h2 className="text-xl font-medium text-foreground">
+                {products.length} results for products
+              </h2>
+            </div>
+            
+            {/* Mobile Filter Button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="lg:hidden w-full sm:w-auto"
+                  data-testid="button-mobile-filters"
+                >
+                  <SlidersHorizontal className="w-4 h-4 mr-2" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filter Products</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  {/* Brand/Category Section */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-sm text-foreground">Brand</h4>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search brand..."
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        className="pl-9 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2.5 max-h-48 overflow-y-auto">
+                      {categoriesLoading ? (
+                        Array.from({ length: 5 }).map((_, i) => (
+                          <Skeleton key={i} className="h-5 w-full" />
+                        ))
+                      ) : (
+                        displayedCategories.map((category) => (
+                          <label
+                            key={category.id}
+                            className="flex items-center gap-3 cursor-pointer group"
+                          >
+                            <Checkbox
+                              checked={selectedCategories.has(category.id)}
+                              onCheckedChange={() => toggleCategory(category.id)}
+                              className="rounded-sm"
+                            />
+                            <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors flex-1">
+                              {category.name}
+                            </span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="font-medium text-sm text-foreground">
+                      Price: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}
+                    </h4>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={priceRange[0]}
+                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                        className="text-sm"
+                      />
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reset Filters */}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedCategories(new Set());
+                      setPriceRange([0, 50000]);
+                      setCategorySearch("");
+                    }}
+                  >
+                    Reset All Filters
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left Sidebar - Filters */}
-            <aside className="w-full lg:w-56 shrink-0">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+            {/* Left Sidebar - Filters - Hidden on mobile */}
+            <aside className="hidden lg:block w-56 shrink-0">
               <div className="sticky top-24 space-y-6">
                 {/* Filter Header */}
                 <div className="flex items-center justify-between">
@@ -603,7 +705,7 @@ export default function Home() {
               </div>
 
               {/* Product Grid */}
-              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
+              <div className={`grid gap-3 sm:gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3' : 'grid-cols-1'}`}>
                 {productsLoading ? (
                   Array.from({ length: 9 }).map((_, i) => (
                     <div key={i} className="space-y-3">
@@ -706,18 +808,18 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
+      <section className="py-10 sm:py-14 md:py-20 bg-background">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4">
               What Our Customers Say
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
               Trusted by thousands of customers across India
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="h-full" data-testid={`card-testimonial-${index}`}>
                 <CardContent className="p-6">
@@ -741,12 +843,12 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-6">
+      <section className="py-10 sm:py-14 md:py-20 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 sm:mb-6">
             Ready to Grow Your Business?
           </h2>
-          <p className="text-lg mb-10 max-w-2xl mx-auto opacity-90">
+          <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto opacity-90">
             Join thousands of customers who trust us for quality fashion
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

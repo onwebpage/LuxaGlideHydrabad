@@ -80,11 +80,11 @@ export default function Login() {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-gradient-to-br from-background via-secondary/10 to-background relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center py-6 sm:py-12 px-4 sm:px-6 bg-gradient-to-br from-background via-secondary/10 to-background relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-20 left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+          className="absolute -top-20 -left-20 sm:top-20 sm:left-20 w-64 sm:w-96 h-64 sm:h-96 bg-primary/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -96,7 +96,7 @@ export default function Login() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"
+          className="absolute -bottom-20 -right-20 sm:bottom-20 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 bg-secondary/10 rounded-full blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.2, 0.4, 0.2],
@@ -186,9 +186,9 @@ export default function Login() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {/* Mobile Header */}
-            <div className="text-center mb-8 lg:hidden">
-              <h1 className="font-serif text-4xl font-bold mb-2">Welcome Back</h1>
-              <p className="text-muted-foreground">
+            <div className="text-center mb-6 sm:mb-8 lg:hidden">
+              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Welcome Back</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Sign in to access your account
               </p>
             </div>
