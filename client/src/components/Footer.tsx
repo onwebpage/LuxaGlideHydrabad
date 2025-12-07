@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
-import logoImage from "@assets/logoluxa2-removebg-preview-removebg-preview_1765004368610.png";
+import logoImage from "@assets/Untitled_design-removebg-preview_1765148207646.png";
 
 export function Footer() {
   const [email, setEmail] = useState("");

@@ -16,7 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logoImage from "@assets/logoluxa2-removebg-preview-removebg-preview_1765004368610.png";
+import logoImage from "@assets/Untitled_design-removebg-preview_1765148207646.png";
 
 export function Header() {
   const [location, setLocation] = useLocation();
