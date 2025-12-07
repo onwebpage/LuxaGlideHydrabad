@@ -710,10 +710,10 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
-              What Our Vendors Said
+              What Our Customers Say
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Trusted by thousands of vendors across India
+              Trusted by thousands of customers across India
             </p>
           </div>
 
@@ -761,14 +761,14 @@ export default function Home() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/products">
+            <Link href="/register?role=vendor">
               <Button
                 size="lg"
                 variant="outline"
                 className="px-10 py-6 text-lg border-2 border-white/30 text-white hover:bg-white/10"
-                data-testid="button-cta-browse"
+                data-testid="button-cta-vendor"
               >
-                Browse Products
+                Apply as a Vendor
               </Button>
             </Link>
           </div>
