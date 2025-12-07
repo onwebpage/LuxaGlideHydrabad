@@ -344,62 +344,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-10 sm:py-14 md:py-20 bg-gradient-to-b from-secondary/20 to-background" data-testid="section-why-choose-us">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4">
-              Why Shop With Us
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
-              Discover the best fashion from multiple trusted sellers, all in one place
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            <div className="text-center p-3 sm:p-4 md:p-6">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
-                <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Trusted Sellers</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                Every seller is verified to ensure you receive authentic, quality products
-              </p>
-            </div>
-
-            <div className="text-center p-3 sm:p-4 md:p-6">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
-                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Quality Products</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                Curated collections featuring the finest fabrics and trendy designs
-              </p>
-            </div>
-
-            <div className="text-center p-3 sm:p-4 md:p-6">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
-                <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Great Prices</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                Competitive prices with regular deals and discounts on your favorite styles
-              </p>
-            </div>
-
-            <div className="text-center p-3 sm:p-4 md:p-6">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
-                <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-              </div>
-              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Fast Delivery</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                Quick and secure shipping across India with real-time order tracking
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Products For You Section */}
       <section className="py-12 bg-background" data-testid="section-products-for-you">
         <div className="container mx-auto px-4 lg:px-6">
@@ -838,6 +782,62 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="py-10 sm:py-14 md:py-20 bg-gradient-to-b from-secondary/20 to-background" data-testid="section-why-choose-us">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4">
+              Why Shop With Us
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
+              Discover the best fashion from multiple trusted sellers, all in one place
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Trusted Sellers</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                Every seller is verified to ensure you receive authentic, quality products
+              </p>
+            </div>
+
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Quality Products</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                Curated collections featuring the finest fabrics and trendy designs
+              </p>
+            </div>
+
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Great Prices</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                Competitive prices with regular deals and discounts on your favorite styles
+              </p>
+            </div>
+
+            <div className="text-center p-3 sm:p-4 md:p-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 md:mb-6">
+                <Truck className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+              </div>
+              <h3 className="font-serif text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3">Fast Delivery</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                Quick and secure shipping across India with real-time order tracking
+              </p>
+            </div>
           </div>
         </div>
       </section>
