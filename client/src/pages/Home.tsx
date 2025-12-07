@@ -252,9 +252,12 @@ export default function Home() {
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6">
           <div className="max-w-xl">
-            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold text-white leading-tight mb-4">
-              Elevate Your Fashion
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold text-white leading-tight mb-3">
+              Feel Like a Queen, Every Day
             </h1>
+            <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed">
+              Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Curated styles for the modern woman.
+            </p>
           </div>
         </div>
       </section>
