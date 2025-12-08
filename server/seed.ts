@@ -124,7 +124,6 @@ async function seed() {
   // Create categories
   const categoryData = [
     { name: "Women's Wear", slug: "womens-wear", description: "Elegant dresses and women's fashion", image: productImages.womensDresses[0] },
-    { name: "Men's Formal", slug: "mens-formal", description: "Professional formal wear for men", image: productImages.mensFormal[0] },
     { name: "Casual Wear", slug: "casual-wear", description: "Comfortable everyday clothing", image: productImages.casualWear[0] },
     { name: "Ethnic Wear", slug: "ethnic-wear", description: "Traditional ethnic clothing", image: productImages.ethnicWear[0] },
   ];
