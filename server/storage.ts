@@ -51,6 +51,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, gte, lte, sql, or } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 export interface IStorage {
   // Users
@@ -1009,4 +1010,882 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export class MemStorage implements IStorage {
+  private users = new Map<string, User>();
+  private vendors = new Map<string, Vendor>();
+  private buyers = new Map<string, Buyer>();
+  private addresses = new Map<string, Address>();
+  private categories = new Map<string, Category>();
+  private coupons = new Map<string, Coupon>();
+  private products = new Map<string, Product>();
+  private reviews = new Map<string, Review>();
+  private wishlist = new Map<string, Wishlist>();
+  private cart = new Map<string, Cart>();
+  private orders = new Map<string, Order>();
+  private orderItems = new Map<string, OrderItem>();
+  private rfqs = new Map<string, Rfq>();
+  private newsletter = new Map<string, Newsletter>();
+  private cmsSettings = new Map<string, CmsSetting>();
+  private userSessions = new Map<string, UserSession>();
+
+  // Users
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(u => u.email === email);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const user: User = {
+      id: nanoid(),
+      ...insertUser,
+      createdAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async updateUser(id: string, data: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, ...data };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  // Vendors
+  async getVendor(id: string): Promise<Vendor | undefined> {
+    return this.vendors.get(id);
+  }
+
+  async getVendorByUserId(userId: string): Promise<Vendor | undefined> {
+    return Array.from(this.vendors.values()).find(v => v.userId === userId);
+  }
+
+  async getAllVendors(filters?: { kycStatus?: string; limit?: number }): Promise<Vendor[]> {
+    let vendors = Array.from(this.vendors.values());
+    
+    if (filters?.kycStatus) {
+      vendors = vendors.filter(v => v.kycStatus === filters.kycStatus);
+    }
+    
+    vendors.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    if (filters?.limit) {
+      vendors = vendors.slice(0, filters.limit);
+    }
+    
+    return vendors;
+  }
+
+  async createVendor(insertVendor: InsertVendor): Promise<Vendor> {
+    const vendor: Vendor = {
+      id: nanoid(),
+      ...insertVendor,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.vendors.set(vendor.id, vendor);
+    return vendor;
+  }
+
+  async updateVendor(id: string, data: Partial<InsertVendor>): Promise<Vendor | undefined> {
+    const vendor = this.vendors.get(id);
+    if (!vendor) return undefined;
+    const updated = { ...vendor, ...data, updatedAt: new Date() };
+    this.vendors.set(id, updated);
+    return updated;
+  }
+
+  async deleteVendor(id: string): Promise<void> {
+    const vendor = this.vendors.get(id);
+    if (vendor) {
+      Array.from(this.products.entries()).forEach(([pid, p]) => {
+        if (p.vendorId === id) this.products.delete(pid);
+      });
+      this.vendors.delete(id);
+      this.users.delete(vendor.userId);
+    }
+  }
+
+  // Buyers
+  async getBuyer(id: string): Promise<Buyer | undefined> {
+    return this.buyers.get(id);
+  }
+
+  async getBuyerByUserId(userId: string): Promise<Buyer | undefined> {
+    return Array.from(this.buyers.values()).find(b => b.userId === userId);
+  }
+
+  async createBuyer(insertBuyer: InsertBuyer): Promise<Buyer> {
+    const buyer: Buyer = {
+      id: nanoid(),
+      ...insertBuyer,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.buyers.set(buyer.id, buyer);
+    return buyer;
+  }
+
+  async updateBuyer(id: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined> {
+    const buyer = this.buyers.get(id);
+    if (!buyer) return undefined;
+    const updated = { ...buyer, ...data, updatedAt: new Date() };
+    this.buyers.set(id, updated);
+    return updated;
+  }
+
+  async updateBuyerByUserId(userId: string, data: Partial<InsertBuyer>): Promise<Buyer | undefined> {
+    const buyer = Array.from(this.buyers.values()).find(b => b.userId === userId);
+    if (!buyer) return undefined;
+    const updated = { ...buyer, ...data, updatedAt: new Date() };
+    this.buyers.set(buyer.id, updated);
+    return updated;
+  }
+
+  // Addresses
+  async getAddress(id: string): Promise<Address | undefined> {
+    return this.addresses.get(id);
+  }
+
+  async getUserAddresses(userId: string): Promise<Address[]> {
+    return Array.from(this.addresses.values())
+      .filter(a => a.userId === userId)
+      .sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
+  }
+
+  async createAddress(insertAddress: InsertAddress): Promise<Address> {
+    const address: Address = {
+      id: nanoid(),
+      ...insertAddress,
+      createdAt: new Date(),
+    };
+    this.addresses.set(address.id, address);
+    return address;
+  }
+
+  async updateAddress(id: string, data: Partial<InsertAddress>): Promise<Address | undefined> {
+    const address = this.addresses.get(id);
+    if (!address) return undefined;
+    const updated = { ...address, ...data };
+    this.addresses.set(id, updated);
+    return updated;
+  }
+
+  async deleteAddress(id: string): Promise<void> {
+    this.addresses.delete(id);
+  }
+
+  // Categories
+  async getAllCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    return Array.from(this.categories.values()).find(c => c.slug === slug);
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const category: Category = {
+      id: nanoid(),
+      ...insertCategory,
+      createdAt: new Date(),
+    };
+    this.categories.set(category.id, category);
+    return category;
+  }
+
+  async updateCategory(id: string, data: Partial<InsertCategory>): Promise<Category | undefined> {
+    const category = this.categories.get(id);
+    if (!category) return undefined;
+    const updated = { ...category, ...data };
+    this.categories.set(id, updated);
+    return updated;
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    this.categories.delete(id);
+  }
+
+  // Coupons
+  async getCoupon(id: string): Promise<Coupon | undefined> {
+    return this.coupons.get(id);
+  }
+
+  async getCouponByCode(code: string): Promise<Coupon | undefined> {
+    return Array.from(this.coupons.values()).find(c => c.code === code.toUpperCase());
+  }
+
+  async getAllCoupons(filters?: { isActive?: boolean; search?: string; limit?: number; offset?: number }): Promise<Coupon[]> {
+    let coupons = Array.from(this.coupons.values());
+    
+    if (filters?.isActive !== undefined) {
+      coupons = coupons.filter(c => c.isActive === filters.isActive);
+    }
+    
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      coupons = coupons.filter(c => 
+        c.code.toLowerCase().includes(searchLower) || 
+        c.name.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    coupons.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    if (filters?.offset) {
+      coupons = coupons.slice(filters.offset);
+    }
+    
+    if (filters?.limit) {
+      coupons = coupons.slice(0, filters.limit);
+    }
+    
+    return coupons;
+  }
+
+  async getActiveCoupons(): Promise<Coupon[]> {
+    const now = new Date();
+    return Array.from(this.coupons.values()).filter(c => 
+      c.isActive &&
+      (!c.startsAt || c.startsAt <= now) &&
+      (!c.expiresAt || c.expiresAt >= now) &&
+      (!c.maxUses || c.usedCount < c.maxUses)
+    ).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createCoupon(insertCoupon: InsertCoupon): Promise<Coupon> {
+    const coupon: Coupon = {
+      id: nanoid(),
+      ...insertCoupon,
+      code: insertCoupon.code.toUpperCase(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.coupons.set(coupon.id, coupon);
+    return coupon;
+  }
+
+  async updateCoupon(id: string, data: Partial<InsertCoupon>): Promise<Coupon | undefined> {
+    const coupon = this.coupons.get(id);
+    if (!coupon) return undefined;
+    const updateData = { ...data };
+    if (updateData.code) {
+      updateData.code = updateData.code.toUpperCase();
+    }
+    const updated = { ...coupon, ...updateData, updatedAt: new Date() };
+    this.coupons.set(id, updated);
+    return updated;
+  }
+
+  async deleteCoupon(id: string): Promise<void> {
+    Array.from(this.products.entries()).forEach(([pid, p]) => {
+      if (p.couponId === id) {
+        this.products.set(pid, { ...p, couponId: null });
+      }
+    });
+    this.coupons.delete(id);
+  }
+
+  async incrementCouponUsage(id: string): Promise<Coupon | undefined> {
+    const coupon = this.coupons.get(id);
+    if (!coupon) return undefined;
+    const updated = { ...coupon, usedCount: coupon.usedCount + 1, updatedAt: new Date() };
+    this.coupons.set(id, updated);
+    return updated;
+  }
+
+  // Products
+  async getProduct(id: string): Promise<Product | undefined> {
+    return this.products.get(id);
+  }
+
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    return Array.from(this.products.values()).find(p => p.slug === slug);
+  }
+
+  async getAllProducts(filters?: {
+    categoryId?: string;
+    vendorId?: string;
+    fabric?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Product[]> {
+    let products = Array.from(this.products.values()).filter(p => p.isActive);
+    
+    if (filters?.categoryId) {
+      products = products.filter(p => p.categoryId === filters.categoryId);
+    }
+    
+    if (filters?.vendorId) {
+      products = products.filter(p => p.vendorId === filters.vendorId);
+    }
+    
+    if (filters?.fabric) {
+      products = products.filter(p => p.fabric === filters.fabric);
+    }
+    
+    if (filters?.minPrice !== undefined) {
+      products = products.filter(p => parseFloat(p.price) >= filters.minPrice!);
+    }
+    
+    if (filters?.maxPrice !== undefined) {
+      products = products.filter(p => parseFloat(p.price) <= filters.maxPrice!);
+    }
+    
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      products = products.filter(p => 
+        p.name.toLowerCase().includes(searchLower) || 
+        p.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    products.sort((a, b) => {
+      if (a.featured !== b.featured) return b.featured ? 1 : -1;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+    
+    if (filters?.offset) {
+      products = products.slice(filters.offset);
+    }
+    
+    if (filters?.limit) {
+      products = products.slice(0, filters.limit);
+    }
+    
+    return products;
+  }
+
+  async getAllProductsForAdmin(filters?: {
+    status?: string;
+    categoryId?: string;
+    vendorId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Product[]> {
+    let products = Array.from(this.products.values());
+    
+    if (filters?.status) {
+      products = products.filter(p => p.status === filters.status);
+    }
+    
+    if (filters?.categoryId) {
+      products = products.filter(p => p.categoryId === filters.categoryId);
+    }
+    
+    if (filters?.vendorId) {
+      products = products.filter(p => p.vendorId === filters.vendorId);
+    }
+    
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      products = products.filter(p => 
+        p.name.toLowerCase().includes(searchLower) || 
+        p.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    products.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    if (filters?.offset) {
+      products = products.slice(filters.offset);
+    }
+    
+    if (filters?.limit) {
+      products = products.slice(0, filters.limit);
+    }
+    
+    return products;
+  }
+
+  async getProductsByVendorId(vendorId: string): Promise<Product[]> {
+    return Array.from(this.products.values())
+      .filter(p => p.vendorId === vendorId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    const product: Product = {
+      id: nanoid(),
+      ...insertProduct,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.products.set(product.id, product);
+    return product;
+  }
+
+  async updateProduct(id: string, data: Partial<InsertProduct>): Promise<Product | undefined> {
+    const product = this.products.get(id);
+    if (!product) return undefined;
+    const updated = { ...product, ...data, updatedAt: new Date() };
+    this.products.set(id, updated);
+    return updated;
+  }
+
+  async updateProductStatus(id: string, status: string): Promise<Product | undefined> {
+    const product = this.products.get(id);
+    if (!product) return undefined;
+    const updated = { ...product, status: status as any, updatedAt: new Date() };
+    this.products.set(id, updated);
+    return updated;
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    this.products.delete(id);
+  }
+
+  async bulkCreateProducts(productsList: InsertProduct[]): Promise<Product[]> {
+    const created: Product[] = [];
+    for (const insertProduct of productsList) {
+      const product = await this.createProduct(insertProduct);
+      created.push(product);
+    }
+    return created;
+  }
+
+  // Reviews
+  async getProductReviews(productId: string): Promise<Review[]> {
+    return Array.from(this.reviews.values())
+      .filter(r => r.productId === productId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const review: Review = {
+      id: nanoid(),
+      ...insertReview,
+      createdAt: new Date(),
+    };
+    this.reviews.set(review.id, review);
+    return review;
+  }
+
+  // Wishlist
+  async getUserWishlist(userId: string): Promise<Wishlist[]> {
+    return Array.from(this.wishlist.values())
+      .filter(w => w.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async addToWishlist(item: InsertWishlist): Promise<Wishlist> {
+    const wishlistItem: Wishlist = {
+      id: nanoid(),
+      ...item,
+      createdAt: new Date(),
+    };
+    this.wishlist.set(wishlistItem.id, wishlistItem);
+    return wishlistItem;
+  }
+
+  async removeFromWishlist(id: string): Promise<void> {
+    this.wishlist.delete(id);
+  }
+
+  // Cart
+  async getUserCart(userId: string): Promise<Cart[]> {
+    return Array.from(this.cart.values())
+      .filter(c => c.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async addToCart(item: InsertCart): Promise<Cart> {
+    const existing = Array.from(this.cart.values()).find(c => 
+      c.userId === item.userId && c.productId === item.productId
+    );
+    
+    if (existing) {
+      const updated = { ...existing, quantity: existing.quantity + item.quantity };
+      this.cart.set(existing.id, updated);
+      return updated;
+    }
+    
+    const cartItem: Cart = {
+      id: nanoid(),
+      ...item,
+      createdAt: new Date(),
+    };
+    this.cart.set(cartItem.id, cartItem);
+    return cartItem;
+  }
+
+  async updateCartItem(id: string, quantity: number): Promise<Cart | undefined> {
+    const cartItem = this.cart.get(id);
+    if (!cartItem) return undefined;
+    const updated = { ...cartItem, quantity };
+    this.cart.set(id, updated);
+    return updated;
+  }
+
+  async removeFromCart(id: string): Promise<void> {
+    this.cart.delete(id);
+  }
+
+  async clearCart(userId: string): Promise<void> {
+    Array.from(this.cart.entries()).forEach(([id, c]) => {
+      if (c.userId === userId) this.cart.delete(id);
+    });
+  }
+
+  // Orders
+  async getOrder(id: string): Promise<Order | undefined> {
+    return this.orders.get(id);
+  }
+
+  async getUserOrders(userId: string): Promise<Order[]> {
+    return Array.from(this.orders.values())
+      .filter(o => o.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getVendorOrders(vendorId: string): Promise<Order[]> {
+    return Array.from(this.orders.values())
+      .filter(o => o.vendorId === vendorId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getAllOrders(filters?: { status?: string; limit?: number }): Promise<Order[]> {
+    let orders = Array.from(this.orders.values());
+    
+    if (filters?.status) {
+      orders = orders.filter(o => o.status === filters.status);
+    }
+    
+    orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    if (filters?.limit) {
+      orders = orders.slice(0, filters.limit);
+    }
+    
+    return orders;
+  }
+
+  async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    const order: Order = {
+      id: nanoid(),
+      ...insertOrder,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.orders.set(order.id, order);
+    return order;
+  }
+
+  async updateOrder(id: string, data: Partial<InsertOrder>): Promise<Order | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+    const updated = { ...order, ...data, updatedAt: new Date() };
+    this.orders.set(id, updated);
+    return updated;
+  }
+
+  // Order Items
+  async getOrderItems(orderId: string): Promise<OrderItem[]> {
+    return Array.from(this.orderItems.values()).filter(oi => oi.orderId === orderId);
+  }
+
+  async createOrderItem(item: InsertOrderItem): Promise<OrderItem> {
+    const orderItem: OrderItem = {
+      id: nanoid(),
+      ...item,
+      createdAt: new Date(),
+    };
+    this.orderItems.set(orderItem.id, orderItem);
+    return orderItem;
+  }
+
+  // RFQs
+  async getRfq(id: string): Promise<Rfq | undefined> {
+    return this.rfqs.get(id);
+  }
+
+  async getUserRfqs(userId: string): Promise<Rfq[]> {
+    return Array.from(this.rfqs.values())
+      .filter(r => r.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getVendorRfqs(vendorId: string): Promise<Rfq[]> {
+    return Array.from(this.rfqs.values())
+      .filter(r => r.vendorId === vendorId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createRfq(insertRfq: InsertRfq): Promise<Rfq> {
+    const rfq: Rfq = {
+      id: nanoid(),
+      ...insertRfq,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.rfqs.set(rfq.id, rfq);
+    return rfq;
+  }
+
+  async updateRfq(id: string, data: Partial<InsertRfq>): Promise<Rfq | undefined> {
+    const rfq = this.rfqs.get(id);
+    if (!rfq) return undefined;
+    const updated = { ...rfq, ...data, updatedAt: new Date() };
+    this.rfqs.set(id, updated);
+    return updated;
+  }
+
+  // Newsletter
+  async subscribeNewsletter(email: string): Promise<Newsletter> {
+    const existing = Array.from(this.newsletter.values()).find(n => n.email === email);
+    if (existing) return existing;
+    
+    const subscription: Newsletter = {
+      id: nanoid(),
+      email,
+      createdAt: new Date(),
+    };
+    this.newsletter.set(subscription.id, subscription);
+    return subscription;
+  }
+
+  // CMS
+  async getCmsSetting(key: string): Promise<CmsSetting | undefined> {
+    return Array.from(this.cmsSettings.values()).find(s => s.key === key);
+  }
+
+  async getAllCmsSettings(): Promise<CmsSetting[]> {
+    return Array.from(this.cmsSettings.values());
+  }
+
+  async upsertCmsSetting(setting: InsertCmsSetting): Promise<CmsSetting> {
+    const existing = Array.from(this.cmsSettings.values()).find(s => s.key === setting.key);
+    
+    if (existing) {
+      const updated = { ...existing, value: setting.value, updatedAt: new Date() };
+      this.cmsSettings.set(existing.id, updated);
+      return updated;
+    }
+    
+    const newSetting: CmsSetting = {
+      id: nanoid(),
+      ...setting,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.cmsSettings.set(newSetting.id, newSetting);
+    return newSetting;
+  }
+
+  // Customer Management
+  async getAllCustomers(filters?: { 
+    search?: string; 
+    role?: string;
+    isBlocked?: boolean;
+    limit?: number; 
+    offset?: number 
+  }): Promise<User[]> {
+    let users = Array.from(this.users.values());
+    
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      users = users.filter(u => 
+        u.email.toLowerCase().includes(searchLower) || 
+        (u.fullName && u.fullName.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    if (filters?.role) {
+      users = users.filter(u => u.role === filters.role);
+    }
+    
+    if (filters?.isBlocked !== undefined) {
+      users = users.filter(u => u.isBlocked === filters.isBlocked);
+    }
+    
+    users.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    if (filters?.offset) {
+      users = users.slice(filters.offset);
+    }
+    
+    if (filters?.limit) {
+      users = users.slice(0, filters.limit);
+    }
+    
+    return users;
+  }
+
+  async blockUser(id: string): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, isBlocked: true };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  async unblockUser(id: string): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, isBlocked: false };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  // Dashboard Statistics
+  async getBuyerDashboardStats(userId: string): Promise<{
+    totalOrders: number;
+    pendingOrders: number;
+    wishlistCount: number;
+    totalSpent: number;
+  }> {
+    const orders = Array.from(this.orders.values()).filter(o => o.userId === userId);
+    const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'processing');
+    const wishlistCount = Array.from(this.wishlist.values()).filter(w => w.userId === userId).length;
+    const totalSpent = orders.reduce((sum, o) => sum + parseFloat(o.totalAmount), 0);
+    
+    return {
+      totalOrders: orders.length,
+      pendingOrders: pendingOrders.length,
+      wishlistCount,
+      totalSpent,
+    };
+  }
+
+  async getVendorDashboardStats(vendorId: string): Promise<{
+    totalProducts: number;
+    activeOrders: number;
+    totalRevenue: number;
+    avgRating: number;
+  }> {
+    const products = Array.from(this.products.values()).filter(p => p.vendorId === vendorId);
+    const orders = Array.from(this.orders.values()).filter(o => o.vendorId === vendorId);
+    const activeOrders = orders.filter(o => o.status === 'pending' || o.status === 'processing' || o.status === 'shipped');
+    const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.totalAmount), 0);
+    
+    const productIds = products.map(p => p.id);
+    const reviews = Array.from(this.reviews.values()).filter(r => productIds.includes(r.productId));
+    const avgRating = reviews.length > 0 
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+      : 0;
+    
+    return {
+      totalProducts: products.length,
+      activeOrders: activeOrders.length,
+      totalRevenue,
+      avgRating,
+    };
+  }
+
+  async getAdminDashboardStats(): Promise<{
+    totalVendors: number;
+    totalOrders: number;
+    totalRevenue: number;
+    activeProducts: number;
+  }> {
+    const totalVendors = this.vendors.size;
+    const orders = Array.from(this.orders.values());
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.totalAmount), 0);
+    const activeProducts = Array.from(this.products.values()).filter(p => p.isActive).length;
+    
+    return {
+      totalVendors,
+      totalOrders,
+      totalRevenue,
+      activeProducts,
+    };
+  }
+
+  // Admin Analytics
+  async getMonthlySalesData(): Promise<Array<{ month: string; revenue: number; orders: number }>> {
+    const monthlyData = new Map<string, { revenue: number; orders: number }>();
+    
+    Array.from(this.orders.values()).forEach(order => {
+      const month = order.createdAt.toISOString().substring(0, 7);
+      const existing = monthlyData.get(month) || { revenue: 0, orders: 0 };
+      monthlyData.set(month, {
+        revenue: existing.revenue + parseFloat(order.totalAmount),
+        orders: existing.orders + 1,
+      });
+    });
+    
+    return Array.from(monthlyData.entries())
+      .map(([month, data]) => ({ month, ...data }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+  }
+
+  async getVendorPerformance(): Promise<Array<{ vendorName: string; totalSales: number; orderCount: number }>> {
+    const vendorData = new Map<string, { totalSales: number; orderCount: number }>();
+    
+    Array.from(this.orders.values()).forEach(order => {
+      const existing = vendorData.get(order.vendorId) || { totalSales: 0, orderCount: 0 };
+      vendorData.set(order.vendorId, {
+        totalSales: existing.totalSales + parseFloat(order.totalAmount),
+        orderCount: existing.orderCount + 1,
+      });
+    });
+    
+    return Array.from(vendorData.entries()).map(([vendorId, data]) => {
+      const vendor = this.vendors.get(vendorId);
+      return {
+        vendorName: vendor?.businessName || 'Unknown',
+        ...data,
+      };
+    });
+  }
+
+  async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
+    return Array.from(this.products.values())
+      .filter(p => p.stockQuantity <= threshold)
+      .sort((a, b) => a.stockQuantity - b.stockQuantity);
+  }
+
+  async getRecentOrders(limit: number = 10): Promise<Order[]> {
+    return Array.from(this.orders.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  // Session Management
+  async createSession(session: InsertUserSession): Promise<UserSession> {
+    const userSession: UserSession = {
+      id: nanoid(),
+      ...session,
+      createdAt: new Date(),
+      lastAccessedAt: new Date(),
+    };
+    this.userSessions.set(userSession.token, userSession);
+    return userSession;
+  }
+
+  async getSession(token: string): Promise<UserSession | undefined> {
+    return this.userSessions.get(token);
+  }
+
+  async updateSessionAccess(token: string): Promise<UserSession | undefined> {
+    const session = this.userSessions.get(token);
+    if (!session) return undefined;
+    const updated = { ...session, lastAccessedAt: new Date() };
+    this.userSessions.set(token, updated);
+    return updated;
+  }
+
+  async deleteSession(token: string): Promise<void> {
+    this.userSessions.delete(token);
+  }
+
+  async deleteExpiredSessions(): Promise<void> {
+    const now = new Date();
+    Array.from(this.userSessions.entries()).forEach(([token, session]) => {
+      if (session.expiresAt <= now) {
+        this.userSessions.delete(token);
+      }
+    });
+  }
+}
+
+export const storage = new MemStorage();
