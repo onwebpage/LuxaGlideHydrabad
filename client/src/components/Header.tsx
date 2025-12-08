@@ -198,6 +198,15 @@ export function Header() {
               Home
             </Link>
             <Link 
+              href="/products" 
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
+                location === '/products' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              }`}
+              data-testid="link-mobile-products-nav"
+            >
+              All Products
+            </Link>
+            <Link 
               href="/vendors" 
               className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
                 location === '/vendors' ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
