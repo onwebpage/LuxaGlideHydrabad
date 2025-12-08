@@ -1,55 +1,8 @@
-import { useRef, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, Target, Users, TrendingUp, Shield, Zap, Star, Globe, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
+import { Target, Shield, Zap, Star, Globe, Sparkles, ChevronRight, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
-
-function AnimatedCounter({ end, duration = 2 }: { end: number; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!isVisible) return;
-    
-    let startTime: number;
-    let animationFrame: number;
-
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / (duration * 1000), 1);
-      
-      setCount(Math.floor(progress * end));
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [isVisible, end, duration]);
-
-  return <div ref={ref}>{count}</div>;
-}
 
 export default function About() {
   const values = [
@@ -73,13 +26,6 @@ export default function About() {
       title: "Sustainability",
       description: "We're committed to supporting sustainable fashion practices and connecting ethical sellers with conscious shoppers."
     }
-  ];
-
-  const stats = [
-    { icon: Users, value: 500, suffix: "+", label: "Trusted Sellers" },
-    { icon: TrendingUp, value: 50, suffix: "K+", label: "Products" },
-    { icon: Award, value: 100, suffix: "K+", label: "Happy Customers" },
-    { icon: Target, value: 98, suffix: "%", label: "Satisfaction Rate" }
   ];
 
   const milestones = [
@@ -136,47 +82,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-primary/5" />
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-              Our Impact in Numbers
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Trusted by thousands across India
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="relative group">
-                <Card className="h-full hover-elevate active-elevate-2 transition-all duration-500 border-2 overflow-hidden">
-                  <CardContent className="p-8 text-center relative">
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
-                    </div>
-
-                    <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 mb-6 shadow-lg">
-                      <stat.icon className="w-10 h-10 text-primary" />
-                    </div>
-
-                    <div className="text-5xl font-serif font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                      <AnimatedCounter end={stat.value} />
-                      {stat.suffix}
-                    </div>
-
-                    <div className="text-sm text-muted-foreground uppercase tracking-widest font-medium">
-                      {stat.label}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Mission & Vision Section */}
       <section className="py-32 relative overflow-hidden">
