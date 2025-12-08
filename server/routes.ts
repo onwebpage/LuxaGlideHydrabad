@@ -2815,6 +2815,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { platform: "facebook", url: "https://facebook.com", isVisible: true },
         { platform: "instagram", url: "https://instagram.com", isVisible: true },
         { platform: "twitter", url: "https://twitter.com", isVisible: true },
+        { platform: "linkedin", url: "https://linkedin.com", isVisible: true },
+        { platform: "youtube", url: "https://youtube.com", isVisible: true },
       ],
     },
     homepageProducts: {
