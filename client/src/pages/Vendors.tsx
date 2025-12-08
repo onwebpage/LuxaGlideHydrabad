@@ -97,15 +97,15 @@ export default function Vendors() {
         </div>
       </section>
 
-      {/* Join Queen4Feel Section */}
+      {/* Join Queen4feet Section */}
       <section className="py-20 bg-primary/5">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-6">
-              Join Queen4Feel
+              Join Queen4feet
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
-              Become a part of India's leading B2B women's fashion marketplace. Connect with verified vendors and grow your business.
+              Become a part of new segment of women fashion. Connect with verified vendors and grow your business.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/register?role=vendor">
