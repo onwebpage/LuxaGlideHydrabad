@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Building, ArrowRight, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -64,7 +63,7 @@ export default function Register() {
 
       toast({
         title: "Account created!",
-        description: `Welcome to LuxeFashion as a ${activeTab}.`,
+        description: "Welcome to Queen4Feel!",
       });
       setLocation(getDashboardPath(user.role));
     } catch (error: any) {
@@ -90,7 +89,7 @@ export default function Register() {
         className="w-full max-w-2xl"
       >
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Join LuxeFashion</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Join Queen4Feel</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Create your account and start your shopping journey
           </p>
@@ -98,23 +97,13 @@ export default function Register() {
 
         <Card className="backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Create Account</CardTitle>
+            <CardTitle>Register</CardTitle>
             <CardDescription>
-              Choose your account type and fill in your details
+              Fill in your details to create an account
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="buyer" data-testid="tab-buyer">
-                  Buyer / Retailer
-                </TabsTrigger>
-                <TabsTrigger value="vendor" data-testid="tab-vendor">
-                  Vendor / Supplier
-                </TabsTrigger>
-              </TabsList>
-
-              <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Common Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -175,61 +164,24 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Business Details */}
-                <TabsContent value="buyer" className="space-y-4 mt-0">
-                  <div className="space-y-2">
-                    <Label htmlFor="businessName" className="text-xs uppercase tracking-wider">
-                      Business Name (Optional)
-                    </Label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="businessName"
-                        type="text"
-                        placeholder="Your Boutique Name"
-                        value={formData.businessName}
-                        onChange={(e) => updateFormData("businessName", e.target.value)}
-                        className="pl-10"
-                        data-testid="input-business-name"
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="vendor" className="space-y-4 mt-0">
-                  <div className="space-y-2">
-                    <Label htmlFor="businessNameVendor" className="text-xs uppercase tracking-wider">
-                      Business Name
-                    </Label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="businessNameVendor"
-                        type="text"
-                        placeholder="Your Company Name"
-                        value={formData.businessName}
-                        onChange={(e) => updateFormData("businessName", e.target.value)}
-                        className="pl-10"
-                        required
-                        data-testid="input-vendor-business-name"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="gstNumber" className="text-xs uppercase tracking-wider">
-                      GST Number (Optional)
-                    </Label>
+                {/* Business Name (Optional) */}
+                <div className="space-y-2">
+                  <Label htmlFor="businessName" className="text-xs uppercase tracking-wider">
+                    Business Name (Optional)
+                  </Label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      id="gstNumber"
+                      id="businessName"
                       type="text"
-                      placeholder="22AAAAA0000A1Z5"
-                      value={formData.gstNumber}
-                      onChange={(e) => updateFormData("gstNumber", e.target.value)}
-                      data-testid="input-gst"
+                      placeholder="Your Boutique Name"
+                      value={formData.businessName}
+                      onChange={(e) => updateFormData("businessName", e.target.value)}
+                      className="pl-10"
+                      data-testid="input-business-name"
                     />
                   </div>
-                </TabsContent>
+                </div>
 
                 {/* Password Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
@@ -283,7 +235,6 @@ export default function Register() {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </form>
-            </Tabs>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account?</span>{" "}
