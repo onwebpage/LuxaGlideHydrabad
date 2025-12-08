@@ -33,6 +33,8 @@ export const vendors = pgTable("vendors", {
   businessName: text("business_name").notNull(),
   gstNumber: text("gst_number"),
   businessAddress: text("business_address"),
+  varietiesOfModel: text("varieties_of_model"),
+  varietiesOfFabric: text("varieties_of_fabric"),
   kycStatus: kycStatusEnum("kyc_status").notNull().default("pending"),
   kycDocuments: jsonb("kyc_documents"), // Array of document URLs
   description: text("description"),

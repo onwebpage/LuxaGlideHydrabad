@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { email, password, fullName, phone, role, businessName, gstNumber } = req.body;
+      const { email, password, fullName, phone, role, businessName, gstNumber, varietiesOfModel, varietiesOfFabric } = req.body;
 
       // Validate required fields
       if (!email || !password || !fullName || !role) {
@@ -270,6 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: user.id,
           businessName: businessName || "",
           gstNumber,
+          varietiesOfModel,
+          varietiesOfFabric,
           kycStatus: "pending",
         });
       } else if (role === "buyer") {

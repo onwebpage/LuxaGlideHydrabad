@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Building, ArrowRight, Phone } from "lucide-react";
+import { Mail, Lock, User, Building, ArrowRight, Phone, Layers, Shirt } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 
@@ -27,6 +27,8 @@ export default function Register() {
     confirmPassword: "",
     businessName: "",
     gstNumber: "",
+    varietiesOfModel: "",
+    varietiesOfFabric: "",
   });
 
   const getDashboardPath = (role: string): string => {
@@ -103,6 +105,34 @@ export default function Register() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+              {/* Account Type Tabs */}
+              <div className="flex mb-6 border rounded-md overflow-hidden">
+                <button
+                  type="button"
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                    activeTab === "buyer"
+                      ? "bg-background text-foreground"
+                      : "bg-muted/50 text-muted-foreground hover-elevate"
+                  }`}
+                  onClick={() => setActiveTab("buyer")}
+                  data-testid="tab-buyer"
+                >
+                  Buyer / Retailer
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                    activeTab === "vendor"
+                      ? "bg-background text-foreground"
+                      : "bg-muted/50 text-muted-foreground hover-elevate"
+                  }`}
+                  onClick={() => setActiveTab("vendor")}
+                  data-testid="tab-vendor"
+                >
+                  Vendor / Supplier
+                </button>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Common Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
@@ -164,24 +194,83 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Business Name (Optional) */}
+                {/* Business Name */}
                 <div className="space-y-2">
                   <Label htmlFor="businessName" className="text-xs uppercase tracking-wider">
-                    Business Name (Optional)
+                    Business Name {activeTab === "buyer" ? "(Optional)" : ""}
                   </Label>
                   <div className="relative">
                     <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="businessName"
                       type="text"
-                      placeholder="Your Boutique Name"
+                      placeholder={activeTab === "vendor" ? "Your Company Name" : "Your Boutique Name"}
                       value={formData.businessName}
                       onChange={(e) => updateFormData("businessName", e.target.value)}
                       className="pl-10"
+                      required={activeTab === "vendor"}
                       data-testid="input-business-name"
                     />
                   </div>
                 </div>
+
+                {/* Vendor-specific Fields */}
+                {activeTab === "vendor" && (
+                  <>
+                    {/* GST Number */}
+                    <div className="space-y-2">
+                      <Label htmlFor="gstNumber" className="text-xs uppercase tracking-wider">
+                        GST Number (Optional)
+                      </Label>
+                      <Input
+                        id="gstNumber"
+                        type="text"
+                        placeholder="22AAAAA0000A1Z5"
+                        value={formData.gstNumber}
+                        onChange={(e) => updateFormData("gstNumber", e.target.value)}
+                        data-testid="input-gst-number"
+                      />
+                    </div>
+
+                    {/* Varieties of Model */}
+                    <div className="space-y-2">
+                      <Label htmlFor="varietiesOfModel" className="text-xs uppercase tracking-wider">
+                        Varieties of Model
+                      </Label>
+                      <div className="relative">
+                        <Layers className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="varietiesOfModel"
+                          type="text"
+                          placeholder="e.g., Sarees, Kurtis, Lehengas"
+                          value={formData.varietiesOfModel}
+                          onChange={(e) => updateFormData("varietiesOfModel", e.target.value)}
+                          className="pl-10"
+                          data-testid="input-varieties-model"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Varieties of Fabric */}
+                    <div className="space-y-2">
+                      <Label htmlFor="varietiesOfFabric" className="text-xs uppercase tracking-wider">
+                        Varieties of Fabric
+                      </Label>
+                      <div className="relative">
+                        <Shirt className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="varietiesOfFabric"
+                          type="text"
+                          placeholder="e.g., Cotton, Silk, Chiffon"
+                          value={formData.varietiesOfFabric}
+                          onChange={(e) => updateFormData("varietiesOfFabric", e.target.value)}
+                          className="pl-10"
+                          data-testid="input-varieties-fabric"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Password Fields */}
                 <div className="grid md:grid-cols-2 gap-4">
