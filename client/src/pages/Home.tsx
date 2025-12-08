@@ -852,25 +852,15 @@ export default function Home() {
             Join thousands of customers who trust us for quality fashion
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
+            <Link href="/register?role=vendor">
               <Button
                 size="lg"
                 variant="secondary"
                 className="px-10 py-6 text-lg"
-                data-testid="button-cta-register"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/register?role=vendor">
-              <Button
-                size="lg"
-                variant="outline"
-                className="px-10 py-6 text-lg border-2 border-white/30 text-white hover:bg-white/10"
                 data-testid="button-cta-vendor"
               >
                 Apply as a Vendor
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
           </div>
