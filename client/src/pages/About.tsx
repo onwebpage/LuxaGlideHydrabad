@@ -28,13 +28,6 @@ export default function About() {
     }
   ];
 
-  const milestones = [
-    { year: "2020", title: "Foundation", description: "Queen 4feet was founded with a vision to revolutionize online fashion shopping" },
-    { year: "2021", title: "Growth", description: "Expanded to 100+ sellers and launched our verified seller program" },
-    { year: "2022", title: "Innovation", description: "Introduced advanced features and a seamless shopping experience" },
-    { year: "2023", title: "Expansion", description: "Reached 500+ sellers and 100,000+ happy customers across India" },
-    { year: "2024", title: "Excellence", description: "Became India's leading multi-vendor fashion marketplace" }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/5 to-background">
@@ -177,49 +170,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Timeline Section */}
-      <section className="py-32 bg-secondary/10">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <Badge className="mb-4 px-6 py-2">Our Story</Badge>
-            <h2 className="font-serif text-5xl md:text-6xl font-bold mb-6">
-              The Journey So Far
-            </h2>
-            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-              Every milestone that brought us closer to our vision
-            </p>
-          </div>
-
-          <div className="max-w-5xl mx-auto">
-            {milestones.map((milestone, index) => (
-              <div
-                key={milestone.year}
-                className="relative pl-12 md:pl-16 pb-16 border-l-4 border-primary/20 last:pb-0 group"
-              >
-                <div className="absolute -left-[13px] md:-left-[17px] top-0 w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 border-4 border-background shadow-lg z-10" />
-
-                <div className="absolute -left-1 top-0 w-2 h-full bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <Card className="hover-elevate transition-all duration-500 border-2">
-                  <CardContent className="p-8">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                      <Badge className="bg-primary text-primary-foreground shadow-md w-fit text-base px-4 py-2">
-                        {milestone.year}
-                      </Badge>
-                      <h3 className="font-serif text-3xl font-bold">
-                        {milestone.title}
-                      </h3>
-                    </div>
-                    <p className="text-muted-foreground text-lg leading-relaxed">
-                      {milestone.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-32 relative overflow-hidden">
