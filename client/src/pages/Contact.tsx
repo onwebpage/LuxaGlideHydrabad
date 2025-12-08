@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock, MessageSquare, Send, Sparkles, CheckCircle2 } from "lucide-react";
+import { Mail, MapPin, Clock, MessageSquare, Send, Sparkles, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
@@ -25,12 +25,6 @@ export default function Contact() {
       title: "Email Us",
       detail: "support@queen4feel.com",
       description: "We'll respond within 24 hours"
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      detail: "+91 98765 43210",
-      description: "Mon-Sat, 9 AM - 6 PM IST"
     },
     {
       icon: MapPin,
