@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, MapPin, Clock, MessageSquare, Send, Sparkles, CheckCircle2 } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Send, Sparkles, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
@@ -28,15 +28,9 @@ export default function Contact() {
     },
     {
       icon: MapPin,
-      title: "Visit Us",
+      title: "Location",
       detail: "Mumbai, Maharashtra",
       description: "123 Fashion District, Andheri East"
-    },
-    {
-      icon: Clock,
-      title: "Business Hours",
-      detail: "Monday - Saturday",
-      description: "9:00 AM - 6:00 PM IST"
     }
   ];
 
