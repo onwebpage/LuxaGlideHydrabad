@@ -206,9 +206,9 @@ export default function About() {
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
-                  <Link href="/vendors">
-                    <Button size="lg" variant="outline" className="text-lg px-10 py-6" data-testid="button-vendors">
-                      Browse Vendors
+                  <Link href="/register?role=vendor">
+                    <Button size="lg" variant="outline" className="text-lg px-10 py-6" data-testid="button-apply-vendor">
+                      Apply as Vendor
                       <ChevronRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
