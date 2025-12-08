@@ -354,9 +354,6 @@ export default function Home() {
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Home &gt; Products</p>
-              <h2 className="text-xl font-medium text-foreground">
-                {products.length} results for products
-              </h2>
             </div>
             
             {/* Mobile Filter Button */}
