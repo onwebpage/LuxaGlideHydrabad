@@ -25,7 +25,7 @@ export function Header() {
   const { user, logout } = useAuth();
   const { data: cmsSettings } = useCmsSettings();
   
-  const siteName = cmsSettings?.siteMeta?.siteName || "Queen 4Feel";
+  const siteName = cmsSettings?.siteMeta?.siteName || "Queen 4feet";
   const { cartItemCount } = useCart();
   
   const isLoggedIn = !!user;

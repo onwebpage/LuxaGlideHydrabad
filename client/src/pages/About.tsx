@@ -83,7 +83,7 @@ export default function About() {
   ];
 
   const milestones = [
-    { year: "2020", title: "Foundation", description: "Queen 4Feel was founded with a vision to revolutionize online fashion shopping" },
+    { year: "2020", title: "Foundation", description: "Queen 4feet was founded with a vision to revolutionize online fashion shopping" },
     { year: "2021", title: "Growth", description: "Expanded to 100+ sellers and launched our verified seller program" },
     { year: "2022", title: "Innovation", description: "Introduced advanced features and a seamless shopping experience" },
     { year: "2023", title: "Expansion", description: "Reached 500+ sellers and 100,000+ happy customers across India" },

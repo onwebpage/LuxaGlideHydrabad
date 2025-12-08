@@ -2772,12 +2772,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Default CMS settings
   const defaultCmsSettings: AllCmsSettings = {
     siteMeta: {
-      siteName: "Queen 4Feel",
+      siteName: "Queen 4feet",
       tagline: "Your Style, Your Way",
       contactEmail: "contact@queen4feel.com",
       contactPhone: "+91 98765 43210",
       address: "Mumbai, India",
-      seoTitle: "Queen 4Feel - Shop Premium Fashion Online",
+      seoTitle: "Queen 4feet - Shop Premium Fashion Online",
       seoDescription: "Shop the latest fashion trends from multiple trusted sellers. Discover women's wear, men's fashion, ethnic wear and more with fast delivery.",
     },
     hero: {
@@ -2810,7 +2810,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       showNewsletter: true,
       newsletterTitle: "Subscribe to Our Newsletter",
       newsletterDescription: "Get the latest updates on new arrivals and exclusive offers",
-      copyrightText: "© 2024 Queen 4Feel. All rights reserved.",
+      copyrightText: "© 2024 Queen 4feet. All rights reserved.",
       socialLinks: [
         { platform: "facebook", url: "https://facebook.com", isVisible: true },
         { platform: "instagram", url: "https://instagram.com", isVisible: true },

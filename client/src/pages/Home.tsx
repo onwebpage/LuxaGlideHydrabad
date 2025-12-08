@@ -706,7 +706,7 @@ export default function Home() {
                           {/* Brand */}
                           <div className="flex items-center gap-1">
                             <Heart className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">Queen 4Feel</span>
+                            <span className="text-xs text-muted-foreground">Queen 4feet</span>
                           </div>
                           
                           {/* Product Name */}
