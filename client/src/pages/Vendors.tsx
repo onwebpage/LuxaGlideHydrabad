@@ -1,26 +1,15 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Star, MapPin, Package, Award, TrendingUp, Shield, Search, CheckCircle, Users, ArrowRight } from "lucide-react";
+import { Award, Shield, CheckCircle, Users, ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor } from "@shared/schema";
 
 export default function Vendors() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
   });
-
-  const stats = [
-    { icon: Shield, value: "500+", label: "Happy Vendors" },
-    { icon: Users, value: "10K+", label: "Happy Customers" },
-    { icon: Package, value: "50K+", label: "Products" },
-    { icon: TrendingUp, value: "98%", label: "Satisfaction" }
-  ];
 
   const benefits = [
     {
@@ -73,39 +62,10 @@ export default function Vendors() {
               </Link>
             </div>
 
-            <div className="max-w-xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search vendors by name, location, or category..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-6 text-base rounded-full border-2"
-                  data-testid="input-search-vendors"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-card">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <stat.icon className="w-8 h-8 text-primary" />
-                </div>
-                <div className="text-4xl font-serif font-semibold mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Benefits Section */}
       <section className="py-20">
