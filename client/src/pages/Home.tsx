@@ -60,7 +60,7 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0, rotation: 0 });
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
@@ -188,7 +188,8 @@ export default function Home() {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    setMousePosition({ x: (x - 0.5) * 20, y: (y - 0.5) * 20 });
+    const rotation = (x * 360) % 360;
+    setMousePosition({ x: (x - 0.5) * 20, y: (y - 0.5) * 20, rotation });
   };
 
   const fallbackCategories = [
@@ -276,7 +277,7 @@ export default function Home() {
           {/* Parallax Outfit Image */}
           <motion.div
             className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12"
-            animate={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5 }}
+            animate={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5, rotate: mousePosition.rotation }}
             transition={{ type: "spring", stiffness: 100, damping: 30 }}
             data-testid="parallax-outfit-image"
           >
