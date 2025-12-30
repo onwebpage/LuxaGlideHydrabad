@@ -21,6 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+import { FaFacebook, FaTwitter, FaInstagram, FaPinterest } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -251,55 +252,119 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner with Parallax Outfit */}
+      {/* Hero Banner - New Arrivals Collection */}
       <section 
-        className="relative h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-between overflow-hidden"
-        onMouseMove={handleMouseMove}
+        className="relative h-[400px] sm:h-[450px] md:h-[520px] lg:h-[600px] flex items-center overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
         data-testid="section-hero-with-outfit"
-        style={{ perspective: "1200px" }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+        {/* Background decorative shapes */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-80 h-80 bg-amber-200 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-200 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full">
-          <div className="max-w-xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Feel Like a Queen, Every Day
-            </h1>
-            <p className="text-white/95 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
-              Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Curated styles for the modern woman.
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full h-full">
+          {/* Left Content */}
+          <div className="w-1/2 flex flex-col justify-center">
+            <div className="mb-8">
+              <p className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl md:text-2xl font-semibold mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                Just New
+              </p>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-black dark:text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                Arrivals
+              </h1>
+            </div>
+
+            {/* Avatar Group */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex -space-x-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-white text-sm font-bold border-2 border-white dark:border-gray-900"
+                    data-testid={`avatar-${i}`}
+                  >
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 ml-2">
+                800+ Individuals who have trusted sustainability needs.
+              </p>
+            </div>
+
+            {/* Description */}
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 max-w-sm leading-relaxed mb-8">
+              Discover our New Arrivals Collection — where timeless elegance meets modern trends. Each dress is designed to celebrate your effortless beauty.
             </p>
+
+            {/* Shop Now Button */}
+            <Button 
+              className="w-fit bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-full text-sm sm:text-base"
+              data-testid="button-shop-now"
+            >
+              SHOP NOW
+            </Button>
           </div>
 
-          {/* Parallax 3D Outfit Image */}
-          <motion.div
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 items-center pr-0 lg:pr-0 cursor-pointer"
-            animate={{ 
-              rotateX: mousePosition.y * -0.3,
-              rotateY: mousePosition.x * 0.3,
-              scale: isHoveringOutfit ? 1.08 : 1,
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 30 }}
-            data-testid="parallax-outfit-image"
-            onHoverStart={() => setIsHoveringOutfit(true)}
-            onHoverEnd={() => setIsHoveringOutfit(false)}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            <motion.img 
-              src={outfitImage}
-              alt="Featured Outfit"
-              className="h-[120%] w-auto object-contain drop-shadow-2xl"
+          {/* Right Content - Images and Collection Text */}
+          <div className="w-1/2 relative h-full flex items-center justify-center">
+            {/* Main Image */}
+            <motion.div
+              className="absolute right-0 top-1/2 -translate-y-1/2 h-[90%] flex items-center cursor-pointer"
               animate={{ 
-                filter: isHoveringOutfit ? "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))" : "drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2))"
+                rotateX: mousePosition.y * -0.2,
+                rotateY: mousePosition.x * 0.2,
+                scale: isHoveringOutfit ? 1.05 : 1,
               }}
               transition={{ type: "spring", stiffness: 200, damping: 30 }}
+              data-testid="parallax-outfit-image"
+              onHoverStart={() => setIsHoveringOutfit(true)}
+              onHoverEnd={() => setIsHoveringOutfit(false)}
               style={{ transformStyle: "preserve-3d" }}
-            />
-          </motion.div>
+            >
+              <motion.img 
+                src={outfitImage}
+                alt="Featured Outfit"
+                className="h-full w-auto object-contain drop-shadow-2xl"
+                animate={{ 
+                  filter: isHoveringOutfit ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2))" : "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1))"
+                }}
+                transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                style={{ transformStyle: "preserve-3d" }}
+              />
+            </motion.div>
+
+            {/* Collection Text Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-black dark:text-white opacity-80 text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                Collection
+              </h2>
+            </div>
+
+            {/* Right Side Text Box */}
+            <div className="absolute right-0 top-8 sm:top-12 md:top-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 max-w-xs">
+              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-200 leading-relaxed">
+                Shop stunning dresses online or in-store, elegance meets comfort every day.
+              </p>
+            </div>
+
+            {/* Social Icons */}
+            <div className="absolute right-0 bottom-8 flex gap-4">
+              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-facebook">
+                <FaFacebook size={18} />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-twitter">
+                <FaTwitter size={18} />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-instagram">
+                <FaInstagram size={18} />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-pinterest">
+                <FaPinterest size={18} />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
