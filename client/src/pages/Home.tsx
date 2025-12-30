@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -294,7 +294,31 @@ export default function Home() {
                   )}
                 </div>
 
-                <Accordion type="multiple" defaultValue={["brand", "price"]} className="w-full">
+                <Accordion type="multiple" defaultValue={["brand", "price", "features"]} className="w-full">
+                  <AccordionItem value="features" className="border-none">
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <span className="text-sm font-semibold">Our Features</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-1 pb-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                          <Zap className="w-4 h-4 text-primary" />
+                          <div>
+                            <p className="text-xs font-bold">Premium Quality</p>
+                            <p className="text-[10px] text-muted-foreground">Handpicked luxury items</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                          <Package className="w-4 h-4 text-primary" />
+                          <div>
+                            <p className="text-xs font-bold">Bulk Pricing</p>
+                            <p className="text-[10px] text-muted-foreground">Best rates for wholesale</p>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
                   <AccordionItem value="brand" className="border-none">
                     <AccordionTrigger className="hover:no-underline py-4">
                       <span className="text-sm font-semibold">Brand</span>
