@@ -2,12 +2,21 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
@@ -36,6 +45,11 @@ const defaultCategoryImages: Record<string, string> = {
 };
 
 export default function Home() {
+  const [sortBy, setSortBy] = useState("popular");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [brandSearch, setBrandSearch] = useState("");
+
   const { data: homepageProductsData, isLoading: productsLoading } = useQuery<{
     sectionTitle: string;
     products: Product[];
@@ -68,6 +82,29 @@ export default function Home() {
       rating: parseFloat(product.rating || '0'),
     }));
   }, [homepageProductsData?.products]);
+
+  const filteredProducts = useMemo(() => {
+    let result = products.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    
+    if (brandSearch) {
+      result = result.filter(p => p.name.toLowerCase().includes(brandSearch.toLowerCase()));
+    }
+
+    switch (sortBy) {
+      case "price-low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "rating":
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      default:
+        break;
+    }
+    return result;
+  }, [products, priceRange, brandSearch, sortBy]);
 
   const fallbackCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
@@ -192,28 +229,151 @@ export default function Home() {
 
       <section className="py-12 bg-background">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="mb-8 flex justify-between items-end">
-            <div>
-              <h2 className="text-3xl font-serif font-bold">Products For You</h2>
-              <p className="text-muted-foreground mt-2">Curated selection from our top vendors</p>
-            </div>
-            <Link href="/products">
-              <Button variant="ghost" className="text-primary">
-                View All <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+             <div className="flex items-center gap-2 text-sm text-muted-foreground">
+               <Link href="/">Home</Link>
+               <span>&gt;</span>
+               <span>Products</span>
+             </div>
+             <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
+                >
+                  <LayoutGrid className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
+             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {productsLoading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-[250/325] rounded-xl" />
-              ))
-            ) : (
-              products.slice(0, 10).map((product) => (
-                <ProductCard key={product.id} product={product as any} />
-              ))
-            )}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Left Sidebar Filter */}
+            <aside className="w-full lg:w-64 flex-shrink-0">
+              <div className="sticky top-24 space-y-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold">Filter</h3>
+                  <button className="text-xs text-muted-foreground hover:text-primary font-medium">Advanced</button>
+                </div>
+
+                {/* Brand Filter */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between group cursor-pointer">
+                    <h4 className="font-semibold text-sm">Brand</h4>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search brand..." 
+                      className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
+                      value={brandSearch}
+                      onChange={(e) => setBrandSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Price Filter */}
+                <div className="space-y-6 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-sm">Price</h4>
+                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  
+                  <div className="px-2">
+                    <Slider
+                      min={0}
+                      max={50000}
+                      step={500}
+                      value={priceRange}
+                      onValueChange={(val) => setPriceRange(val as [number, number])}
+                      className="[&_[role=slider]]:bg-orange-500 [&_[role=slider]]:border-white [&_.bg-primary]:bg-orange-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                    <span>₹0</span>
+                    <span>₹50,000</span>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Input 
+                        type="number"
+                        value={priceRange[0]}
+                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                        className="bg-muted/30 border-none text-center h-10 text-sm"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input 
+                        type="number"
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                        className="bg-muted/30 border-none text-center h-10 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Right Side Content */}
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                  <h2 className="text-2xl font-serif font-bold">Products For You</h2>
+                  <p className="text-sm text-muted-foreground">Showing {filteredProducts.length} results</p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Sort by:</span>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-[140px] border-none bg-transparent font-bold h-auto p-0 focus:ring-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popular">Popular</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                {productsLoading ? (
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-[250/325] rounded-xl" />
+                  ))
+                ) : filteredProducts.length === 0 ? (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
+                    <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                    <p className="text-muted-foreground">No products match your filters</p>
+                    <Button variant="link" onClick={() => { setPriceRange([0, 50000]); setBrandSearch(""); }}>Clear all filters</Button>
+                  </div>
+                ) : (
+                  filteredProducts.slice(0, 12).map((product) => (
+                    <ProductCard key={product.id} product={product as any} />
+                  ))
+                )}
+              </div>
+              
+              {filteredProducts.length > 0 && (
+                <div className="text-center mt-12">
+                  <Link href="/products">
+                    <Button variant="outline" size="lg" className="rounded-full px-8">
+                      View All Products <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
