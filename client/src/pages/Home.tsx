@@ -26,7 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_interior.png";
-import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125626200.png";
+import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_(1)_1767125824209.png";
 import outfitImage from "@assets/imagephoto-removebg-preview_(1)_1767123075447.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
@@ -266,10 +266,10 @@ export default function Home() {
         {/* Dark overlay to improve text contrast */}
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full h-full">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           {/* Left Content */}
-          <div className="w-1/2 flex flex-col justify-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-black dark:text-white leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <div className="max-w-lg flex flex-col justify-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
 
@@ -286,13 +286,13 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 ml-2">
+              <p className="text-xs sm:text-sm text-white ml-2">
                 800+ verified vendors trusted by customers.
               </p>
             </div>
 
             {/* Description */}
-            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 max-w-sm leading-relaxed mb-8">
+            <p className="text-sm sm:text-base text-white max-w-sm leading-relaxed mb-8">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Shop from a curated collection where elegance meets affordability.
             </p>
 
@@ -303,42 +303,6 @@ export default function Home() {
             >
               SHOP NOW
             </Button>
-          </div>
-
-          {/* Right Content - Images and Collection Text */}
-          <div className="w-1/2 relative h-full flex items-center justify-center overflow-hidden">
-            {/* Main Image */}
-            <motion.div
-              className="relative h-full flex items-center justify-end cursor-pointer"
-              animate={{ 
-                rotateX: mousePosition.y * -0.2,
-                rotateY: mousePosition.x * 0.2,
-                scale: isHoveringOutfit ? 1.05 : 1,
-              }}
-              transition={{ type: "spring", stiffness: 200, damping: 30 }}
-              data-testid="parallax-outfit-image"
-              onHoverStart={() => setIsHoveringOutfit(true)}
-              onHoverEnd={() => setIsHoveringOutfit(false)}
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <motion.img 
-                src={outfitImage}
-                alt="Featured Outfit"
-                className="h-full w-auto object-contain drop-shadow-2xl"
-                animate={{ 
-                  filter: isHoveringOutfit ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2))" : "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1))"
-                }}
-                transition={{ type: "spring", stiffness: 200, damping: 30 }}
-                style={{ transformStyle: "preserve-3d" }}
-              />
-            </motion.div>
-
-            {/* Right Side Text Box */}
-            <div className="absolute right-0 top-8 sm:top-12 md:top-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 max-w-xs">
-              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-200 leading-relaxed">
-                Shop stunning dresses online or in-store, elegance meets comfort every day.
-              </p>
-            </div>
           </div>
         </div>
       </section>
