@@ -429,9 +429,9 @@ export default function Home() {
               <Sparkles className="w-5 h-5 text-primary" />
               <h2 className="text-2xl font-serif font-bold">Recommended For You</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               {recommendations.map((product) => (
-                <div key={product.id} className="scale-90 origin-top">
+                <div key={product.id} className="scale-[0.85] origin-top -mb-4">
                   <ProductCard product={product as any} />
                 </div>
               ))}
