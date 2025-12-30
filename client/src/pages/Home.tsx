@@ -305,7 +305,7 @@ export default function Home() {
           <div className="w-1/2 relative h-full flex items-center justify-center">
             {/* Main Image */}
             <motion.div
-              className="absolute right-0 top-1/2 -translate-y-1/2 h-[90%] flex items-center cursor-pointer"
+              className="absolute right-0 inset-y-0 flex items-center cursor-pointer"
               animate={{ 
                 rotateX: mousePosition.y * -0.2,
                 rotateY: mousePosition.x * 0.2,
