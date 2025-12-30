@@ -21,7 +21,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
-import { FaFacebook, FaTwitter, FaInstagram, FaPinterest } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -266,14 +265,9 @@ export default function Home() {
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full h-full">
           {/* Left Content */}
           <div className="w-1/2 flex flex-col justify-center">
-            <div className="mb-8">
-              <p className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl md:text-2xl font-semibold mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                Just New
-              </p>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-black dark:text-white leading-none mb-6" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                Arrivals
-              </h1>
-            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-black dark:text-white leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Feel Like a Queen, Every Day
+            </h1>
 
             {/* Avatar Group */}
             <div className="flex items-center gap-2 mb-6">
@@ -289,13 +283,13 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 ml-2">
-                800+ Individuals who have trusted sustainability needs.
+                800+ verified vendors trusted by customers.
               </p>
             </div>
 
             {/* Description */}
             <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 max-w-sm leading-relaxed mb-8">
-              Discover our New Arrivals Collection — where timeless elegance meets modern trends. Each dress is designed to celebrate your effortless beauty.
+              Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Shop from a curated collection where elegance meets affordability.
             </p>
 
             {/* Shop Now Button */}
@@ -335,34 +329,11 @@ export default function Home() {
               />
             </motion.div>
 
-            {/* Collection Text Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-black dark:text-white opacity-80 text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                Collection
-              </h2>
-            </div>
-
             {/* Right Side Text Box */}
             <div className="absolute right-0 top-8 sm:top-12 md:top-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 sm:p-6 max-w-xs">
               <p className="text-sm sm:text-base text-gray-700 dark:text-gray-200 leading-relaxed">
                 Shop stunning dresses online or in-store, elegance meets comfort every day.
               </p>
-            </div>
-
-            {/* Social Icons */}
-            <div className="absolute right-0 bottom-8 flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-facebook">
-                <FaFacebook size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-twitter">
-                <FaTwitter size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-instagram">
-                <FaInstagram size={18} />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-amber-400 hover:bg-amber-500 flex items-center justify-center text-white transition-colors" data-testid="social-pinterest">
-                <FaPinterest size={18} />
-              </a>
             </div>
           </div>
         </div>
