@@ -254,12 +254,11 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Banner - New Arrivals Collection */}
       <section 
-        className="relative h-screen max-h-[700px] flex items-center overflow-hidden"
+        className="relative min-h-[500px] h-[70vh] flex items-center overflow-hidden"
         style={{
           backgroundImage: `url(${bannerImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
         }}
         data-testid="section-hero-with-outfit"
       >
