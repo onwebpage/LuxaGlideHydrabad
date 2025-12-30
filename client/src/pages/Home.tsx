@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -11,12 +11,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -56,6 +66,31 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [brandSearch, setBrandSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
+  const [selectedFabrics, setSelectedFabrics] = useState<string[]>([]);
+
+  const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+  const occasions = ["Casual", "Formal", "Party Wear", "Wedding", "Festive"];
+  const fabrics = ["Cotton", "Silk", "Chiffon", "Georgette", "Linen", "Velvet"];
+
+  const toggleFilter = (list: string[], setList: (val: string[]) => void, item: string) => {
+    if (list.includes(item)) {
+      setList(list.filter(i => i !== item));
+    } else {
+      setList([...list, item]);
+    }
+  };
+
+  const clearFilters = () => {
+    setBrandSearch("");
+    setPriceRange([0, 50000]);
+    setSelectedCategory("all");
+    setSelectedSizes([]);
+    setSelectedOccasions([]);
+    setSelectedFabrics([]);
+  };
 
   const { data: homepageProductsData, isLoading: productsLoading } = useQuery<{
     sectionTitle: string;
@@ -96,6 +131,17 @@ export default function Home() {
     if (brandSearch) {
       result = result.filter(p => p.name.toLowerCase().includes(brandSearch.toLowerCase()));
     }
+
+    if (selectedCategory !== "all") {
+      const catId = apiCategories?.find(c => c.slug === selectedCategory)?.id;
+      if (catId) {
+        result = result.filter(p => p.categoryId === catId);
+      }
+    }
+
+    // Mock filtering for size, occasion, fabric as they might not be in the product schema yet
+    // or we can just filter if they match the name for demo purposes if properties don't exist
+    // In a real app, these would be columns in the products table.
 
     switch (sortBy) {
       case "price-low":
@@ -141,6 +187,195 @@ export default function Home() {
     { name: "Rajesh Kumar", role: "Happy Customer, Mumbai", content: "Great variety of products from different sellers. Excellent customer service.", rating: 5 },
     { name: "Anjali Patel", role: "Fashion Enthusiast", content: "Finally found a marketplace with trendy styles at affordable prices.", rating: 5 },
   ];
+
+  const FilterContent = ({ isMobile = false }) => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4" />
+          <h3 className="text-lg font-bold">Filters</h3>
+        </div>
+        {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedOccasions.length > 0 || selectedFabrics.length > 0) && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={clearFilters}
+            className="h-8 px-2 text-xs text-muted-foreground hover:text-primary"
+          >
+            Clear All
+          </Button>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {brandSearch && (
+          <Badge variant="secondary" className="gap-1 px-2 py-1">
+            Brand: {brandSearch}
+            <X className="w-3 h-3 cursor-pointer" onClick={() => setBrandSearch("")} />
+          </Badge>
+        )}
+        {selectedCategory !== "all" && (
+          <Badge variant="secondary" className="gap-1 px-2 py-1">
+            Category: {selectedCategory}
+            <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
+          </Badge>
+        )}
+        {(priceRange[0] > 0 || priceRange[1] < 50000) && (
+          <Badge variant="secondary" className="gap-1 px-2 py-1">
+            ₹{priceRange[0]} - ₹{priceRange[1]}
+            <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 50000])} />
+          </Badge>
+        )}
+      </div>
+
+      <Accordion type="multiple" defaultValue={["category", "price", "brand", "size"]} className="w-full">
+        <AccordionItem value="category" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Category</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="bg-muted/30 border-none">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {apiCategories?.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="price" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Price Range</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <div className="space-y-6">
+              <div className="px-2">
+                <Slider
+                  min={0}
+                  max={50000}
+                  step={500}
+                  value={priceRange}
+                  onValueChange={(val) => setPriceRange(val as [number, number])}
+                  className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
+                />
+              </div>
+              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <span>₹0</span>
+                <span>₹50,000</span>
+              </div>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                  <Input 
+                    type="number"
+                    value={priceRange[0]}
+                    onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                    className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                  />
+                </div>
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                  <Input 
+                    type="number"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                    className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="brand" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Brand</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search brand..." 
+                className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
+                value={brandSearch}
+                onChange={(e) => setBrandSearch(e.target.value)}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="size" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Size</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <div className="grid grid-cols-3 gap-2">
+              {sizes.map((size) => (
+                <Button
+                  key={size}
+                  variant={selectedSizes.includes(size) ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-9"
+                  onClick={() => toggleFilter(selectedSizes, setSelectedSizes, size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="occasion" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Occasion</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <div className="space-y-2">
+              {occasions.map((occasion) => (
+                <div key={occasion} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`occasion-${occasion}`} 
+                    checked={selectedOccasions.includes(occasion)}
+                    onCheckedChange={() => toggleFilter(selectedOccasions, setSelectedOccasions, occasion)}
+                  />
+                  <label htmlFor={`occasion-${occasion}`} className="text-sm font-medium leading-none cursor-pointer">
+                    {occasion}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="fabric" className="border-none">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <span className="text-sm font-semibold">Fabric</span>
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 pb-4">
+            <div className="space-y-2">
+              {fabrics.map((fabric) => (
+                <div key={fabric} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`fabric-${fabric}`} 
+                    checked={selectedFabrics.includes(fabric)}
+                    onCheckedChange={() => toggleFilter(selectedFabrics, setSelectedFabrics, fabric)}
+                  />
+                  <label htmlFor={`fabric-${fabric}`} className="text-sm font-medium leading-none cursor-pointer">
+                    {fabric}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
 
   return (
     <div className="min-h-screen">
@@ -242,146 +477,49 @@ export default function Home() {
                <span>&gt;</span>
                <span>Products</span>
              </div>
-             <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
-                >
-                  <LayoutGrid className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
+             <div className="flex items-center gap-4">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="lg:hidden gap-2">
+                      <Filter className="w-4 h-4" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-full sm:max-w-md p-6 overflow-y-auto">
+                    <SheetHeader className="mb-6">
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <FilterContent isMobile />
+                    <SheetFooter className="mt-8 border-t pt-6">
+                      <SheetClose asChild>
+                        <Button className="w-full">Show Results</Button>
+                      </SheetClose>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
+                  >
+                    <LayoutGrid className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-muted shadow-sm border' : 'text-muted-foreground hover:bg-muted/50'}`}
+                  >
+                    <List className="w-5 h-5" />
+                  </button>
+                </div>
              </div>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Sidebar Filter */}
-            <aside className="w-full lg:w-72 flex-shrink-0">
-              <div className="sticky top-24 space-y-6">
-                <div className="flex items-center justify-between pb-4 border-b">
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <h3 className="text-lg font-bold">Filters</h3>
-                  </div>
-                  {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000) && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => { setBrandSearch(""); setPriceRange([0, 50000]); }}
-                      className="h-8 px-2 text-xs text-muted-foreground hover:text-primary"
-                    >
-                      Clear All
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {brandSearch && (
-                    <Badge variant="secondary" className="gap-1 px-2 py-1">
-                      Brand: {brandSearch}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => setBrandSearch("")} />
-                    </Badge>
-                  )}
-                  {(priceRange[0] > 0 || priceRange[1] < 50000) && (
-                    <Badge variant="secondary" className="gap-1 px-2 py-1">
-                      ₹{priceRange[0]} - ₹{priceRange[1]}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 50000])} />
-                    </Badge>
-                  )}
-                </div>
-
-                <Accordion type="multiple" defaultValue={["brand", "price", "features"]} className="w-full">
-                  <AccordionItem value="features" className="border-none">
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <span className="text-sm font-semibold">Our Features</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-1 pb-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                          <Zap className="w-4 h-4 text-primary" />
-                          <div>
-                            <p className="text-xs font-bold">Premium Quality</p>
-                            <p className="text-[10px] text-muted-foreground">Handpicked luxury items</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                          <Package className="w-4 h-4 text-primary" />
-                          <div>
-                            <p className="text-xs font-bold">Bulk Pricing</p>
-                            <p className="text-[10px] text-muted-foreground">Best rates for wholesale</p>
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="brand" className="border-none">
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <span className="text-sm font-semibold">Brand</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-1 pb-4">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Search brand..." 
-                          className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
-                          value={brandSearch}
-                          onChange={(e) => setBrandSearch(e.target.value)}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="price" className="border-none">
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <span className="text-sm font-semibold">Price Range</span>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-1 pb-4">
-                      <div className="space-y-6">
-                        <div className="px-2">
-                          <Slider
-                            min={0}
-                            max={50000}
-                            step={500}
-                            value={priceRange}
-                            onValueChange={(val) => setPriceRange(val as [number, number])}
-                            className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                          <span>₹0</span>
-                          <span>₹50,000</span>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                            <Input 
-                              type="number"
-                              value={priceRange[0]}
-                              onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                              className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                            />
-                          </div>
-                          <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                            <Input 
-                              type="number"
-                              value={priceRange[1]}
-                              onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
-                              className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+            <aside className="hidden lg:block w-full lg:w-72 flex-shrink-0">
+              <div className="sticky top-24">
+                <FilterContent />
               </div>
             </aside>
 
