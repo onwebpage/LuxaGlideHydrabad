@@ -278,11 +278,12 @@ export default function Home() {
           <motion.div
             className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12 cursor-pointer"
             animate={{ 
-              x: mousePosition.x * 0.5, 
-              y: mousePosition.y * 0.5,
+              x: mousePosition.x * 1.5, 
+              y: mousePosition.y * 1.2,
+              z: isHoveringOutfit ? 50 : 0,
               scale: isHoveringOutfit ? 1.08 : 1,
             }}
-            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+            transition={{ type: "spring", stiffness: 150, damping: 25 }}
             data-testid="parallax-outfit-image"
             onHoverStart={() => setIsHoveringOutfit(true)}
             onHoverEnd={() => setIsHoveringOutfit(false)}
@@ -294,7 +295,7 @@ export default function Home() {
               animate={{ 
                 filter: isHoveringOutfit ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3))" : "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15))"
               }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              transition={{ type: "spring", stiffness: 150, damping: 25 }}
             />
           </motion.div>
         </div>
