@@ -26,6 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_interior.png";
+import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125626200.png";
 import outfitImage from "@assets/imagephoto-removebg-preview_(1)_1767123075447.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
@@ -253,14 +254,17 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Banner - New Arrivals Collection */}
       <section 
-        className="relative h-screen max-h-[700px] flex items-center overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+        className="relative h-screen max-h-[700px] flex items-center overflow-hidden"
+        style={{
+          backgroundImage: `url(${bannerImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
         data-testid="section-hero-with-outfit"
       >
-        {/* Background decorative shapes */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-amber-200 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-200 rounded-full blur-3xl"></div>
-        </div>
+        {/* Dark overlay to improve text contrast */}
+        <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full h-full">
           {/* Left Content */}
