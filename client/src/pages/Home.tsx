@@ -250,27 +250,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Parallax Outfit Section */}
+      {/* Hero Banner with Parallax Outfit */}
       <section 
-        className="relative h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center bg-gradient-to-b from-gray-100 dark:from-gray-900 to-background overflow-hidden"
+        className="relative h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-between overflow-hidden"
         onMouseMove={handleMouseMove}
-        data-testid="section-parallax-outfit"
+        data-testid="section-hero-with-outfit"
       >
-        <motion.div
-          className="relative w-full h-full flex items-center justify-center"
-          animate={{ x: mousePosition.x, y: mousePosition.y }}
-          transition={{ type: "spring", stiffness: 100, damping: 30 }}
-        >
-          <img 
-            src={outfitImage}
-            alt="Featured Outfit"
-            className="h-full w-auto object-contain max-w-full"
-          />
-        </motion.div>
-      </section>
-
-      {/* Hero Banner */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[500px] lg:h-[600px] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -278,8 +263,8 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-center">
-          <div className="max-w-2xl text-center">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full">
+          <div className="max-w-xl">
             <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-4 md:mb-6">
               Feel Like a Queen, Every Day
             </h1>
@@ -287,6 +272,20 @@ export default function Home() {
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Curated styles for the modern woman.
             </p>
           </div>
+
+          {/* Parallax Outfit Image */}
+          <motion.div
+            className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12"
+            animate={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5 }}
+            transition={{ type: "spring", stiffness: 100, damping: 30 }}
+            data-testid="parallax-outfit-image"
+          >
+            <img 
+              src={outfitImage}
+              alt="Featured Outfit"
+              className="h-full w-auto object-contain"
+            />
+          </motion.div>
         </div>
       </section>
 
