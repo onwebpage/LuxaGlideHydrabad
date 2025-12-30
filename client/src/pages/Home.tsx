@@ -256,6 +256,7 @@ export default function Home() {
         className="relative h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-between overflow-hidden"
         onMouseMove={handleMouseMove}
         data-testid="section-hero-with-outfit"
+        style={{ perspective: "1200px" }}
       >
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -274,28 +275,29 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Parallax Outfit Image */}
+          {/* Parallax 3D Outfit Image */}
           <motion.div
             className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12 cursor-pointer"
             animate={{ 
-              x: mousePosition.x * 1.5, 
-              y: mousePosition.y * 1.2,
-              z: isHoveringOutfit ? 50 : 0,
+              rotateX: mousePosition.y * -0.3,
+              rotateY: mousePosition.x * 0.3,
               scale: isHoveringOutfit ? 1.08 : 1,
             }}
-            transition={{ type: "spring", stiffness: 150, damping: 25 }}
+            transition={{ type: "spring", stiffness: 200, damping: 30 }}
             data-testid="parallax-outfit-image"
             onHoverStart={() => setIsHoveringOutfit(true)}
             onHoverEnd={() => setIsHoveringOutfit(false)}
+            style={{ transformStyle: "preserve-3d" }}
           >
             <motion.img 
               src={outfitImage}
               alt="Featured Outfit"
-              className="h-full w-auto object-contain drop-shadow-xl"
+              className="h-full w-auto object-contain drop-shadow-2xl"
               animate={{ 
-                filter: isHoveringOutfit ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3))" : "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15))"
+                filter: isHoveringOutfit ? "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))" : "drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2))"
               }}
-              transition={{ type: "spring", stiffness: 150, damping: 25 }}
+              transition={{ type: "spring", stiffness: 200, damping: 30 }}
+              style={{ transformStyle: "preserve-3d" }}
             />
           </motion.div>
         </div>
