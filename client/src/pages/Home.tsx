@@ -277,7 +277,7 @@ export default function Home() {
 
           {/* Parallax 3D Outfit Image */}
           <motion.div
-            className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12 cursor-pointer"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 items-center pr-0 lg:pr-0 cursor-pointer"
             animate={{ 
               rotateX: mousePosition.y * -0.3,
               rotateY: mousePosition.x * 0.3,
@@ -292,7 +292,7 @@ export default function Home() {
             <motion.img 
               src={outfitImage}
               alt="Featured Outfit"
-              className="h-full w-auto object-contain drop-shadow-2xl"
+              className="h-[120%] w-auto object-contain drop-shadow-2xl"
               animate={{ 
                 filter: isHoveringOutfit ? "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))" : "drop-shadow(0 15px 30px rgba(0, 0, 0, 0.2))"
               }}
