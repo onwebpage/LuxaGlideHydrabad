@@ -267,7 +267,7 @@ export default function Home() {
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-between w-full">
           <div className="max-w-xl">
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-4 md:mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 md:mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
             <p className="text-white/95 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
