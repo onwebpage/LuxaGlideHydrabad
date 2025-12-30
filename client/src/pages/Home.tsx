@@ -74,7 +74,7 @@ export default function Home() {
 
   const dynamicShopCategories = useMemo(() => {
     if (!apiCategories || apiCategories.length === 0) return [];
-    return apiCategories.slice(0, 12).map((cat: Category) => ({
+    return apiCategories.slice(0, 12).map((cat: any) => ({
       name: cat.name.toUpperCase(),
       image: cat.image || defaultCategoryImages[cat.slug] || suitImage,
       slug: cat.slug,
@@ -191,7 +191,7 @@ export default function Home() {
                     />
                   </div>
                   <span className="text-xs sm:text-sm md:text-base text-center text-foreground font-medium leading-tight">
-                    {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+                    {category.name.split(' ').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
               </Link>
@@ -394,7 +394,7 @@ export default function Home() {
                   <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
                     <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
                     <p className="text-muted-foreground">No products match your filters</p>
-                    <Button variant="link" onClick={() => { setPriceRange([0, 50000]); setBrandSearch(""); }}>Clear all filters</Button>
+                    <Button variant="ghost" onClick={() => { setPriceRange([0, 50000]); setBrandSearch(""); }}>Clear all filters</Button>
                   </div>
                 ) : (
                   filteredProducts.slice(0, 12).map((product) => (
