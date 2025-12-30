@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ShoppingAssistant } from "@/components/ShoppingAssistant";
 import { AuthProvider } from "./lib/auth-context";
 import { ThemeProvider } from "./lib/theme-context";
 
@@ -74,6 +75,7 @@ function AppContent() {
       {/* Spacer for fixed header on mobile - header height is approximately 160px on mobile */}
       {!isAuthPage && <div className="h-40 md:hidden" />}
       <Router />
+      {!isAuthPage && <ShoppingAssistant />}
       {!isAuthPage && <Footer />}
       <Toaster />
     </TooltipProvider>

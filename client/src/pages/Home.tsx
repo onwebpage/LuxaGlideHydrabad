@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter, Sparkles } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -377,6 +377,14 @@ export default function Home() {
     </div>
   );
 
+  const { data: recommendations } = useQuery<Product[]>({
+    queryKey: ['/api/ai/recommendations'],
+    queryFn: async () => {
+      const res = await fetch('/api/ai/recommendations');
+      return res.json();
+    }
+  });
+
   return (
     <div className="min-h-screen">
       <section 
@@ -390,7 +398,11 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
-          <div className="max-w-lg flex flex-col justify-center text-white">
+          <div className="max-w-lg flex flex-col justify-center text-white text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 w-fit">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">AI-Powered Fashion</span>
+            </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
@@ -403,13 +415,28 @@ export default function Home() {
               data-testid="button-shop-now"
             >
               SHOP NOW
-              <svg className="ml-2 w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm4.28 10.28a.75.75 0 000-1.06l-3-3a.75.75 0 10-1.06 1.06l1.72 1.72H8.25a.75.75 0 000 1.5h5.69l-1.72 1.72a.75.75 0 101.06 1.06l3-3z" clipRule="evenodd" />
-              </svg>
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
         </div>
       </section>
+
+      {/* AI Recommendations Section */}
+      {recommendations && recommendations.length > 0 && (
+        <section className="py-12 bg-primary/5">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-2 mb-8">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-serif font-bold">Recommended For You</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {recommendations.map((product) => (
+                <ProductCard key={product.id} product={product as any} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Quick Category Icons */}
       <section className="py-4 sm:py-6 md:py-8 bg-background">

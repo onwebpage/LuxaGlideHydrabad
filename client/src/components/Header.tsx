@@ -1,5 +1,7 @@
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck, MessageSquare, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
@@ -31,15 +31,16 @@ export function Header() {
   const { cartItemCount } = useCart();
   const isLoggedIn = !!user;
   
+  // AI Smart Search logic
   const { data: suggestions = [] } = useQuery<Product[]>({
-    queryKey: ['/api/products', { search: searchQuery }],
+    queryKey: ['/api/ai/search', searchQuery],
     queryFn: async () => {
-      if (!searchQuery.trim() || searchQuery.length < 2) return [];
-      const response = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`);
+      if (!searchQuery.trim() || searchQuery.length < 3) return [];
+      const response = await fetch(`/api/ai/search?q=${encodeURIComponent(searchQuery.trim())}`);
       if (!response.ok) throw new Error('Failed to fetch suggestions');
       return response.json();
     },
-    enabled: searchQuery.length >= 2,
+    enabled: searchQuery.length >= 3,
   });
 
   useEffect(() => {

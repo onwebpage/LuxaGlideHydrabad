@@ -472,9 +472,67 @@ export default function ProductDetail() {
 
             {/* Size Selection - Circular Buttons like Meesho */}
             <div className="mb-4 sm:mb-6">
-              <Label className="text-sm sm:text-base font-semibold mb-2 sm:mb-3 block">
-                Select Size
-              </Label>
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <Label className="text-sm sm:text-base font-semibold block">
+                  Select Size
+                </Label>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-primary h-8 gap-1.5">
+                      <Ruler className="w-4 h-4" />
+                      Find My Size
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-primary" />
+                        AI Size Suggestion
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Height (cm)</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g. 165" 
+                          value={height}
+                          onChange={(e) => setHeight(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Weight (kg)</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g. 60" 
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
+                        />
+                      </div>
+                      <Button className="w-full" onClick={handleFindSize}>
+                        Calculate Size
+                      </Button>
+                      {suggestedSize && (
+                        <div className="mt-4 p-4 bg-primary/10 rounded-xl text-center">
+                          <p className="text-sm text-muted-foreground mb-1">Your recommended size is</p>
+                          <p className="text-3xl font-bold text-primary">{suggestedSize}</p>
+                          <Button 
+                            variant="link" 
+                            className="mt-2 text-primary"
+                            onClick={() => {
+                              setSelectedSize(suggestedSize);
+                              const closeButton = document.querySelector('[data-radix-collection-item]') as HTMLButtonElement;
+                              if (closeButton) closeButton.click();
+                            }}
+                          >
+                            Apply this size
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {product.sizes.map((size) => (
                   <button
@@ -724,6 +782,21 @@ export default function ProductDetail() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Similar Products Section */}
+        {similarProducts && similarProducts.length > 0 && (
+          <div className="mt-16">
+            <div className="flex items-center gap-2 mb-8">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-serif font-bold">Similar Products You'll Love</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {similarProducts.slice(0, 4).map((p) => (
+                <ProductCard key={p.id} product={p as any} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
