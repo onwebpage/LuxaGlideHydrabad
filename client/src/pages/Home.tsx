@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -10,6 +10,13 @@ import { useCategories } from "@/hooks/use-categories";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
@@ -253,72 +260,104 @@ export default function Home() {
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Sidebar Filter */}
-            <aside className="w-full lg:w-64 flex-shrink-0">
-              <div className="sticky top-24 space-y-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold">Filter</h3>
-                  <button className="text-xs text-muted-foreground hover:text-primary font-medium">Advanced</button>
+            <aside className="w-full lg:w-72 flex-shrink-0">
+              <div className="sticky top-24 space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <h3 className="text-lg font-bold">Filters</h3>
+                  </div>
+                  {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000) && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => { setBrandSearch(""); setPriceRange([0, 50000]); }}
+                      className="h-8 px-2 text-xs text-muted-foreground hover:text-primary"
+                    >
+                      Clear All
+                    </Button>
+                  )}
                 </div>
 
-                {/* Brand Filter */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between group cursor-pointer">
-                    <h4 className="font-semibold text-sm">Brand</h4>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Search brand..." 
-                      className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
-                      value={brandSearch}
-                      onChange={(e) => setBrandSearch(e.target.value)}
-                    />
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {brandSearch && (
+                    <Badge variant="secondary" className="gap-1 px-2 py-1">
+                      Brand: {brandSearch}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => setBrandSearch("")} />
+                    </Badge>
+                  )}
+                  {(priceRange[0] > 0 || priceRange[1] < 50000) && (
+                    <Badge variant="secondary" className="gap-1 px-2 py-1">
+                      ₹{priceRange[0]} - ₹{priceRange[1]}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 50000])} />
+                    </Badge>
+                  )}
                 </div>
 
-                {/* Price Filter */}
-                <div className="space-y-6 pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Price</h4>
-                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  
-                  <div className="px-2">
-                    <Slider
-                      min={0}
-                      max={50000}
-                      step={500}
-                      value={priceRange}
-                      onValueChange={(val) => setPriceRange(val as [number, number])}
-                      className="[&_[role=slider]]:bg-orange-500 [&_[role=slider]]:border-white [&_.bg-primary]:bg-orange-500"
-                    />
-                  </div>
+                <Accordion type="multiple" defaultValue={["brand", "price"]} className="w-full">
+                  <AccordionItem value="brand" className="border-none">
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <span className="text-sm font-semibold">Brand</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-1 pb-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input 
+                          placeholder="Search brand..." 
+                          className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
+                          value={brandSearch}
+                          onChange={(e) => setBrandSearch(e.target.value)}
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                    <span>₹0</span>
-                    <span>₹50,000</span>
-                  </div>
+                  <AccordionItem value="price" className="border-none">
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <span className="text-sm font-semibold">Price Range</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-1 pb-4">
+                      <div className="space-y-6">
+                        <div className="px-2">
+                          <Slider
+                            min={0}
+                            max={50000}
+                            step={500}
+                            value={priceRange}
+                            onValueChange={(val) => setPriceRange(val as [number, number])}
+                            className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
+                          />
+                        </div>
 
-                  <div className="flex gap-3">
-                    <div className="flex-1">
-                      <Input 
-                        type="number"
-                        value={priceRange[0]}
-                        onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                        className="bg-muted/30 border-none text-center h-10 text-sm"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Input 
-                        type="number"
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
-                        className="bg-muted/30 border-none text-center h-10 text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
+                        <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                          <span>₹0</span>
+                          <span>₹50,000</span>
+                        </div>
+
+                        <div className="flex gap-3">
+                          <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                            <Input 
+                              type="number"
+                              value={priceRange[0]}
+                              onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                              className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                            />
+                          </div>
+                          <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                            <Input 
+                              type="number"
+                              value={priceRange[1]}
+                              onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                              className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </aside>
 

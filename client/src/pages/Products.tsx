@@ -2,6 +2,13 @@ import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
@@ -10,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, Package2 } from "lucide-react";
+import { Search, SlidersHorizontal, Package2, X } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sheet,
@@ -141,58 +148,106 @@ export default function Products() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="hidden lg:block w-80 shrink-0">
-            <div className="sticky top-24 space-y-8 p-6 border rounded-xl bg-muted/30">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-xs uppercase tracking-widest font-bold">Category</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat === "all" ? "All Categories" : cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-xs uppercase tracking-widest font-bold">Price Range</Label>
-                <div className="pt-2">
-                  <Slider
-                    min={0}
-                    max={10000}
-                    step={100}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                  />
-                  <div className="flex justify-between mt-4 text-sm font-medium">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
-                  </div>
+            <div className="sticky top-24 space-y-6 p-6 border rounded-xl bg-card shadow-sm">
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4" />
+                  <h3 className="font-bold">Filters</h3>
                 </div>
+                {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all" || priceRange[0] > 0 || priceRange[1] < 10000) && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      setSearchQuery("");
+                      setPriceRange([0, 10000]);
+                      setSelectedCategory("all");
+                      setSelectedFabric("all");
+                    }}
+                    className="h-8 px-2 text-xs text-muted-foreground hover:text-primary"
+                  >
+                    Clear All
+                  </Button>
+                )}
               </div>
 
-              <Button
-                className="w-full"
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery("");
-                  setPriceRange([0, 10000]);
-                  setSelectedCategory("all");
-                  setSelectedFabric("all");
-                }}
-              >
-                Reset Filters
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {searchQuery && (
+                  <Badge variant="secondary" className="gap-1 px-2 py-1">
+                    Search: {searchQuery}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery("")} />
+                  </Badge>
+                )}
+                {selectedCategory !== "all" && (
+                  <Badge variant="secondary" className="gap-1 px-2 py-1">
+                    Category: {selectedCategory}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
+                  </Badge>
+                )}
+                {(priceRange[0] > 0 || priceRange[1] < 10000) && (
+                  <Badge variant="secondary" className="gap-1 px-2 py-1">
+                    ₹{priceRange[0]} - ₹{priceRange[1]}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 10000])} />
+                  </Badge>
+                )}
+              </div>
+
+              <Accordion type="multiple" defaultValue={["search", "category", "price"]} className="w-full">
+                <AccordionItem value="search" className="border-none">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <span className="text-sm font-semibold">Search</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-1 pb-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search products..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-muted/30 border-none"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="category" className="border-none">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <span className="text-sm font-semibold">Category</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-1 pb-4">
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="bg-muted/30 border-none"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>{cat === "all" ? "All Categories" : cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="price" className="border-none">
+                  <AccordionTrigger className="hover:no-underline py-3">
+                    <span className="text-sm font-semibold">Price Range</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-1 pb-4 space-y-4">
+                    <div className="pt-2 px-1">
+                      <Slider
+                        min={0}
+                        max={10000}
+                        step={100}
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        className="[&_[role=slider]]:bg-primary"
+                      />
+                      <div className="flex justify-between mt-4 text-sm font-medium">
+                        <span>₹{priceRange[0]}</span>
+                        <span>₹{priceRange[1]}</span>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </aside>
 
