@@ -10,31 +10,54 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQuery } from "@tanstack/react-query";
+import type { Product } from "@shared/schema";
 import logoImage from "@assets/Untitled_design-removebg-preview_1765148207646.png";
 
 export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const { data: cmsSettings } = useCmsSettings();
-  
-  const siteName = cmsSettings?.siteMeta?.siteName || "Queen 4feet";
   const { cartItemCount } = useCart();
-  
   const isLoggedIn = !!user;
+  
+  const { data: suggestions = [] } = useQuery<Product[]>({
+    queryKey: ['/api/products', { search: searchQuery }],
+    queryFn: async () => {
+      if (!searchQuery.trim() || searchQuery.length < 2) return [];
+      const response = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`);
+      if (!response.ok) throw new Error('Failed to fetch suggestions');
+      return response.json();
+    },
+    enabled: searchQuery.length >= 2,
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       setLocation(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setMobileMenuOpen(false);
+      setShowSuggestions(false);
     }
   };
 
@@ -52,19 +75,23 @@ export function Header() {
           <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0" data-testid="link-home">
-              <img src={logoImage} alt={siteName} className="h-24 w-auto lg:h-32 object-contain" />
+              <img src={logoImage} alt={cmsSettings?.siteMeta?.siteName || "Queen 4feet"} className="h-24 w-auto lg:h-32 object-contain" />
             </Link>
 
             {/* Search Bar - Desktop */}
-            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
-              <div className="relative w-full flex">
+            <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
+              <form onSubmit={handleSearch} className="flex">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     type="search"
                     placeholder="Try Saree, Kurti or Search by Product Code"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleSearchKeyDown}
                     className="w-full pl-12 pr-4 h-11 bg-gray-50 dark:bg-muted border-gray-200 dark:border-border rounded-l-lg rounded-r-none focus:bg-white dark:focus:bg-background focus:border-primary focus-visible:ring-1 focus-visible:ring-primary text-sm"
                     data-testid="input-search"
@@ -77,8 +104,52 @@ export function Header() {
                 >
                   <Search className="w-4 h-4" />
                 </Button>
-              </div>
-            </form>
+              </form>
+
+              {/* Suggestions Dropdown */}
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-lg shadow-xl overflow-hidden z-[60]"
+                  >
+                    <div className="p-2">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 py-2">Product Suggestions</p>
+                      {suggestions.map((product) => {
+                        const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+                        const image = Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg';
+                        return (
+                          <Link 
+                            key={product.id} 
+                            href={`/products/${product.id}`}
+                            onClick={() => setShowSuggestions(false)}
+                            className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-muted transition-colors rounded-md group"
+                          >
+                            <div className="w-12 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                              <img src={image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-medium truncate">{product.name}</h4>
+                              <p className="text-sm font-bold text-primary">₹{parseFloat(product.price).toLocaleString()}</p>
+                            </div>
+                            <ChevronDown className="w-4 h-4 text-gray-300 -rotate-90" />
+                          </Link>
+                        );
+                      })}
+                      <Link 
+                        href={`/products?search=${encodeURIComponent(searchQuery)}`}
+                        onClick={() => setShowSuggestions(false)}
+                        className="block w-full p-3 text-center text-sm font-medium text-primary hover:bg-primary/5 transition-colors border-t border-gray-50 mt-1"
+                      >
+                        See all results for "{searchQuery}"
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Right Actions */}
             <div className="flex items-center gap-1 lg:gap-2">
