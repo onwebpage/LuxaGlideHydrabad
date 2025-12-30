@@ -228,9 +228,103 @@ function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // ============ Health Check Route ============
-  app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  // ============ AI Smart Search & Recommendations ============
+  
+  // Natural Query Search
+  app.get("/api/ai/search", async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || typeof q !== "string") {
+        return res.status(400).json({ message: "Query is required" });
+      }
+
+      const query = q.toLowerCase();
+      const allProducts = await storage.getAllProducts({});
+      
+      // Simple natural language parsing
+      const colors = ["red", "blue", "green", "black", "white", "pink", "yellow", "gold", "silver"];
+      const occasions = ["party", "wedding", "casual", "formal", "festive"];
+      const maxPriceMatch = query.match(/under (\d+)/) || query.match(/below (\d+)/);
+      const maxPrice = maxPriceMatch ? parseInt(maxPriceMatch[1]) : Infinity;
+      
+      const filtered = allProducts.filter(p => {
+        const nameAndDesc = (p.name + " " + p.description).toLowerCase();
+        
+        // Price check
+        if (parseFloat(p.price) > maxPrice) return false;
+        
+        // Keyword matching
+        const keywords = query.split(" ").filter(word => 
+          word.length > 3 && !["under", "below", "with", "show", "find"].includes(word)
+        );
+        
+        const hasKeyword = keywords.some(k => nameAndDesc.includes(k));
+        const matchesColor = colors.some(c => query.includes(c) && nameAndDesc.includes(c));
+        const matchesOccasion = occasions.some(o => query.includes(o) && nameAndDesc.includes(o));
+        
+        return hasKeyword || matchesColor || matchesOccasion;
+      });
+
+      res.json(filtered.slice(0, 12));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Recommended for You (Based on simple randomization for now, ideally user history)
+  app.get("/api/ai/recommendations", async (req, res) => {
+    try {
+      const allProducts = await storage.getAllProducts({ limit: 20 });
+      // Shuffle and take 4
+      const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
+      res.json(shuffled.slice(0, 4));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Similar Products
+  app.get("/api/products/:id/similar", async (req, res) => {
+    try {
+      const product = await storage.getProduct(req.params.id);
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      
+      const allProducts = await storage.getAllProducts({ categoryId: product.categoryId });
+      const similar = allProducts
+        .filter(p => p.id !== product.id)
+        .slice(0, 4);
+        
+      res.json(similar);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Custom Assistant Logic
+  app.post("/api/ai/assistant", async (req, res) => {
+    try {
+      const { message } = req.body;
+      const query = message.toLowerCase();
+      
+      let response = "I'm your LuxeWholesale assistant! ";
+      let suggestedProducts: any[] = [];
+      
+      if (query.includes("party") || query.includes("wedding") || query.includes("dress")) {
+        response += "I found some beautiful outfits for special occasions:";
+        const products = await storage.getAllProducts({ search: "party" });
+        suggestedProducts = products.slice(0, 3);
+      } else if (query.includes("cotton") || query.includes("kurti") || query.includes("casual")) {
+        response += "Here are some comfortable cotton kurtis and casual wear:";
+        const products = await storage.getAllProducts({ search: "cotton" });
+        suggestedProducts = products.slice(0, 3);
+      } else {
+        response += "How can I help you find the perfect outfit today? You can ask for party wear, cotton kurtis, or sarees.";
+      }
+      
+      res.json({ response, products: suggestedProducts });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // ============ Authentication Routes ============
