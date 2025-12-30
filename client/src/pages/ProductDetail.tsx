@@ -158,6 +158,11 @@ export default function ProductDetail() {
     };
   }, [params?.id]);
 
+  const { data: similarProducts } = useQuery<Product[]>({
+    queryKey: [`/api/products/${params?.id}/similar`],
+    enabled: !!params?.id,
+  });
+
   const { data: productData, isLoading: productLoading } = useQuery<Product>({
     queryKey: ['/api/products', params?.id],
     enabled: !!params?.id,

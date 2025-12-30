@@ -117,7 +117,10 @@ export function Header() {
                     className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-lg shadow-xl overflow-hidden z-[60]"
                   >
                     <div className="p-2">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 py-2">Product Suggestions</p>
+                      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-50 dark:border-border/50 mb-1">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">AI Smart Suggestions</p>
+                      </div>
                       {suggestions.map((product) => {
                         const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
                         const image = Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg';
