@@ -1,119 +1,118 @@
-# Premium Luxury B2B Multi-Vendor Ecommerce Design Guidelines
+# Premium Dark Luxury B2B Multi-Vendor Ecommerce Design Guidelines
 
 ## Design Approach
-**Selected Approach:** High-end luxury fashion e-commerce inspired by Net-a-Porter, Farfetch, and luxury brand websites, combined with the clean UI patterns of modern B2B platforms.
+**Selected Approach:** High-end luxury dark-mode e-commerce inspired by luxury watch brands (Rolex, Omega), premium automotive sites (Porsche, Tesla), and sophisticated fashion platforms, emphasizing drama through contrast and refined elegance.
+
+**Core Principles:** Maximum contrast, breathing room through negative space, photography as hero element, restrained gold accents for hierarchy.
 
 ## Color Palette
-- **Primary:** White (#FFFFFF) - dominant background
-- **Secondary:** Warm Beige (#F5F1ED, #E8E3DC) - accent sections
-- **Accent:** Champagne Gold (#D4AF37, #C9A961) - CTAs, highlights, borders
-- **Neutral:** Charcoal Black (#1A1A1A) - typography, headers
-- **Supporting:** Soft Gray (#F8F8F8) - cards, subtle backgrounds
+- **Primary Background:** Rich Black (#0A0A0A) - dominant canvas
+- **Secondary Background:** Deep Charcoal (#1A1A1A) - elevated cards and panels
+- **Accent:** Champagne Gold (#D4AF37) - CTAs, borders, active states, highlights
+- **Text Primary:** Pure White (#FFFFFF) - headings, primary content
+- **Text Secondary:** Light Gray (#B8B8B8) - body text, descriptions
+- **Subtle Accents:** Dark Gray (#2A2A2A) - dividers, subtle borders
 
 ## Typography System
-- **Headings:** Playfair Display (serif) - elegant, luxury feel
-  - H1: 56px/64px (desktop), 36px/44px (mobile), weight 600
-  - H2: 40px/48px (desktop), 28px/36px (mobile), weight 600
-  - H3: 32px/40px, weight 500
-- **Body:** Inter (sans-serif) - clean, modern readability
-  - Body Large: 18px/28px, weight 400
-  - Body: 16px/24px, weight 400
-  - Small: 14px/20px, weight 400
-- **Accents:** Letter-spacing of 0.05em for uppercase labels and category tags
+- **Headings:** Playfair Display (serif) - timeless luxury
+  - H1: 64px/72px (desktop), 40px/48px (mobile), weight 600, white
+  - H2: 48px/56px (desktop), 32px/40px (mobile), weight 600, white
+  - H3: 36px/44px, weight 500, white
+- **Body:** Inter (sans-serif) - exceptional readability on dark
+  - Body Large: 18px/28px, weight 400, #B8B8B8
+  - Body: 16px/24px, weight 400, #B8B8B8
+  - Small: 14px/20px, weight 400, #9A9A9A
+- **Labels:** Uppercase, 12px, letter-spacing 0.1em, gold (#D4AF37)
 
 ## Layout & Spacing
-**Spacing Scale:** Tailwind units of 4, 6, 8, 12, 16, 24, 32 (p-4, p-6, p-8, etc.)
-- **Container:** max-w-7xl with px-6 for content sections
-- **Section Padding:** py-24 (desktop), py-16 (mobile)
-- **Card Spacing:** gap-8 for grids, gap-6 for dense layouts
-- **Consistent vertical rhythm** using multiples of 8px
+**Spacing Scale:** Tailwind units of 4, 6, 8, 12, 16, 24, 32
+- **Container:** max-w-7xl with px-6
+- **Section Padding:** py-32 (desktop), py-20 (mobile)
+- **Card Spacing:** gap-8 for grids, gap-6 for compact layouts
+- **Generous whitespace:** Embrace negative space - sections breathe with py-24 minimum
 
-## Glassmorphism & Elevation
+## Dark Glassmorphism & Elevation
 - **Glass Cards:** 
-  - Background: rgba(255, 255, 255, 0.7)
-  - Backdrop blur: blur-xl (backdrop-blur-xl)
-  - Border: 1px solid rgba(255, 255, 255, 0.3)
-  - Shadow: 0 8px 32px rgba(0, 0, 0, 0.08)
+  - Background: rgba(26, 26, 26, 0.6)
+  - Backdrop blur: backdrop-blur-xl
+  - Border: 1px solid rgba(212, 175, 55, 0.2)
+  - Shadow: 0 8px 32px rgba(0, 0, 0, 0.4)
   
-- **Elevated Cards:**
-  - Shadow levels: shadow-sm (default), shadow-lg (hover), shadow-2xl (modals)
-  - All cards use rounded-2xl corners
-  
-- **Dashboard Panels:**
-  - White background with subtle beige tints
-  - Gold accent borders (1px) for active states
-  - Soft shadow: 0 4px 16px rgba(0, 0, 0, 0.04)
+- **Elevated Panels:**
+  - Background: #1A1A1A
+  - Shadow: 0 4px 24px rgba(0, 0, 0, 0.5)
+  - Gold accent border (1px) on hover/active
+  - Rounded corners: rounded-2xl
 
 ## Component Library
 
 ### Navigation
-- Sticky header with white background, shadow-sm on scroll
-- Gold underline animation for active nav items
-- Glassmorphism mobile menu with backdrop blur
-- Search bar with subtle beige background, gold focus ring
+- Black background (#0A0A0A) with gold bottom border on scroll
+- White text with gold underline for active items
+- Glassmorphism mobile menu: dark glass with backdrop blur
+- Search: #1A1A1A background, gold focus ring (2px)
 
 ### Buttons
-- **Primary CTA:** Solid gold background (#D4AF37), black text, rounded-lg, px-8 py-4
-- **Secondary:** White with gold border (2px), gold text, rounded-lg
-- **Ghost:** Transparent with gold text, subtle hover background
-- **On Images:** Glassmorphism effect - white/10 background, backdrop-blur-md, white text, no additional hover blur
+- **Primary:** Solid gold (#D4AF37), black text, rounded-lg, px-8 py-4, shadow-lg
+- **Secondary:** Transparent with gold border (2px), white text, rounded-lg
+- **Ghost:** Transparent, gold text, hover: gold/10 background
+- **On Images (Hero):** Glassmorphism - rgba(10,10,10,0.3), backdrop-blur-md, white text, gold border (1px), no hover blur
 
 ### Product Cards
-- Aspect ratio 3:4 for product images
-- White card with hover lift (translateY(-4px))
-- Gold divider line between image and details
-- Price shown in larger weight, MOQ in smaller muted text
-- Wishlist heart icon in gold on top-right corner
+- Background: #1A1A1A
+- Image aspect ratio: 3:4, full-bleed
+- Hover: lift (translateY(-6px)), enhanced shadow
+- Gold hairline divider between image and details
+- Price: white, larger weight; MOQ: #B8B8B8
+- Gold wishlist icon, top-right overlay
 
 ### Forms
-- Input fields: Beige background (#F5F1ED), gold focus border (2px)
-- Labels: Uppercase, small text, letter-spacing 0.05em
-- Error states: Subtle red with gold accent
-- File upload areas: Dashed gold border with glassmorphism background
+- Inputs: #1A1A1A background, gold focus border (2px)
+- Labels: Uppercase gold, letter-spacing 0.1em
+- Placeholder: #5A5A5A
+- File upload: Dashed gold border, dark glassmorphism
 
 ### Dashboard Widgets
-- Analytics charts with gold data lines/bars
-- KPI cards with gold accent icons
-- Status badges: Gold for active, beige for pending, gray for inactive
-- Data tables with alternating row backgrounds (white/beige)
+- Charts: Gold data visualization with white labels
+- KPI cards: #1A1A1A background, gold accent icons, white numbers
+- Status badges: Gold (active), #2A2A2A (inactive)
+- Tables: Alternating rows #0A0A0A / #1A1A1A, gold hover state
 
-## Animations (Framer Motion)
-- **Page Transitions:** Subtle fade + slide up (duration: 0.4s)
-- **Card Reveals:** Stagger children with fade-in-up (delay: 0.1s between items)
-- **Hover Effects:** Scale 1.02 on product cards, smooth 0.3s transition
-- **Loading States:** Shimmer effect with gold gradient overlay
-- **Modals:** Backdrop blur with scale animation from 0.95 to 1
+## Animations
+- **Page Transitions:** Fade + slide up (0.4s ease-out)
+- **Card Reveals:** Staggered fade-in-up (0.08s delay)
+- **Hover:** Scale 1.03, brightness increase, 0.3s smooth
+- **Modals:** Backdrop blur + scale 0.96→1
+- **Loading:** Gold shimmer effect overlay
 
 ## Images
 
 ### Hero Section
-**Large hero image** spanning full viewport width (100vw), height 85vh
-- Image: Sophisticated fashion photography - elegant women's clothing on minimalist mannequins or lifestyle shots in luxury boutique setting
-- Overlay: Subtle gradient from transparent to black/20 at bottom
-- Centered content with glassmorphism panel containing headline and CTAs
+**Full-width hero:** 100vw × 90vh
+- **Photography:** Dramatic fashion/luxury product photography - low-key lighting, high contrast, professional models in elegant poses, or premium products on black backgrounds
+- **Overlay:** Subtle vignette, gradient from transparent to black/40 at edges
+- **Content:** Centered glassmorphism panel with headline and CTA buttons (dark glass with blur)
 
-### Homepage Imagery
-- **Featured Vendors:** Circular vendor logo/brand images (150px diameter) with gold rings
-- **Category Cards:** Lifestyle product photography with soft shadows
-- **Testimonials:** Professional headshots (80px circular) with gold borders
+### Supporting Imagery
+- **Vendor Profiles:** Monochromatic brand photography, 16:7 ratio banners
+- **Product Galleries:** 6-8 images per product - multiple angles, detail shots, lifestyle contexts
+- **Category Cards:** Lifestyle photography with dramatic lighting (2:3 ratio)
+- **Testimonials:** Professional B&W headshots (96px circular) with gold ring borders
+- **Homepage Features:** Large-scale atmospheric product photography spanning 50vw sections
 
-### Product Pages
-- **Gallery:** 4-6 high-quality product images showing different angles, details, and styling
-- **360 View:** Interactive rotation imagery (if available)
-- **Vendor Profile:** Brand banner image (16:5 ratio) with logo overlay
+### Image Treatment
+- Slight desaturation for cohesion with dark theme
+- Subtle gold color grade overlay (5% opacity)
+- Sharp, high-resolution imagery essential
 
-### Dashboard
-- **Empty States:** Elegant illustrations in gold/beige tones
-- **Profile Uploads:** Document icons for KYC verification
+## Responsive Strategy
+- **Mobile:** Single column, py-12 sections, gap-4, condensed type scale
+- **Tablet (md:):** 2-column grids, py-20 sections
+- **Desktop (lg:):** 3-4 column product grids, full dashboard layouts, py-32 sections
 
-## Responsive Breakpoints
-- Mobile: Single column, condensed spacing (py-8, gap-4)
-- Tablet (md:): 2-column grids, increased spacing
-- Desktop (lg:): 3-4 column grids for products, full dashboard layouts
-
-## Key UX Patterns
-- Breadcrumb navigation with gold separators
-- Floating action buttons (gold) for cart/RFQ on mobile
-- Toast notifications with glassmorphism styling
-- Skeleton loaders matching component shapes in beige tones
-- Progress indicators for multi-step flows (KYC, checkout) using gold accents
+## Key Patterns
+- Gold breadcrumb separators on black
+- Floating gold FAB for cart/RFQ (mobile)
+- Toast notifications: Dark glass with gold accent border
+- Skeleton loaders: #1A1A1A with gold shimmer animation
+- Multi-step progress: Gold filled circles with white connecting lines
