@@ -241,21 +241,21 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner - Compact Meesho Style */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[420px] flex items-center overflow-hidden">
+      {/* Hero Banner */}
+      <section className="relative h-[280px] sm:h-[320px] md:h-[500px] lg:h-[600px] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6">
-          <div className="max-w-xl">
-            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold text-white leading-tight mb-3">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-center">
+          <div className="max-w-2xl text-center">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-4 md:mb-6">
               Feel Like a Queen, Every Day
             </h1>
-            <p className="text-white/90 text-sm sm:text-base md:text-lg leading-relaxed">
+            <p className="text-white/95 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors. Curated styles for the modern woman.
             </p>
           </div>
