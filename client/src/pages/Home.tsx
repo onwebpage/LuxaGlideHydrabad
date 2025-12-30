@@ -253,7 +253,7 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero Banner - New Arrivals Collection */}
       <section 
-        className="relative min-h-[500px] sm:min-h-[550px] md:min-h-[650px] lg:min-h-[700px] flex items-center overflow-visible bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+        className="relative h-screen max-h-[700px] flex items-center overflow-hidden bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
         data-testid="section-hero-with-outfit"
       >
         {/* Background decorative shapes */}
@@ -302,10 +302,10 @@ export default function Home() {
           </div>
 
           {/* Right Content - Images and Collection Text */}
-          <div className="w-1/2 relative h-full flex items-center justify-center">
+          <div className="w-1/2 relative h-full flex items-center justify-center overflow-hidden">
             {/* Main Image */}
             <motion.div
-              className="absolute right-0 inset-y-0 flex items-center cursor-pointer"
+              className="relative h-full flex items-center justify-end cursor-pointer"
               animate={{ 
                 rotateX: mousePosition.y * -0.2,
                 rotateY: mousePosition.x * 0.2,
