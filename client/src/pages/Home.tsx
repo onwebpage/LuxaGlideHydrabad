@@ -26,7 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_interior.png";
-import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_(1)_1767125824209.png";
+import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
 import outfitImage from "@assets/imagephoto-removebg-preview_(1)_1767123075447.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
