@@ -2,29 +2,12 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { ArrowRight, Star, TrendingUp, Users, Package, CheckCircle, Sparkles, Search, ChevronUp, ChevronDown, Truck, ChevronLeft, ChevronRight, Heart, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
+import { Skeleton } from "@/components/ui/skeleton";
 import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
@@ -53,22 +36,6 @@ const defaultCategoryImages: Record<string, string> = {
 };
 
 export default function Home() {
-  const [sortBy, setSortBy] = useState("popular");
-  const [categorySearch, setCategorySearch] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
-  const [showAllCategories, setShowAllCategories] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-
-  const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
-    queryKey: ['/api/vendors/approved'],
-    queryFn: async () => {
-      const response = await fetch('/api/vendors/approved?limit=4');
-      if (!response.ok) throw new Error('Failed to fetch vendors');
-      return response.json();
-    }
-  });
-
   const { data: homepageProductsData, isLoading: productsLoading } = useQuery<{
     sectionTitle: string;
     products: Product[];
@@ -82,16 +49,7 @@ export default function Home() {
     }
   });
   
-  const { data: apiCategories, isLoading: categoriesLoading } = useCategories();
-
-  const { data: cmsSettings } = useQuery<AllCmsSettings>({
-    queryKey: ['/api/cms/public'],
-    queryFn: async () => {
-      const response = await fetch('/api/cms/public');
-      if (!response.ok) throw new Error('Failed to fetch CMS settings');
-      return response.json();
-    }
-  });
+  const { data: apiCategories } = useCategories();
 
   const dynamicShopCategories = useMemo(() => {
     if (!apiCategories || apiCategories.length === 0) return [];
@@ -104,65 +62,35 @@ export default function Home() {
 
   const products = useMemo(() => {
     if (!homepageProductsData?.products) return [];
-    return homepageProductsData.products.map(product => {
-      const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
-      return {
-        ...product,
-        image: Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg',
-        price: parseFloat(product.price),
-        rating: parseFloat(product.rating || '0'),
-      };
-    });
+    return homepageProductsData.products.map(product => ({
+      ...product,
+      price: parseFloat(product.price),
+      rating: parseFloat(product.rating || '0'),
+    }));
   }, [homepageProductsData?.products]);
 
-  const filteredCategories = useMemo(() => {
-    if (!apiCategories) return [];
-    return apiCategories.filter(cat => 
-      cat.name.toLowerCase().includes(categorySearch.toLowerCase())
-    );
-  }, [apiCategories, categorySearch]);
-
-  const displayedCategories = showAllCategories 
-    ? filteredCategories 
-    : filteredCategories.slice(0, 8);
-
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-    if (selectedCategories.size > 0) {
-      result = result.filter(p => p.categoryId && selectedCategories.has(p.categoryId));
-    }
-    
-    switch (sortBy) {
-      case "price-low":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-high":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      default:
-        break;
-    }
-    return result;
-  }, [products, selectedCategories, sortBy]);
-
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(categoryId)) {
-        newSet.delete(categoryId);
-      } else {
-        newSet.add(categoryId);
-      }
-      return newSet;
-    });
-  };
+  const fallbackCategories = [
+    { name: "SUITS", image: suitImage, slug: "suits" },
+    { name: "NEW ARRIVALS", image: newArrivalsImage, slug: "new-arrivals" },
+    { name: "KURTAS", image: kurtaImage, slug: "kurtas" },
+    { name: "SAREES", image: sareeImage, slug: "sarees" },
+    { name: "DRESSES", image: dressImage, slug: "dresses" },
+    { name: "SHIRTS", image: shirtImage, slug: "shirts" },
+    { name: "CO-ORDS", image: coordsImage, slug: "co-ords" },
+    { name: "LOUNGEWEAR", image: loungewearImage, slug: "loungewear" },
+    { name: "BOTTOMS", image: bottomsImage, slug: "bottoms" },
+    { name: "SHAWLS", image: shawlImage, slug: "shawls" },
+    { name: "PARTY WEAR", image: partyWearImage, slug: "party-wear" },
+  ];
 
   const shopCategories = useMemo(() => {
-    return dynamicShopCategories.length >= 8 ? dynamicShopCategories : dynamicShopCategories;
-  }, [dynamicShopCategories]);
+    const dbCategories = dynamicShopCategories.length > 0 ? dynamicShopCategories : [];
+    if (dbCategories.length >= 8) return dbCategories;
+    
+    const dbSlugs = new Set(dbCategories.map(c => c.slug));
+    const additionalCategories = fallbackCategories.filter(c => !dbSlugs.has(c.slug));
+    return [...dbCategories, ...additionalCategories].slice(0, 11);
+  }, [dynamicShopCategories, fallbackCategories]);
 
   const testimonials = [
     { name: "Priya Sharma", role: "Verified Buyer, Delhi", content: "Love shopping here! The quality is amazing and delivery is super fast.", rating: 5 },
@@ -204,6 +132,64 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Quick Category Icons */}
+      <section className="py-4 sm:py-6 md:py-8 bg-background">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex justify-start sm:justify-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 overflow-x-auto scrollbar-hide pb-2 px-2">
+            {shopCategories.slice(0, 8).map((category, index) => (
+              <Link key={category.name} href={`/products?category=${category.slug}`}>
+                <div className="flex flex-col items-center gap-2 sm:gap-3 min-w-[70px] sm:min-w-[90px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                  <div className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 lg:w-28 lg:h-32 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
+                    <img 
+                      src={category.image} 
+                      alt={category.name}
+                      className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="text-xs sm:text-sm md:text-base text-center text-foreground font-medium leading-tight">
+                    {category.name.split(' ').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Shop by Category */}
+      <section className="py-8 sm:py-12 md:py-16 bg-background">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+          <div className="text-center mb-6 sm:mb-8 md:mb-10">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground mb-2 sm:mb-4">
+              SHOP BY CATEGORIES
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+            {shopCategories.map((category, index) => (
+              <Link key={category.name} href={`/products?category=${category.slug}`}>
+                <div 
+                  className="relative aspect-[3/4] overflow-hidden cursor-pointer group"
+                  data-testid={`card-category-${index}`}
+                >
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4">
+                    <h3 className="text-white font-semibold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-wide uppercase text-center leading-tight">
+                      {category.name}
+                    </h3>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 bg-background">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="mb-8 flex justify-between items-end">
@@ -224,7 +210,7 @@ export default function Home() {
                 <Skeleton key={i} className="aspect-[250/325] rounded-xl" />
               ))
             ) : (
-              filteredProducts.slice(0, 10).map((product) => (
+              products.slice(0, 10).map((product) => (
                 <ProductCard key={product.id} product={product as any} />
               ))
             )}
