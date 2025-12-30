@@ -26,6 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import heroImage from "@assets/generated_images/luxury_fashion_boutique_interior.png";
+import outfitImage from "@assets/imagephoto-removebg-preview_(1)_1767123075447.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
 import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
@@ -59,6 +60,7 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
@@ -182,6 +184,13 @@ export default function Home() {
     });
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setMousePosition({ x: (x - 0.5) * 20, y: (y - 0.5) * 20 });
+  };
+
   const fallbackCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
     { name: "NEW ARRIVALS", image: newArrivalsImage, slug: "new-arrivals" },
@@ -241,6 +250,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {/* Parallax Outfit Section */}
+      <section 
+        className="relative h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center bg-gradient-to-b from-gray-100 dark:from-gray-900 to-background overflow-hidden"
+        onMouseMove={handleMouseMove}
+        data-testid="section-parallax-outfit"
+      >
+        <motion.div
+          className="relative w-full h-full flex items-center justify-center"
+          animate={{ x: mousePosition.x, y: mousePosition.y }}
+          transition={{ type: "spring", stiffness: 100, damping: 30 }}
+        >
+          <img 
+            src={outfitImage}
+            alt="Featured Outfit"
+            className="h-full w-auto object-contain max-w-full"
+          />
+        </motion.div>
+      </section>
+
       {/* Hero Banner */}
       <section className="relative h-[280px] sm:h-[320px] md:h-[500px] lg:h-[600px] flex items-center justify-center overflow-hidden">
         <div
