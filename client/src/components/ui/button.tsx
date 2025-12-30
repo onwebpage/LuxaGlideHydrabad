@@ -25,7 +25,7 @@ const StyledButtonWrapper = styled.div`
     position: relative;
     transition: all 0.3s ease-in-out;
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-    background-color: rgb(0 107 179);
+    background-color: #f59e0b;
     border-radius: 9999px;
     display: inline-flex;
     align-items: center;
