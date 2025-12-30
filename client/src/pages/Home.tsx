@@ -60,7 +60,8 @@ export default function Home() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0, rotation: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHoveringOutfit, setIsHoveringOutfit] = useState(false);
 
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
@@ -188,8 +189,7 @@ export default function Home() {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    const rotation = (x * 360) % 360;
-    setMousePosition({ x: (x - 0.5) * 20, y: (y - 0.5) * 20, rotation });
+    setMousePosition({ x: (x - 0.5) * 20, y: (y - 0.5) * 20 });
   };
 
   const fallbackCategories = [
@@ -276,15 +276,25 @@ export default function Home() {
 
           {/* Parallax Outfit Image */}
           <motion.div
-            className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12"
-            animate={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5, rotate: mousePosition.rotation }}
-            transition={{ type: "spring", stiffness: 100, damping: 30 }}
+            className="hidden md:flex absolute right-0 h-full items-center pr-4 lg:pr-12 cursor-pointer"
+            animate={{ 
+              x: mousePosition.x * 0.5, 
+              y: mousePosition.y * 0.5,
+              scale: isHoveringOutfit ? 1.08 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
             data-testid="parallax-outfit-image"
+            onHoverStart={() => setIsHoveringOutfit(true)}
+            onHoverEnd={() => setIsHoveringOutfit(false)}
           >
-            <img 
+            <motion.img 
               src={outfitImage}
               alt="Featured Outfit"
-              className="h-full w-auto object-contain"
+              className="h-full w-auto object-contain drop-shadow-xl"
+              animate={{ 
+                filter: isHoveringOutfit ? "drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3))" : "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15))"
+              }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
             />
           </motion.div>
         </div>
