@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, Package2, X } from "lucide-react";
-import { useLocation } from "wouter";
+import { Search, SlidersHorizontal, Package2, X, ChevronRight, LayoutGrid } from "lucide-react";
+import { useLocation, Link } from "wouter";
 import {
   Sheet,
   SheetContent,
@@ -39,7 +39,7 @@ export default function Products() {
   const initialSearch = urlParams.get('search') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFabric, setSelectedFabric] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
@@ -139,87 +139,98 @@ export default function Products() {
   const paginatedProducts = sortedProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen py-12 bg-background">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="mb-12">
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-4">Shop Now</h1>
-          <p className="text-muted-foreground text-lg">Discover our exquisite collection of designer wear</p>
+    <div className="min-h-screen bg-background">
+      {/* Premium Hero Header */}
+      <section className="relative h-[300px] flex items-center overflow-hidden bg-black text-white">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-[#1a1a1a] opacity-90" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay" />
+        
+        <div className="relative z-10 container mx-auto px-4 lg:px-6">
+          <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400 mb-6 font-medium">
+            <Link href="/" className="hover:text-[#d4af37] transition-colors">Home</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-[#d4af37]">Shop</span>
+          </nav>
+          
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-6xl font-black font-serif mb-4 leading-tight tracking-tight">
+              Curated Collections
+            </h1>
+            <p className="text-gray-400 text-sm md:text-base max-w-lg leading-relaxed font-light uppercase tracking-widest">
+              Exquisite designer wear tailored for the modern queen.
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="hidden lg:block w-80 shrink-0">
-            <div className="sticky top-24 space-y-6 p-6 border rounded-xl bg-card shadow-sm">
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <h3 className="font-bold">Filters</h3>
+      <div className="container mx-auto px-4 lg:px-6 py-12 max-w-7xl">
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Enhanced Sticky Filters Sidebar */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="sticky top-28 space-y-8 p-8 border border-white/5 rounded-2xl bg-[#fafafa] dark:bg-[#121212] shadow-xl shadow-black/5">
+              <div className="flex items-center justify-between pb-4 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-[#d4af37]/10 rounded-lg">
+                    <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
+                  </div>
+                  <h3 className="font-bold tracking-tight text-lg">Filters</h3>
                 </div>
-                {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all" || priceRange[0] > 0 || priceRange[1] < 10000) && (
+                {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all" || priceRange[0] > 0 || priceRange[1] < 50000) && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={() => {
                       setSearchQuery("");
-                      setPriceRange([0, 10000]);
+                      setPriceRange([0, 50000]);
                       setSelectedCategory("all");
                       setSelectedFabric("all");
                     }}
-                    className="h-8 px-2 text-xs text-muted-foreground hover:text-primary"
+                    className="h-8 px-2 text-xs font-bold text-[#d4af37] hover:bg-[#d4af37]/10"
                   >
-                    Clear All
+                    Reset
                   </Button>
                 )}
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {searchQuery && (
-                  <Badge variant="secondary" className="gap-1 px-2 py-1">
-                    Search: {searchQuery}
+                  <Badge variant="secondary" className="bg-[#d4af37]/10 text-[#d4af37] border-none gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                    {searchQuery}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery("")} />
-                  </Badge>
-                )}
-                {selectedCategory !== "all" && (
-                  <Badge variant="secondary" className="gap-1 px-2 py-1">
-                    Category: {selectedCategory}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
-                  </Badge>
-                )}
-                {(priceRange[0] > 0 || priceRange[1] < 10000) && (
-                  <Badge variant="secondary" className="gap-1 px-2 py-1">
-                    ₹{priceRange[0]} - ₹{priceRange[1]}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 10000])} />
                   </Badge>
                 )}
               </div>
 
               <Accordion type="multiple" defaultValue={["search", "category", "price"]} className="w-full">
-                <AccordionItem value="search" className="border-none">
-                  <AccordionTrigger className="hover:no-underline py-3">
-                    <span className="text-sm font-semibold">Search</span>
+                <AccordionItem value="search" className="border-none mb-4">
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                    Search
                   </AccordionTrigger>
-                  <AccordionContent className="pt-1 pb-4">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <AccordionContent className="pt-2">
+                    <div className="relative group">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-[#d4af37] transition-colors" />
                       <Input
-                        placeholder="Search products..."
+                        placeholder="Look for style..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-muted/30 border-none"
+                        className="pl-10 bg-white/50 dark:bg-black/20 border-white/10 focus:border-[#d4af37] h-11 rounded-xl text-sm transition-all"
                       />
                     </div>
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="category" className="border-none">
-                  <AccordionTrigger className="hover:no-underline py-3">
-                    <span className="text-sm font-semibold">Category</span>
+                <AccordionItem value="category" className="border-none mb-4">
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                    Category
                   </AccordionTrigger>
-                  <AccordionContent className="pt-1 pb-4">
+                  <AccordionContent className="pt-2">
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="bg-muted/30 border-none"><SelectValue /></SelectTrigger>
-                      <SelectContent>
+                      <SelectTrigger className="bg-white/50 dark:bg-black/20 border-white/10 h-11 rounded-xl focus:ring-[#d4af37]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-white/5 shadow-2xl">
                         {categories.map((cat) => (
-                          <SelectItem key={cat} value={cat}>{cat === "all" ? "All Categories" : cat}</SelectItem>
+                          <SelectItem key={cat} value={cat} className="rounded-lg">{cat === "all" ? "All Categories" : cat}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -227,22 +238,27 @@ export default function Products() {
                 </AccordionItem>
 
                 <AccordionItem value="price" className="border-none">
-                  <AccordionTrigger className="hover:no-underline py-3">
-                    <span className="text-sm font-semibold">Price Range</span>
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                    Price Range
                   </AccordionTrigger>
-                  <AccordionContent className="pt-1 pb-4 space-y-4">
-                    <div className="pt-2 px-1">
-                      <Slider
-                        min={0}
-                        max={10000}
-                        step={100}
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        className="[&_[role=slider]]:bg-primary"
-                      />
-                      <div className="flex justify-between mt-4 text-sm font-medium">
-                        <span>₹{priceRange[0]}</span>
-                        <span>₹{priceRange[1]}</span>
+                  <AccordionContent className="pt-4 px-2 space-y-6">
+                    <Slider
+                      min={0}
+                      max={50000}
+                      step={500}
+                      value={priceRange}
+                      onValueChange={setPriceRange}
+                      className="[&_[role=slider]]:bg-[#d4af37] [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
+                    />
+                    <div className="flex justify-between items-center bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white/5">
+                      <div className="text-center">
+                        <p className="text-[10px] text-gray-500 font-bold uppercase">Min</p>
+                        <p className="text-sm font-black text-[#d4af37]">₹{priceRange[0]}</p>
+                      </div>
+                      <div className="w-px h-8 bg-white/10" />
+                      <div className="text-center">
+                        <p className="text-[10px] text-gray-500 font-bold uppercase">Max</p>
+                        <p className="text-sm font-black text-[#d4af37]">₹{priceRange[1]}</p>
                       </div>
                     </div>
                   </AccordionContent>
@@ -251,34 +267,58 @@ export default function Products() {
             </div>
           </aside>
 
+          {/* Enhanced Results Grid */}
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
-              <div className="flex items-center gap-3">
-                <Package2 className="w-5 h-5 text-primary" />
-                <p className="text-muted-foreground">Showing <span className="font-bold text-foreground">{sortedProducts.length}</span> products</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#d4af37]/10 rounded-2xl">
+                  <LayoutGrid className="w-5 h-5 text-[#d4af37]" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-xl tracking-tight">Luxury Gallery</h2>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                    {sortedProducts.length} Exceptional Pieces Found
+                  </p>
+                </div>
               </div>
 
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[200px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
-                  <SelectItem value="newest">Newest Arrivals</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">Sort By</span>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full sm:w-[220px] bg-[#fafafa] dark:bg-[#121212] border-white/5 h-11 rounded-xl shadow-lg focus:ring-[#d4af37]">
+                    <SelectValue placeholder="Featured" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-white/5">
+                    <SelectItem value="featured">Featured Selections</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Top Rated Only</SelectItem>
+                    <SelectItem value="newest">Fresh Arrivals</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
               {productsLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="aspect-[250/325] rounded-xl" />
+                  <Skeleton key={i} className="aspect-[3/4.5] rounded-2xl bg-white/5 shadow-2xl" />
                 ))
               ) : sortedProducts.length === 0 ? (
-                <div className="col-span-full py-20 text-center">
-                  <Package2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-                  <p className="text-muted-foreground text-lg">No products found</p>
+                <div className="col-span-full py-32 text-center bg-[#fafafa] dark:bg-[#121212] rounded-3xl border border-dashed border-white/10">
+                  <Package2 className="w-20 h-20 mx-auto mb-6 text-gray-500/20" />
+                  <p className="text-gray-400 text-xl font-serif italic">No matching styles found in our boutique</p>
+                  <Button 
+                    variant="link" 
+                    className="text-[#d4af37] mt-4 font-bold tracking-widest uppercase text-xs"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("all");
+                      setPriceRange([0, 50000]);
+                    }}
+                  >
+                    View All Collections
+                  </Button>
                 </div>
               ) : (
                 paginatedProducts.map((product) => (
@@ -287,18 +327,41 @@ export default function Products() {
               )}
             </div>
 
+            {/* Premium Pagination */}
             {totalPages > 1 && (
-              <div className="mt-12 flex justify-center gap-2">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <Button
-                    key={i}
-                    variant={currentPage === i + 1 ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
+              <div className="mt-20 flex justify-center items-center gap-4">
+                <Button
+                  variant="ghost"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                  className="text-xs font-bold uppercase tracking-widest hover:text-[#d4af37]"
+                >
+                  Prev
+                </Button>
+                <div className="flex gap-2">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={currentPage === i + 1 ? "default" : "ghost"}
+                      className={`w-10 h-10 rounded-full text-xs font-bold ${
+                        currentPage === i + 1 
+                          ? "bg-[#d4af37] text-black shadow-lg shadow-[#d4af37]/20" 
+                          : "text-gray-500 hover:text-[#d4af37]"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="ghost"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  className="text-xs font-bold uppercase tracking-widest hover:text-[#d4af37]"
+                >
+                  Next
+                </Button>
               </div>
             )}
           </div>
