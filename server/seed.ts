@@ -79,7 +79,7 @@ async function seed() {
   // Create admin user
   const hashedPassword = await bcrypt.hash("admin123", 10);
   const [adminUser] = await db.insert(users).values({
-    email: "admin@textile.com",
+    email: "admin@queen4feet.com",
     password: hashedPassword,
     fullName: "Admin User",
     role: "admin",
@@ -99,7 +99,7 @@ async function seed() {
   for (const vendor of vendorData) {
     const vendorPassword = await bcrypt.hash("vendor123", 10);
     const [vendorUser] = await db.insert(users).values({
-      email: vendor.name.toLowerCase().replace(/\s+/g, "") + "@textile.com",
+      email: vendor.name.toLowerCase().replace(/\s+/g, "") + "@queen4feet.com",
       password: vendorPassword,
       fullName: vendor.name + " Admin",
       role: "vendor",

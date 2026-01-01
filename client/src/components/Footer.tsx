@@ -13,7 +13,7 @@ export function Footer() {
   const { data: cmsSettings } = useCmsSettings();
   
   const siteName = cmsSettings?.siteMeta?.siteName || "LuxeFashion";
-  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "support@luxefashion.com";
+  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@queen4feet.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;

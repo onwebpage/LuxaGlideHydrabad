@@ -23,7 +23,7 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email Us",
-      detail: "support@queen4feel.com",
+      detail: "connect@queen4feet.com",
       description: "We'll respond within 24 hours"
     },
     {
