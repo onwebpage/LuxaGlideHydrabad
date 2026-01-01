@@ -378,14 +378,6 @@ export default function Home() {
     </div>
   );
 
-  const { data: recommendations } = useQuery<Product[]>({
-    queryKey: ['/api/ai/recommendations'],
-    queryFn: async () => {
-      const res = await fetch('/api/ai/recommendations');
-      return res.json();
-    }
-  });
-
   return (
     <div className="min-h-screen">
       <section 
@@ -407,9 +399,9 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
-            <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 font-medium text-white drop-shadow-md">
+            <h2 className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 font-medium text-white drop-shadow-md">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors.
-            </p>
+            </h2>
             <Button 
               className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-xl shadow-[#d4af37]/20 btn-shiny"
               data-testid="button-shop-now"
@@ -420,25 +412,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* AI Recommendations Section */}
-      {recommendations && recommendations.length > 0 && (
-        <section className="py-12 bg-primary/5">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-2 mb-8">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-serif font-bold">Recommended For You</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8">
-              {recommendations.map((product) => (
-                <div key={product.id} className="transition-all duration-500">
-                  <ProductCard product={product as any} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Quick Category Icons */}
       <section className="py-12 bg-[#fcfaf2] border-b border-[#d4af37]/20">
