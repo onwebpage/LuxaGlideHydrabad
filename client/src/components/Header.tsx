@@ -116,14 +116,14 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 md:relative md:top-auto">
+    <header className="fixed top-0 left-0 right-0 z-[100] md:relative md:top-auto">
       {/* Main Header - White Background */}
       <div className="bg-white dark:bg-background border-b border-gray-100 dark:border-border shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
+          <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0" data-testid="link-home">
-              <img src={logoImage} alt={cmsSettings?.siteMeta?.siteName || "Queen 4feet"} className="h-24 w-auto lg:h-32 object-contain" />
+              <img src={logoImage} alt={cmsSettings?.siteMeta?.siteName || "Queen 4feet"} className="h-32 w-auto lg:h-40 object-contain" />
             </Link>
 
             {/* Search Bar - Desktop */}
