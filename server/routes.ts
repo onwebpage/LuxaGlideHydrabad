@@ -13,6 +13,7 @@ import {
   footerSchema,
   homepageFeaturedProductsSchema,
   CMS_KEYS,
+  insertVendorReceiptSchema,
   type AllCmsSettings,
 } from "@shared/schema";
 import bcrypt from "bcrypt";
