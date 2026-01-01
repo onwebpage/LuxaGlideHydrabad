@@ -192,10 +192,10 @@ export default function Home() {
   const FilterContent = ({ isMobile = false }) => (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-4 border-b">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4" />
-          <h3 className="text-lg font-bold">Filters</h3>
-        </div>
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
+                <h3 className="text-lg font-bold text-[#4a3700] dark:text-foreground">Filters</h3>
+              </div>
         {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedOccasions.length > 0 || selectedFabrics.length > 0) && (
           <Button 
             variant="ghost" 
@@ -232,7 +232,7 @@ export default function Home() {
       <Accordion type="multiple" defaultValue={["category", "price", "brand", "size"]} className="w-full">
         <AccordionItem value="category" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Category</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Category</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -251,7 +251,7 @@ export default function Home() {
 
         <AccordionItem value="price" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Price Range</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Price Range</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="space-y-6">
@@ -295,7 +295,7 @@ export default function Home() {
 
         <AccordionItem value="brand" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Brand</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Brand</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="relative">
@@ -312,7 +312,7 @@ export default function Home() {
 
         <AccordionItem value="size" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Size</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Size</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="grid grid-cols-3 gap-2">
@@ -333,7 +333,7 @@ export default function Home() {
 
         <AccordionItem value="occasion" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Occasion</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Occasion</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="space-y-2">
@@ -355,7 +355,7 @@ export default function Home() {
 
         <AccordionItem value="fabric" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold">Fabric</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Fabric</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="space-y-2">
@@ -560,23 +560,23 @@ export default function Home() {
 
             {/* Right Side Content */}
             <div className="flex-1">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold">Products For You</h2>
-                  <p className="text-sm text-muted-foreground">Showing {filteredProducts.length} results</p>
+                  <h2 className="text-2xl font-serif font-bold text-[#4a3700] dark:text-foreground">Products For You</h2>
+                  <p className="text-sm text-[#8a6d1e] dark:text-muted-foreground font-medium">Showing {filteredProducts.length} results</p>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Sort by:</span>
+                  <span className="text-[#8a6d1e] dark:text-muted-foreground font-bold uppercase tracking-widest">Sort by:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-[140px] border-none bg-transparent font-bold h-auto p-0 focus:ring-0">
+                    <SelectTrigger className="w-[140px] border-none bg-transparent font-bold h-auto p-0 focus:ring-0 text-[#4a3700] dark:text-foreground uppercase tracking-widest text-xs">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="popular">Popular</SelectItem>
-                      <SelectItem value="price-low">Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">Price: High to Low</SelectItem>
-                      <SelectItem value="rating">Highest Rated</SelectItem>
+                    <SelectContent className="border-[#d4af37]/20">
+                      <SelectItem value="popular" className="text-xs font-bold uppercase tracking-widest">Popular</SelectItem>
+                      <SelectItem value="price-low" className="text-xs font-bold uppercase tracking-widest">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high" className="text-xs font-bold uppercase tracking-widest">Price: High to Low</SelectItem>
+                      <SelectItem value="rating" className="text-xs font-bold uppercase tracking-widest">Highest Rated</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -604,8 +604,8 @@ export default function Home() {
                 <div className="text-center mt-12">
                   <Link href="/products">
                     <Button variant="outline" size="lg" className="rounded-full px-8">
-                      <span className="text-sm font-bold tracking-[0.2em] uppercase mr-2 drop-shadow-md text-white">View All Products</span>
-                      <ArrowRight className="ml-2 w-4 h-4 text-white drop-shadow-md" />
+                      <span className="text-sm font-bold tracking-[0.2em] uppercase mr-2 drop-shadow-md text-[#4a3700] dark:text-white">View All Products</span>
+                      <ArrowRight className="ml-2 w-4 h-4 text-[#4a3700] dark:text-white drop-shadow-md" />
                     </Button>
                   </Link>
                 </div>

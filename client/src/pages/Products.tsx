@@ -173,7 +173,7 @@ export default function Products() {
                   <div className="p-2 bg-[#d4af37]/10 rounded-lg">
                     <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
                   </div>
-                  <h3 className="font-bold tracking-tight text-lg">Filters</h3>
+                  <h3 className="font-bold tracking-tight text-lg text-[#4a3700] dark:text-foreground">Filters</h3>
                 </div>
                 {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all" || priceRange[0] > 0 || priceRange[1] < 50000) && (
                   <Button 
@@ -203,7 +203,7 @@ export default function Products() {
 
               <Accordion type="multiple" defaultValue={["search", "category", "price"]} className="w-full">
                 <AccordionItem value="search" className="border-none mb-4">
-                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest text-[#8a6d1e] dark:text-foreground">
                     Search
                   </AccordionTrigger>
                   <AccordionContent className="pt-2">
@@ -220,7 +220,7 @@ export default function Products() {
                 </AccordionItem>
 
                 <AccordionItem value="category" className="border-none mb-4">
-                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest text-[#8a6d1e] dark:text-foreground">
                     Category
                   </AccordionTrigger>
                   <AccordionContent className="pt-2">
@@ -238,7 +238,7 @@ export default function Products() {
                 </AccordionItem>
 
                 <AccordionItem value="price" className="border-none">
-                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest">
+                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest text-[#8a6d1e] dark:text-foreground">
                     Price Range
                   </AccordionTrigger>
                   <AccordionContent className="pt-4 px-2 space-y-6">
@@ -275,25 +275,25 @@ export default function Products() {
                   <LayoutGrid className="w-5 h-5 text-[#d4af37]" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-xl tracking-tight text-foreground">Luxury Gallery</h2>
-                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
+                  <h2 className="font-bold text-xl tracking-tight text-[#4a3700] dark:text-foreground">Luxury Gallery</h2>
+                  <p className="text-xs text-[#8a6d1e] dark:text-muted-foreground font-bold uppercase tracking-widest">
                     {sortedProducts.length} Exceptional Pieces Found
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest hidden sm:block">Sort By</span>
+                <span className="text-xs font-bold text-[#8a6d1e] dark:text-muted-foreground uppercase tracking-widest hidden sm:block">Sort By</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-full sm:w-[220px] bg-[#fafafa] dark:bg-[#121212] border-white/5 h-11 rounded-xl shadow-lg focus:ring-[#d4af37]">
+                  <SelectTrigger className="w-full sm:w-[220px] bg-white dark:bg-[#121212] border-[#d4af37]/30 h-11 rounded-xl shadow-lg focus:ring-[#d4af37] text-[#4a3700] dark:text-foreground font-bold text-xs uppercase tracking-widest">
                     <SelectValue placeholder="Featured" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-white/5">
-                    <SelectItem value="featured">Featured Selections</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Top Rated Only</SelectItem>
-                    <SelectItem value="newest">Fresh Arrivals</SelectItem>
+                  <SelectContent className="rounded-xl border-[#d4af37]/20">
+                    <SelectItem value="featured" className="text-xs font-bold uppercase tracking-widest">Featured Selections</SelectItem>
+                    <SelectItem value="price-low" className="text-xs font-bold uppercase tracking-widest">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high" className="text-xs font-bold uppercase tracking-widest">Price: High to Low</SelectItem>
+                    <SelectItem value="rating" className="text-xs font-bold uppercase tracking-widest">Top Rated Only</SelectItem>
+                    <SelectItem value="newest" className="text-xs font-bold uppercase tracking-widest">Fresh Arrivals</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
