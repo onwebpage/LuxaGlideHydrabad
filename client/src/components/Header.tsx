@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
 import logoImage from "@assets/Untitled_design-removebg-preview_1765148207646.png";
