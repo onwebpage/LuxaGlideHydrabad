@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Award, Shield, CheckCircle, Users, ArrowRight } from "lucide-react";
+import { Award, Shield, CheckCircle, Users, ArrowRight, FileText, Gavel, Scale } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Vendor } from "@shared/schema";
 
@@ -31,6 +31,24 @@ export default function Vendors() {
       icon: Users,
       title: "Dedicated Support",
       description: "24/7 customer service for buyers"
+    }
+  ];
+
+  const policies = [
+    {
+      icon: FileText,
+      title: "Verification Policy",
+      description: "All vendors must submit valid business registration, PAN card, and GST details for mandatory KYC verification."
+    },
+    {
+      icon: Gavel,
+      title: "Quality Standards",
+      description: "Products must meet Queen4feet quality benchmarks. Vendors must maintain a minimum 4-star rating to remain on the platform."
+    },
+    {
+      icon: Scale,
+      title: "Fair Trade Policy",
+      description: "Transparent pricing, honest product descriptions, and ethical sourcing are non-negotiable requirements for all partners."
     }
   ];
 
@@ -92,6 +110,38 @@ export default function Vendors() {
                   </CardContent>
                 </Card>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Vendor Policy Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
+              Vendor Policy
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Our commitment to excellence and reliability through strict guidelines
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {policies.map((policy) => (
+              <Card key={policy.title} className="bg-background border-none shadow-sm hover-elevate">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                      <policy.icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-serif text-xl font-semibold">{policy.title}</h3>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {policy.description}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
