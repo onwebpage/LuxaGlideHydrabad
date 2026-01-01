@@ -754,6 +754,28 @@ export class DatabaseStorage implements IStorage {
     return sub;
   }
 
+  // Vendor Receipts
+  async getVendorReceipts(vendorId: string): Promise<VendorReceipt[]> {
+    return await db.select().from(vendorReceipts)
+      .where(eq(vendorReceipts.vendorId, vendorId))
+      .orderBy(desc(vendorReceipts.issuedAt));
+  }
+
+  async getReceipt(id: string): Promise<VendorReceipt | undefined> {
+    const [receipt] = await db.select().from(vendorReceipts).where(eq(vendorReceipts.id, id));
+    return receipt || undefined;
+  }
+
+  async getReceiptByOrder(orderId: string): Promise<VendorReceipt | undefined> {
+    const [receipt] = await db.select().from(vendorReceipts).where(eq(vendorReceipts.orderId, orderId));
+    return receipt || undefined;
+  }
+
+  async createReceipt(insertReceipt: InsertVendorReceipt): Promise<VendorReceipt> {
+    const [receipt] = await db.insert(vendorReceipts).values(insertReceipt).returning();
+    return receipt;
+  }
+
   // CMS
   async getCmsSetting(key: string): Promise<CmsSetting | undefined> {
     const [setting] = await db.select().from(cmsSettings).where(eq(cmsSettings.key, key));
@@ -1656,6 +1678,32 @@ export class MemStorage implements IStorage {
     };
     this.newsletter.set(subscription.id, subscription);
     return subscription;
+  }
+
+  // Vendor Receipts
+  async getVendorReceipts(vendorId: string): Promise<VendorReceipt[]> {
+    return Array.from(this.vendorReceipts.values())
+      .filter(r => r.vendorId === vendorId)
+      .sort((a, b) => b.issuedAt.getTime() - a.issuedAt.getTime());
+  }
+
+  async getReceipt(id: string): Promise<VendorReceipt | undefined> {
+    return this.vendorReceipts.get(id);
+  }
+
+  async getReceiptByOrder(orderId: string): Promise<VendorReceipt | undefined> {
+    return Array.from(this.vendorReceipts.values()).find(r => r.orderId === orderId);
+  }
+
+  async createReceipt(insertReceipt: InsertVendorReceipt): Promise<VendorReceipt> {
+    const receipt: VendorReceipt = {
+      id: nanoid(),
+      ...insertReceipt,
+      issuedAt: new Date(),
+      createdAt: new Date(),
+    };
+    this.vendorReceipts.set(receipt.id, receipt);
+    return receipt;
   }
 
   // CMS

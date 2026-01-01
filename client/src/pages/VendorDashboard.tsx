@@ -25,9 +25,11 @@ import {
   Upload,
   Star,
   AlertCircle,
+  Receipt,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import VendorReceipts from "@/components/VendorReceipts";
 import {
   Dialog,
   DialogContent,
@@ -58,9 +60,6 @@ import {
 import type { Order, Product, Vendor, Coupon } from "@shared/schema";
 import { useAuth, getAuthToken } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { X, FileText, CheckCircle, Ticket, Percent } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { queryClient } from "@/lib/queryClient";
 
 const salesData = [
   { month: "Jan", sales: 45000 },
@@ -1063,6 +1062,7 @@ export default function VendorDashboard() {
             <TabsTrigger value="products" data-testid="tab-products">Products</TabsTrigger>
             <TabsTrigger value="orders" data-testid="tab-orders">Orders</TabsTrigger>
             <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="receipts" data-testid="tab-receipts">Receipts</TabsTrigger>
           </TabsList>
 
           {/* Products Tab */}

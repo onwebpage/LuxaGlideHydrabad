@@ -35,7 +35,6 @@ import AdminSiteSettings from "@/pages/AdminSiteSettings";
 import AdminCoupons from "@/pages/AdminCoupons";
 import NotFound from "@/pages/not-found";
 import { PrivacyPolicy, TermsOfService, RefundPolicy, ShippingPolicy } from "@/pages/Policies";
-
 function ScrollToTop() {
   const [location] = useLocation();
   
