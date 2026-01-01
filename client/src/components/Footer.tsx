@@ -1,8 +1,7 @@
 import { Link } from "wouter";
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, Send } from "lucide-react";
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin, Send, ShieldCheck, RefreshCcw, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
@@ -14,14 +13,10 @@ export function Footer() {
   const { data: cmsSettings } = useCmsSettings();
   
   const siteName = cmsSettings?.siteMeta?.siteName || "LuxeFashion";
-  const tagline = cmsSettings?.siteMeta?.tagline || "India's premier fashion marketplace for women. Discover exquisite designer collections from verified vendors.";
   const contactEmail = cmsSettings?.siteMeta?.contactEmail || "support@luxefashion.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
-  const showNewsletter = cmsSettings?.footer?.showNewsletter !== false;
-  const newsletterTitle = cmsSettings?.footer?.newsletterTitle || "Stay Updated";
-  const newsletterDescription = cmsSettings?.footer?.newsletterDescription || "Get exclusive deals, new arrivals, and style inspiration delivered to your inbox.";
   const socialLinks = cmsSettings?.footer?.socialLinks || [];
   
   const getSocialIcon = (platform: string) => {
@@ -40,174 +35,153 @@ export function Footer() {
     if (email) {
       toast({
         title: "Subscribed!",
-        description: "Thank you for subscribing to our newsletter.",
+        description: "Welcome to the elite fashion circle.",
       });
       setEmail("");
     }
   };
 
   return (
-    <footer className="relative mt-16 sm:mt-24 md:mt-32">
-      {/* Decorative Top Border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+    <footer className="relative mt-20 bg-black text-white">
+      {/* Soft Dark Gradient Wash */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#121212] to-black opacity-95 pointer-events-none" />
       
-      {/* Main Footer Content */}
-      <div className="bg-gradient-to-b from-secondary/30 via-background to-card">
-        <div className="container mx-auto px-4 sm:px-6 pt-10 sm:pt-14 md:pt-20 pb-8 sm:pb-10 md:pb-12">
-          {/* Top Section - Brand & Newsletter */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12 md:mb-16">
-            {/* Brand Section */}
-            <div>
-              <Link href="/" className="inline-block mb-6" data-testid="link-footer-home">
-                <img src={logoImage} alt={siteName} className="h-20 w-auto object-contain" />
-              </Link>
-              <p className="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-md leading-relaxed">
-                {tagline}
-              </p>
-              <div className="flex gap-3">
-                {socialLinks.length > 0 ? (
-                  socialLinks.filter(link => link.isVisible !== false).map((link, index) => {
-                    const Icon = getSocialIcon(link.platform);
-                    return (
-                      <a key={index} href={link.url} target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" size="icon" className="hover-elevate" data-testid={`button-social-${link.platform.toLowerCase()}`}>
-                          <Icon className="w-5 h-5" />
-                        </Button>
-                      </a>
-                    );
-                  })
-                ) : (
-                  <>
-                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-facebook">
-                      <Facebook className="w-5 h-5" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-instagram">
-                      <Instagram className="w-5 h-5" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-twitter">
-                      <Twitter className="w-5 h-5" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-linkedin">
-                      <Linkedin className="w-5 h-5" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="hover-elevate" data-testid="button-youtube">
-                      <Youtube className="w-5 h-5" />
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-
-          </div>
-
-          {/* Links Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-10 sm:mb-12 md:mb-16">
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Quick Links</h4>
-              <ul className="space-y-2 sm:space-y-4">
-                <li>
-                  <Link href="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-products">
-                    Collections
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/vendors" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-vendors">
-                    Vendors
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-about">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-contact">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* For Business */}
-            <div>
-              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">For Business</h4>
-              <ul className="space-y-2 sm:space-y-4">
-                <li>
-                  <Link href="/register?role=vendor" className="text-muted-foreground hover:text-primary transition-colors text-sm" data-testid="link-footer-become-vendor">
-                    Apply as a Vendor
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Support</h4>
-              <ul className="space-y-2 sm:space-y-4">
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Shipping Info
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Returns
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    Track Order
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h4 className="font-semibold text-sm sm:text-base mb-4 sm:mb-6 text-foreground">Contact Us</h4>
-              <ul className="space-y-2 sm:space-y-4">
-                <li className="flex items-start gap-2">
-                  <Mail className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">{contactEmail}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Phone className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">{contactPhone}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground">{address}</span>
-                </li>
-              </ul>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 pt-16 pb-8">
+        {/* Top Section: Brand & Newsletter */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16 items-start">
+          {/* Brand Info */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block mb-4" data-testid="link-footer-home">
+              <img src={logoImage} alt={siteName} className="h-14 w-auto object-contain brightness-110" />
+            </Link>
+            <p className="text-[#d4af37] font-serif italic text-lg mb-6 tracking-wide">
+              "Feel Like a Queen, Every Day"
+            </p>
+            <div className="flex gap-4">
+              {socialLinks.length > 0 ? (
+                socialLinks.filter(link => link.isVisible !== false).map((link, index) => {
+                  const Icon = getSocialIcon(link.platform);
+                  return (
+                    <a key={index} href={link.url} target="_blank" rel="noopener noreferrer" className="group">
+                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#d4af37]" />
+                      </div>
+                    </a>
+                  );
+                })
+              ) : (
+                ['instagram', 'facebook', 'twitter', 'youtube'].map((platform) => {
+                  const Icon = getSocialIcon(platform);
+                  return (
+                    <a key={platform} href="#" className="group">
+                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#d4af37]" />
+                      </div>
+                    </a>
+                  );
+                })
+              )}
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-8 border-t border-border">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <p className="text-sm text-muted-foreground text-center md:text-left">
-                &copy; {copyrightText}
-              </p>
-              <div className="flex flex-wrap justify-center gap-6">
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Privacy Policy
-                </a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Terms of Service
-                </a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Refund Policy
-                </a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Cookie Policy
-                </a>
+          {/* Newsletter Box */}
+          <div className="lg:col-span-2 bg-[#1a1a1a] p-8 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <h3 className="text-xl font-bold mb-2 tracking-tight">Get exclusive fashion drops & offers</h3>
+                <p className="text-gray-400 text-sm">Join our luxury community for early access and special rewards.</p>
               </div>
+              <form onSubmit={handleNewsletterSubmit} className="flex w-full md:w-auto gap-2">
+                <Input 
+                  type="email" 
+                  placeholder="Email address" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-black/50 border-white/10 focus:border-[#d4af37] h-11 w-full md:w-64"
+                />
+                <Button type="submit" className="bg-[#d4af37] hover:bg-[#b8962d] text-black font-bold px-6 h-11">
+                  SUBSCRIBE
+                </Button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {/* Trust Indicators */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-10 border-y border-white/5 mb-16">
+          <div className="flex items-center gap-4 justify-center sm:justify-start">
+            <div className="p-3 bg-white/5 rounded-xl"><ShieldCheck className="w-6 h-6 text-[#d4af37]" /></div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider">Secure Payments</h4>
+              <p className="text-xs text-gray-400">100% Protected Transactions</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 justify-center">
+            <div className="p-3 bg-white/5 rounded-xl"><RefreshCcw className="w-6 h-6 text-[#d4af37]" /></div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider">Easy Returns</h4>
+              <p className="text-xs text-gray-400">7-Day Hassle-Free Policy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 justify-center sm:justify-end">
+            <div className="p-3 bg-white/5 rounded-xl"><UserCheck className="w-6 h-6 text-[#d4af37]" /></div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider">Trusted Vendors</h4>
+              <p className="text-xs text-gray-400">Verified Quality Standards</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Links Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+          <div>
+            <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Collections</h4>
+            <ul className="space-y-4">
+              <li><Link href="/products" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">All Products</Link></li>
+              <li><Link href="/products?category=sarees" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Sarees</Link></li>
+              <li><Link href="/products?category=kurtis" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Kurtis</Link></li>
+              <li><Link href="/products?category=dresses" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Dresses</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Company</h4>
+            <ul className="space-y-4">
+              <li><Link href="/about" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Story</Link></li>
+              <li><Link href="/vendors" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Vendors</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Contact Us</Link></li>
+              <li><Link href="/register?role=vendor" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Sell with Us</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Support</h4>
+            <ul className="space-y-4">
+              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Get In Touch</h4>
+            <ul className="space-y-4">
+              <li className="flex items-center gap-3 text-sm text-gray-400"><Mail className="w-4 h-4 text-[#d4af37]" /> {contactEmail}</li>
+              <li className="flex items-center gap-3 text-sm text-gray-400"><Phone className="w-4 h-4 text-[#d4af37]" /> {contactPhone}</li>
+              <li className="flex items-start gap-3 text-sm text-gray-400"><MapPin className="w-4 h-4 text-[#d4af37] mt-1" /> {address}</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-[#d4af37]/20">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-xs text-gray-500 font-medium">
+              &copy; {copyrightText}
+            </p>
+            <div className="flex flex-wrap justify-center gap-8">
+              {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map((text) => (
+                <a key={text} href="#" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">{text}</a>
+              ))}
             </div>
           </div>
         </div>
