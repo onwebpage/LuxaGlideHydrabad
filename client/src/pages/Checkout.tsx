@@ -320,7 +320,7 @@ export default function Checkout() {
                         <div className="w-16 h-16 rounded bg-secondary shrink-0 overflow-hidden">
                           {item.product?.images && (
                             <img
-                              src={(JSON.parse(item.product.images as string) as string[])[0]}
+                              src={(JSON.parse(item.product.images as string))[0]}
                               alt={item.product.name}
                               className="w-full h-full object-cover"
                             />
