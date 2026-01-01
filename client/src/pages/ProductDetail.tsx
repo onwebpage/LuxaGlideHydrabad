@@ -624,7 +624,7 @@ export default function ProductDetail() {
             <div className="flex gap-2 sm:gap-3 mb-6 sm:mb-8">
               <Button 
                 variant="outline"
-                className="flex-1 text-xs sm:text-sm" 
+                className="flex-1 text-xs sm:text-sm rounded-full border-2 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/5" 
                 size="default"
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || addedToCart}
@@ -640,14 +640,9 @@ export default function ProductDetail() {
                 {isAddingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
               </Button>
               <Button 
-                className="flex-1 text-xs sm:text-sm" 
+                className="flex-1 text-xs sm:text-sm rounded-full bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-lg shadow-[#d4af37]/20" 
                 size="default"
-                onClick={async () => {
-                  await handleAddToCart();
-                  if (user) {
-                    setLocation("/cart");
-                  }
-                }}
+                onClick={() => setLocation("/checkout?buyNow=true")}
                 disabled={isAddingToCart}
                 data-testid="button-buy-now"
               >

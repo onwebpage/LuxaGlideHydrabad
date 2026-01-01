@@ -22,6 +22,8 @@ import {
   CheckCircle2,
   ShieldCheck,
   RefreshCcw,
+  Loader2,
+  Zap,
 } from "lucide-react";
 
 // Minimal schema as requested
@@ -84,15 +86,113 @@ export default function Checkout() {
     }
   };
 
+  const [paymentStep, setPaymentStep] = useState(false);
+
   const onSubmit = async (values: CheckoutFormValues) => {
     setIsSubmitting(true);
-    // Simulate order placement
+    // Simulate order placement or move to payment step
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setPaymentStep(true);
+    setIsSubmitting(false);
+    window.scrollTo(0, 0);
+  };
+
+  const handleFinalPayment = async () => {
+    setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     clearCart();
     setIsDone(true);
     setIsSubmitting(false);
     window.scrollTo(0, 0);
   };
+
+  if (paymentStep) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md border-t-4 border-[#d4af37] shadow-2xl">
+          <CardHeader className="bg-white pb-2">
+            <div className="flex justify-between items-center mb-4">
+              <img src="https://www.cashfree.com/wp-content/uploads/2022/10/logo.png" alt="Cashfree" className="h-6" />
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground uppercase">Order ID</p>
+                <p className="text-xs font-mono">CF_{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+              </div>
+            </div>
+            <Separator />
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-1">Amount to Pay</p>
+              <h2 className="text-3xl font-bold">₹{total.toLocaleString()}</h2>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Select Payment Method</h3>
+              
+              <button 
+                onClick={handleFinalPayment}
+                className="w-full flex items-center justify-between p-4 border rounded-xl hover:border-[#d4af37] hover:bg-[#d4af37]/5 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-sm">Cards (Visa, Mastercard, etc)</p>
+                    <p className="text-[10px] text-muted-foreground">Pay using Debit or Credit card</p>
+                  </div>
+                </div>
+                <ArrowLeft className="w-4 h-4 rotate-180 text-muted-foreground group-hover:text-[#d4af37]" />
+              </button>
+
+              <button 
+                onClick={handleFinalPayment}
+                className="w-full flex items-center justify-between p-4 border rounded-xl hover:border-[#d4af37] hover:bg-[#d4af37]/5 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-sm">UPI (GPay, PhonePe, Paytm)</p>
+                    <p className="text-[10px] text-muted-foreground">Scan QR or enter UPI ID</p>
+                  </div>
+                </div>
+                <ArrowLeft className="w-4 h-4 rotate-180 text-muted-foreground group-hover:text-[#d4af37]" />
+              </button>
+
+              <button 
+                onClick={handleFinalPayment}
+                className="w-full flex items-center justify-between p-4 border rounded-xl hover:border-[#d4af37] hover:bg-[#d4af37]/5 transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                    <RefreshCcw className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-sm">Net Banking</p>
+                    <p className="text-[10px] text-muted-foreground">All major Indian banks</p>
+                  </div>
+                </div>
+                <ArrowLeft className="w-4 h-4 rotate-180 text-muted-foreground group-hover:text-[#d4af37]" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <Lock className="w-3 h-3 text-muted-foreground" />
+              <p className="text-[10px] text-muted-foreground">Securely processed by Cashfree Payments</p>
+            </div>
+          </CardContent>
+          <div className="p-4 border-t bg-gray-50 flex justify-between items-center rounded-b-xl">
+            <Button variant="ghost" size="sm" onClick={() => setPaymentStep(false)} className="text-xs">
+              Cancel
+            </Button>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin text-[#d4af37]" />}
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (isDone) {
     return (
@@ -320,7 +420,7 @@ export default function Checkout() {
                         <div className="w-16 h-16 rounded bg-secondary shrink-0 overflow-hidden">
                           {item.product?.images && (
                             <img
-                              src={(JSON.parse(item.product.images as string))[0] as string}
+                              src={(JSON.parse(item.product.images as string) as string[])[0]}
                               alt={item.product.name}
                               className="w-full h-full object-cover"
                             />

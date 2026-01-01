@@ -400,19 +400,18 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 w-fit">
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">AI-Powered Fashion</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-[#d4af37]/50 mb-6 w-fit">
+              <Sparkles className="w-4 h-4 text-[#d4af37]" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white">AI-Powered Fashion</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
-            <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 opacity-90">
+            <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 opacity-90 text-white/90">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors.
             </p>
             <Button 
-              variant="shiny"
-              className="w-fit px-8 py-3 rounded-full text-sm sm:text-base"
+              className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-xl shadow-[#d4af37]/20 btn-shiny"
               data-testid="button-shop-now"
             >
               SHOP NOW
