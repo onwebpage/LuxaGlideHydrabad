@@ -10,7 +10,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
-  const image = Array.isArray(images) && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop';
+  const image = Array.isArray(images) && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=800&auto=format&fit=crop';
 
   return (
     <Link href={`/products/${product.id}`}>
@@ -28,7 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop';
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=800&auto=format&fit=crop';
               }}
             />
             

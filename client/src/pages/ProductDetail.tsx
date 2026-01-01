@@ -551,7 +551,7 @@ export default function ProductDetail() {
                           <p className="text-sm text-muted-foreground mb-1">Your recommended size is</p>
                           <p className="text-3xl font-bold text-primary">{suggestedSize}</p>
                           <Button 
-                            variant="link" 
+                            variant="ghost" 
                             className="mt-2 text-primary"
                             onClick={() => {
                               setSelectedSize(suggestedSize);

@@ -142,10 +142,10 @@ export default function Products() {
     <div className="min-h-screen bg-background">
       {/* Premium Hero Header */}
       <section className="relative h-[300px] flex items-center overflow-hidden bg-black text-white">
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-[#1a1a1a] opacity-90" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-60" />
         
-        <div className="relative z-10 container mx-auto px-4 lg:px-6">
+        <div className="relative z-20 container mx-auto px-4 lg:px-6">
           <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400 mb-6 font-medium">
             <Link href="/" className="hover:text-[#d4af37] transition-colors">Home</Link>
             <ChevronRight className="w-3 h-3" />
