@@ -156,10 +156,10 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Support</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</a></li>
+              <li><Link href="/shipping-policy" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</Link></li>
+              <li><Link href="/refund-policy" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</Link></li>
+              <li><Link href="/terms-of-service" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</Link></li>
             </ul>
           </div>
           <div>
@@ -179,9 +179,9 @@ export function Footer() {
               &copy; {copyrightText}
             </p>
             <div className="flex flex-wrap justify-center gap-8">
-              {['Privacy Policy', 'Terms of Service', 'Refund Policy'].map((text) => (
-                <a key={text} href="#" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">{text}</a>
-              ))}
+              <Link href="/privacy-policy" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Terms of Service</Link>
+              <Link href="/refund-policy" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Refund Policy</Link>
             </div>
           </div>
         </div>

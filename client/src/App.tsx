@@ -33,6 +33,7 @@ import AdminVendors from "@/pages/AdminVendors";
 import AdminSiteSettings from "@/pages/AdminSiteSettings";
 import AdminCoupons from "@/pages/AdminCoupons";
 import NotFound from "@/pages/not-found";
+import { PrivacyPolicy, TermsOfService, RefundPolicy, ShippingPolicy } from "@/pages/Policies";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -69,6 +70,10 @@ function Router() {
       <Route path="/dashboard/admin/site-settings" component={AdminSiteSettings} />
       <Route path="/dashboard/admin/coupons" component={AdminCoupons} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/refund-policy" component={RefundPolicy} />
+      <Route path="/shipping-policy" component={ShippingPolicy} />
       {/* Redirect /dashboard to role-specific dashboard - will be dynamic based on user role */}
       <Route path="/dashboard" component={BuyerDashboard} />
       <Route component={NotFound} />
