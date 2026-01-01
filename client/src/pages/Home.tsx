@@ -441,7 +441,7 @@ export default function Home() {
       )}
 
       {/* Quick Category Icons */}
-      <section className="py-12 bg-background border-b border-primary/5">
+      <section className="py-12 bg-[#fcfaf2] border-b border-[#d4af37]/20">
         <div className="container mx-auto px-4">
           <div className="flex justify-start sm:justify-center gap-6 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
             {shopCategories.slice(0, 8).map((category, index) => (
@@ -471,7 +471,7 @@ export default function Home() {
       </section>
 
       {/* Shop by Category */}
-      <section className="py-8 sm:py-12 md:py-16 bg-background">
+      <section className="py-8 sm:py-12 md:py-16 bg-[#fcfaf2]">
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="text-center mb-6 sm:mb-8 md:mb-10">
             <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground mb-2 sm:mb-4">
@@ -504,13 +504,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 bg-background">
+      <section className="py-12 bg-[#fcfaf2]">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-               <Link href="/">Home</Link>
+             <div className="flex items-center gap-2 text-sm text-[#b8962d]">
+               <Link href="/" className="hover:text-[#d4af37]">Home</Link>
                <span>&gt;</span>
-               <span>Products</span>
+               <span className="text-[#8a6d1e]">Products</span>
              </div>
              <div className="flex items-center gap-4">
                 <Sheet>

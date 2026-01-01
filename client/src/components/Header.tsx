@@ -117,8 +117,8 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] md:relative md:top-auto">
-      {/* Main Header - White Background */}
-      <div className="bg-white dark:bg-black border-b border-gray-100 dark:border-[#d4af37]/20 shadow-sm">
+      {/* Main Header - White Background with Gold Border */}
+      <div className="bg-white dark:bg-black border-b border-[#d4af37]/30 dark:border-[#d4af37]/20 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo */}
