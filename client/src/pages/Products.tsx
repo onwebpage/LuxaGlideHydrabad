@@ -309,7 +309,7 @@ export default function Products() {
                   <Package2 className="w-20 h-20 mx-auto mb-6 text-gray-500/20" />
                   <p className="text-gray-400 text-xl font-serif italic">No matching styles found in our boutique</p>
                   <Button 
-                    variant="link" 
+                    variant="ghost" 
                     className="text-[#d4af37] mt-4 font-bold tracking-widest uppercase text-xs"
                     onClick={() => {
                       setSearchQuery("");

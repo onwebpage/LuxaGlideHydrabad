@@ -16,9 +16,9 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link href={`/products/${product.id}`}>
       <StyledWrapper>
         <div className="card group">
-          {product.isNew && (
+          {product.featured && (
             <div id="cardnewfilter">
-              <p>NEW</p>
+              <p>HOT</p>
             </div>
           )}
           
