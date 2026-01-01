@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck, MessageSquare, Sparkles } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -81,12 +81,20 @@ export function Header() {
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
-              <form onSubmit={handleSearch} className="flex">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <form onSubmit={handleSearch} className="relative group">
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
+                    <Search className="w-5 h-5 text-gray-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300" />
+                    {!searchQuery && (
+                      <div className="flex items-center gap-1.5 opacity-50 group-focus-within:opacity-0 transition-opacity">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">AI</span>
+                      </div>
+                    )}
+                  </div>
                   <Input
                     type="search"
-                    placeholder="Try Saree, Kurti or Search by Product Code"
+                    placeholder="Search Sarees, Kurtis, Brands or Product Code…"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -94,34 +102,60 @@ export function Header() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleSearchKeyDown}
-                    className="w-full pl-12 pr-4 h-11 bg-gray-50 dark:bg-muted border-gray-200 dark:border-border rounded-l-lg rounded-r-none focus:bg-white dark:focus:bg-background focus:border-primary focus-visible:ring-1 focus-visible:ring-primary text-sm"
+                    className="w-full pl-16 pr-12 h-12 bg-gray-50/50 dark:bg-muted/30 border-gray-200 dark:border-border rounded-full focus:bg-white dark:focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-300 text-sm shadow-sm hover:shadow-md placeholder:text-gray-400"
                     data-testid="input-search"
                   />
+                  <div className="absolute right-2">
+                    <Button 
+                      type="submit" 
+                      size="icon"
+                      className="rounded-full w-9 h-9 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-transform active:scale-95"
+                      data-testid="button-search"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <Button 
-                  type="submit" 
-                  className="rounded-l-none rounded-r-lg px-6 h-11 bg-primary hover:bg-primary/90"
-                  data-testid="button-search"
-                >
-                  <Search className="w-4 h-4" />
-                </Button>
               </form>
 
               {/* Suggestions Dropdown */}
               <AnimatePresence>
-                {showSuggestions && suggestions.length > 0 && (
+                {showSuggestions && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-lg shadow-xl overflow-hidden z-[60]"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                    className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-[60] backdrop-blur-xl"
                   >
-                    <div className="p-2">
-                      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-50 dark:border-border/50 mb-1">
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">AI Smart Suggestions</p>
+                    {/* Default Trending Suggestions when no query */}
+                    {!searchQuery && (
+                      <div className="p-4 border-b border-gray-50 dark:border-border/50">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Trending Searches</p>
+                        <div className="flex flex-wrap gap-2">
+                          {['Banarasi Saree', 'Cotton Kurti', 'Wedding Collection', 'Under ₹1999'].map((tag) => (
+                            <button
+                              key={tag}
+                              onClick={() => {
+                                setSearchQuery(tag);
+                                setLocation(`/products?search=${encodeURIComponent(tag)}`);
+                                setShowSuggestions(false);
+                              }}
+                              className="px-3 py-1.5 text-xs font-medium rounded-full bg-gray-50 dark:bg-muted border border-gray-100 dark:border-border hover:border-primary/50 hover:text-primary transition-all active:scale-95"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      {suggestions.map((product) => {
+                    )}
+
+                    {suggestions.length > 0 && (
+                      <div className="p-2">
+                        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-50 dark:border-border/50 mb-1">
+                          <Sparkles className="w-3.5 h-3.5 text-primary" />
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">AI Smart Suggestions</p>
+                        </div>
+                        {suggestions.map((product) => {
                         const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
                         const image = Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg';
                         return (
@@ -150,10 +184,11 @@ export function Header() {
                         See all results for "{searchQuery}"
                       </Link>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
             {/* Right Actions */}
             <div className="flex items-center gap-1 lg:gap-2">

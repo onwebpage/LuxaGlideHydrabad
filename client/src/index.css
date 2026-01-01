@@ -1,3 +1,9 @@
+/* Search Bar Focus Style */
+[data-testid="input-search"]:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15) !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
