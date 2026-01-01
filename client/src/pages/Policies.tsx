@@ -17,7 +17,7 @@ function PolicyLayout({ title, icon, children }: PolicyLayoutProps) {
           </div>
           <CardTitle className="text-3xl font-serif">{title}</CardTitle>
         </CardHeader>
-        <CardContent className="pt-8 prose prose-slate max-w-none">
+        <CardContent className="pt-8 prose prose-slate max-w-none dark:prose-invert">
           {children}
         </CardContent>
       </Card>
@@ -28,27 +28,29 @@ function PolicyLayout({ title, icon, children }: PolicyLayoutProps) {
 export function PrivacyPolicy() {
   return (
     <PolicyLayout title="Privacy Policy" icon={<ShieldCheck className="w-8 h-8" />}>
-      <section className="space-y-6">
+      <section className="space-y-8">
         <div>
-          <h3 className="text-xl font-bold">1. Data Collection</h3>
-          <p>
-            At Queen4Feet, we respect your privacy. We collect information necessary to facilitate your store management,
-            order processing, and to provide the "10x Sales Boost" our platform promises. This includes vendor details,
-            product listings, and customer contact information.
+          <h3 className="text-xl font-bold mb-4">1. Information We Collect</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Queen4Feet collects personal information when you register, place an order, or interact with our platform. This includes your name, email address, phone number, shipping address, and business details for vendors. We also collect technical data such as IP addresses and browsing behavior to improve our services.
           </p>
         </div>
         <div>
-          <h3 className="text-xl font-bold">2. Brand Visibility and Marketing</h3>
-          <p>
-            We use collected data to "boost your brand visibility" by showing your products to the right audience at the right time.
-            Branding via an established platform like Queen4Feet increases brand authenticity and trust among thousands of genuine customers.
+          <h3 className="text-xl font-bold mb-4">2. How We Use Your Information</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Your data is used to process transactions, manage your account, and provide a personalized shopping experience. For vendors, we use business information to verify KYC status and facilitate B2B connections. We also use contact details for essential service updates and marketing communications (with your consent).
           </p>
         </div>
         <div>
-          <h3 className="text-xl font-bold">3. Information Sharing</h3>
-          <p>
-            We do not sell your personal data. Information is shared only with necessary partners (like shipping providers
-            if chosen) to ensure your "brands and products reach the right people."
+          <h3 className="text-xl font-bold mb-4">3. Data Security</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            We implement industry-standard security measures to protect your personal information. This includes SSL encryption for all data transmissions and secure storage protocols. While we strive for absolute security, no method of electronic transmission is 100% secure.
+          </p>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold mb-4">4. Sharing with Third Parties</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            We do not sell your personal data. We share information only with trusted third-party service providers (such as shipping partners and payment gateways) necessary to fulfill your orders and maintain our platform's operations.
           </p>
         </div>
       </section>
@@ -58,27 +60,53 @@ export function PrivacyPolicy() {
 
 export function TermsOfService() {
   return (
-    <PolicyLayout title="Terms of Service" icon={<FileText className="w-8 h-8" />}>
-      <section className="space-y-6">
-        <div>
-          <h3 className="text-xl font-bold">1. Lifetime Free Hosting</h3>
-          <p>
-            "Host your store completely free for lifetime!" Our STARTER PLAN allows you to maintain your presence on Queen4Feet
-            at no monthly cost. You only pay for "Xtra" features if you choose to upgrade.
+    <PolicyLayout title="Terms and Conditions" icon={<FileText className="w-8 h-8" />}>
+      <section className="space-y-8">
+        <div className="bg-muted/30 p-4 rounded-lg border border-primary/10 mb-8">
+          <p className="text-sm font-medium italic">
+            Last Updated: January 2026. By accessing or using the Queen4Feet platform, you agree to be bound by these Terms and Conditions.
           </p>
         </div>
+
         <div>
-          <h3 className="text-xl font-bold">2. Seller Eligibility</h3>
-          <p>
-            By registering, you agree to our "100-4-100" promotion if applicable (first 100 sellers get 100 products added for free).
-            Sellers must provide accurate product details to maintain brand authenticity.
+          <h3 className="text-xl font-bold mb-4">1. Acceptance of Terms</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            These Terms and Conditions govern your use of the Queen4Feet B2B marketplace. Whether you are a buyer or a verified vendor, your continued use of our services constitutes full acceptance of these terms. If you do not agree with any part of these terms, you must discontinue use immediately.
           </p>
         </div>
+
         <div>
-          <h3 className="text-xl font-bold">3. Commission and Fees</h3>
-          <p>
-            In this competitive market, we assure "low commission rates" so you can profit more from sales. "We always charge fairly!"
-            Marketing costs are fully covered by Queen4Feet under our standard agreement.
+          <h3 className="text-xl font-bold mb-4">2. Account Registration & Security</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Users must provide accurate, current, and complete information during the registration process. You are solely responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Queen4Feet reserves the right to suspend accounts providing false information.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4">3. Vendor Obligations & KYC</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Vendors must undergo a mandatory KYC (Know Your Customer) verification process. You agree to provide genuine business documentation, including GST details and address proof. Queen4Feet acts as a facilitator; vendors are responsible for product quality, inventory accuracy, and legal compliance of their listings.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4">4. B2B Transactions & Pricing</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            All prices are listed in Indian Rupees (INR) unless specified otherwise. As a wholesale marketplace, bulk pricing tiers and Minimum Order Quantities (MOQ) apply. Queen4Feet reserves the right to correct pricing errors and cancel orders resulting from such inaccuracies.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4">5. Intellectual Property</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            All content on the Queen4Feet platform, including logos, designs, text, and graphics, is the property of Queen4Feet or its content suppliers and is protected by intellectual property laws. Unauthorized use of any materials is strictly prohibited.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4">6. Limitation of Liability</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Queen4Feet shall not be liable for any indirect, incidental, or consequential damages arising from the use of our platform or products purchased through it. Our total liability is limited to the amount paid for the specific transaction in question.
           </p>
         </div>
       </section>
@@ -88,20 +116,24 @@ export function TermsOfService() {
 
 export function RefundPolicy() {
   return (
-    <PolicyLayout title="Refund Policy" icon={<RefreshCcw className="w-8 h-8" />}>
-      <section className="space-y-6">
+    <PolicyLayout title="Refund & Return Policy" icon={<RefreshCcw className="w-8 h-8" />}>
+      <section className="space-y-8">
         <div>
-          <h3 className="text-xl font-bold">1. 7-Day Hassle-Free Returns</h3>
-          <p>
-            We offer "total customer support coverage." If a customer is unsatisfied, they can avail our 7-day easy return policy.
-            We handle the customers from marketing to fulfillment inquiries.
+          <h3 className="text-xl font-bold mb-4">1. Return Eligibility</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            We offer a 7-day hassle-free return policy for most products. To be eligible for a return, the item must be unused, in its original packaging, and in the same condition as received. Specific custom-made or intimate wear items may be excluded from returns for hygiene reasons.
           </p>
         </div>
         <div>
-          <h3 className="text-xl font-bold">2. Refund Processing</h3>
-          <p>
-            Refunds are processed back to the original payment method. As we "charge fairly" and maintain "low commission rates,"
-            we ensure that both buyers and sellers are treated equitably during the return process.
+          <h3 className="text-xl font-bold mb-4">2. Refund Process</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Once your return is received and inspected, we will notify you of the approval or rejection of your refund. Approved refunds will be processed back to the original payment method within 5-7 business days. Shipping costs are generally non-refundable unless the return is due to our error.
+          </p>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold mb-4">3. Damaged or Incorrect Items</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            If you receive a damaged or incorrect item, please contact us within 48 hours of delivery with photographic evidence. We will arrange for a replacement or full refund at no additional cost to you.
           </p>
         </div>
       </section>
@@ -112,19 +144,23 @@ export function RefundPolicy() {
 export function ShippingPolicy() {
   return (
     <PolicyLayout title="Shipping Policy" icon={<Truck className="w-8 h-8" />}>
-      <section className="space-y-6">
+      <section className="space-y-8">
         <div>
-          <h3 className="text-xl font-bold">1. You Ship, We Manage</h3>
-          <p>
-            We believe you are the best people to ship your own products. Sellers have the option for "self shipping" via their
-            preferred partners. Simply convey the shipping details to us, and we handle the rest of the customer interaction.
+          <h3 className="text-xl font-bold mb-4">1. Order Processing Time</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            All orders are typically processed within 2-4 business days. High-volume periods or custom orders may require additional time. You will receive a notification once your order has been dispatched.
           </p>
         </div>
         <div>
-          <h3 className="text-xl font-bold">2. Delivery Expectations</h3>
-          <p>
-            Sellers are expected to ship orders promptly to maintain the "Brand Visibility" and trust associated with the Queen4Feet platform.
-            While you manage the physical movement, we "Support" the entire process as it's our job.
+          <h3 className="text-xl font-bold mb-4">2. Shipping Methods & Delivery</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            We partner with reliable logistics providers to ensure safe delivery across India. Estimated delivery times range from 5-10 business days depending on the destination. While vendors may handle physical shipping, Queen4Feet provides tracking support and customer coordination.
+          </p>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold mb-4">3. Shipping Charges</h3>
+          <p className="text-muted-foreground leading-relaxed">
+            Shipping charges are calculated based on order weight, volume, and delivery location. These will be clearly displayed during the checkout process before you finalize your purchase.
           </p>
         </div>
       </section>
