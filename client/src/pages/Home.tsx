@@ -70,6 +70,9 @@ export default function Home() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
   const [selectedFabrics, setSelectedFabrics] = useState<string[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [homeSearchQuery, setHomeSearchQuery] = useState("");
+  const [, setLocation] = useLocation();
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const occasions = ["Casual", "Formal", "Party Wear", "Wedding", "Festive"];
@@ -397,7 +400,7 @@ export default function Home() {
         data-testid="section-hero-with-outfit"
       >
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
+            <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 w-fit">
               <Sparkles className="w-4 h-4 text-yellow-400" />
@@ -406,6 +409,59 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
+            
+            {/* Enhanced Search Bar */}
+            <div className="relative w-full max-w-xl mb-12 group z-20">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] via-[#f1d279] to-[#d4af37] rounded-full blur-md opacity-0 group-focus-within:opacity-20 transition duration-700 animate-pulse"></div>
+              <div className="relative flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-6 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.2)] transition-all duration-500 group-focus-within:border-[#d4af37]/40 group-focus-within:bg-white/15 group-focus-within:shadow-[0_0_40px_rgba(212,175,55,0.15)] h-14 md:h-16">
+                <Search className="w-6 h-6 text-[#d4af37] group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 ease-out" />
+                <input 
+                  type="text"
+                  placeholder="Search Sarees, Kurtis, Brands or Product Code…"
+                  value={homeSearchQuery}
+                  onChange={(e) => setHomeSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && homeSearchQuery.trim()) {
+                      setLocation(`/products?search=${encodeURIComponent(homeSearchQuery.trim())}`);
+                    }
+                  }}
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-base md:text-lg px-5 text-white placeholder:text-white/50 font-light tracking-wide outline-none"
+                />
+                <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/30 backdrop-blur-md shadow-inner">
+                  <Sparkles className="w-4 h-4 text-[#d4af37] animate-pulse" />
+                  <span className="text-[10px] font-black text-[#d4af37] tracking-[0.1em] whitespace-nowrap">AI SMART SEARCH</span>
+                </div>
+              </div>
+
+              {showSearchDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-4 p-6 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-500 ease-out">
+                  <div className="flex items-center gap-2 mb-4 px-2">
+                    <Zap className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <p className="text-[10px] font-bold text-[#d4af37] uppercase tracking-[0.2em]">Premium Suggestions</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {['Banarasi Saree', 'Cotton Kurti', 'Wedding Collection', 'Under ₹1999'].map((suggestion) => (
+                      <button 
+                        key={suggestion}
+                        onClick={() => {
+                          setHomeSearchQuery(suggestion);
+                          setLocation(`/products?search=${encodeURIComponent(suggestion)}`);
+                        }}
+                        className="flex items-center gap-4 px-4 py-3.5 rounded-2xl bg-white/5 hover:bg-[#d4af37]/10 text-left transition-all duration-300 group/item border border-white/5 hover:border-[#d4af37]/20"
+                      >
+                        <div className="p-2 rounded-lg bg-black/40 text-gray-400 group-hover/item:text-[#d4af37] transition-colors">
+                          <Search className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-300 group-hover/item:text-white transition-colors">{suggestion}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 opacity-90">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors.
             </p>
