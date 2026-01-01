@@ -267,63 +267,63 @@ export function Header() {
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors" data-testid=\"button-profile-dropdown\">
-                      <User className=\"w-5 h-5 text-[#fde68a]\" />
-                      <div className=\"hidden lg:flex flex-col leading-tight\">
-                        <span className=\"text-[10px] text-[#fde68a]/80 font-bold\">Hello,</span>
-                        <span className=\"font-black truncate max-w-[80px] text-[#fde68a]\">{user?.fullName?.split(' ')[0] || 'User'}</span>
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors" data-testid="button-profile-dropdown">
+                      <User className="w-5 h-5 text-[#fde68a]" />
+                      <div className="hidden lg:flex flex-col leading-tight">
+                        <span className="text-[10px] text-[#fde68a]/80 font-bold">Hello,</span>
+                        <span className="font-black truncate max-w-[80px] text-[#fde68a]">{user?.fullName?.split(' ')[0] || 'User'}</span>
                       </div>
-                      <ChevronDown className=\"w-4 h-4 hidden lg:block text-[#fde68a]\" />
+                      <ChevronDown className="w-4 h-4 hidden lg:block text-[#fde68a]" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align=\"end\" className=\"w-48 bg-white border-[#bf953f]/30\">
+                  <DropdownMenuContent align="end" className="w-48 bg-white border-[#bf953f]/30">
                     <DropdownMenuItem asChild>
                       <Link 
                         href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'} 
-                        className=\"flex items-center gap-2 cursor-pointer text-[#4a3700]\"
-                        data-testid=\"link-dashboard\"
+                        className="flex items-center gap-2 cursor-pointer text-[#4a3700]"
+                        data-testid="link-dashboard"
                       >
-                        <User className=\"w-4 h-4\" />
+                        <User className="w-4 h-4" />
                         My Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className=\"bg-[#bf953f]/20\" />
+                    <DropdownMenuSeparator className="bg-[#bf953f]/20" />
                     <DropdownMenuItem 
                       onClick={async () => {
                         await logout();
                         setLocation('/');
                       }}
-                      className=\"flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600\"
-                      data-testid=\"button-logout\"
+                      className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
+                      data-testid="button-logout"
                     >
-                      <LogOut className=\"w-4 h-4\" />
+                      <LogOut className="w-4 h-4" />
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link href=\"/login\" className=\"flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors\" data-testid=\"link-login\">
-                  <User className=\"w-5 h-5 text-[#fde68a]\" />
-                  <div className=\"hidden lg:flex flex-col leading-tight\">
-                    <span className=\"text-[10px] text-[#fde68a]/80 uppercase font-black\">Sign In</span>
-                    <span className=\"font-black text-[#fde68a]\">Profile</span>
+                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors" data-testid="link-login">
+                  <User className="w-5 h-5 text-[#fde68a]" />
+                  <div className="hidden lg:flex flex-col leading-tight">
+                    <span className="text-[10px] text-[#fde68a]/80 uppercase font-black">Sign In</span>
+                    <span className="font-black text-[#fde68a]">Profile</span>
                   </div>
                 </Link>
               )}
 
               {/* Cart */}
-              <Link href=\"/cart\" className=\"flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors relative\" data-testid=\"link-cart\">
-                <div className=\"relative\">
-                  <ShoppingCart className=\"w-5 h-5 text-[#fde68a]\" />
+              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors relative" data-testid="link-cart">
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5 text-[#fde68a]" />
                   {cartItemCount > 0 && (
-                    <Badge className=\"absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-red-600 text-[#fde68a] border-none font-bold\">
+                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-red-600 text-[#fde68a] border-none font-bold">
                       {cartItemCount}
                     </Badge>
                   )}
                 </div>
-                <div className=\"hidden lg:flex flex-col leading-tight\">
-                  <span className=\"text-[10px] text-[#fde68a]/80 uppercase font-black\">Your</span>
-                  <span className=\"font-black text-[#fde68a]\">Cart</span>
+                <div className="hidden lg:flex flex-col leading-tight">
+                  <span className="text-[10px] text-[#fde68a]/80 uppercase font-black">Your</span>
+                  <span className="font-black text-[#fde68a]">Cart</span>
                 </div>
               </Link>
 
@@ -368,49 +368,49 @@ export function Header() {
           </form> */}
 
           {/* Mobile Navigation - Below Search Bar */}
-          <nav className=\"md:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-2 px-2 font-sans\">
+          <nav className="md:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-2 px-2 font-sans">
             <Link 
-              href=\"/\" 
-              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/' ? 'text-primary bg-primary/10' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+              href="/" 
+              className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
+                location === '/' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
               }`}
-              data-testid=\"link-mobile-home-nav\"
+              data-testid="link-mobile-home-nav"
             >
               Home
             </Link>
             <Link 
-              href=\"/products\" 
-              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' ? 'text-primary bg-primary/10' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+              href="/products" 
+              className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
+                location === '/products' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
               }`}
-              data-testid=\"link-mobile-products-nav\"
+              data-testid="link-mobile-products-nav"
             >
               All Products
             </Link>
             <Link 
-              href=\"/vendors\" 
-              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/vendors' ? 'text-primary bg-primary/10' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+              href="/vendors" 
+              className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
+                location === '/vendors' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
               }`}
-              data-testid=\"link-mobile-vendors-nav\"
+              data-testid="link-mobile-vendors-nav"
             >
               Vendor
             </Link>
             <Link 
-              href=\"/about\" 
-              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/about' ? 'text-primary bg-primary/10' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+              href="/about" 
+              className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
+                location === '/about' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
               }`}
-              data-testid=\"link-mobile-about-nav\"
+              data-testid="link-mobile-about-nav"
             >
               About Us
             </Link>
             <Link 
-              href=\"/contact\" 
-              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/contact' ? 'text-primary bg-primary/10' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+              href="/contact" 
+              className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
+                location === '/contact' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
               }`}
-              data-testid=\"link-mobile-contact-nav\"
+              data-testid="link-mobile-contact-nav"
             >
               Contact
             </Link>
