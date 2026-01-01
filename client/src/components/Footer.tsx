@@ -52,12 +52,15 @@ export function Footer() {
           {/* Brand Info */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" data-testid="link-footer-home">
-              <span className="text-2xl font-serif font-black tracking-tighter text-[#d4af37]">
+              <h3 className="text-2xl font-serif font-black tracking-tighter text-[#d4af37] drop-shadow-sm">
                 {siteName.toUpperCase()}
-              </span>
+              </h3>
             </Link>
-            <p className="text-[#d4af37] font-serif italic text-lg mb-6 tracking-wide">
+            <p className="text-[#d4af37] font-serif italic text-lg mb-6 tracking-wide drop-shadow-sm">
               "Feel Like a Queen, Every Day"
+            </p>
+            <p className="text-gray-300 text-sm leading-relaxed mb-8 max-w-xs font-medium">
+              Discover the finest collection of authentic Indian ethnic wear. We bring together tradition and luxury for the modern woman.
             </p>
             <div className="flex gap-4">
               {socialLinks.length > 0 ? (

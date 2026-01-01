@@ -123,9 +123,9 @@ export function Header() {
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
             <Link href="/" className="flex-shrink-0 flex items-center" data-testid="link-home">
-              <span className="text-xl lg:text-2xl font-serif font-black tracking-tighter luxury-gold-text">
+              <h1 className="text-xl lg:text-2xl font-serif font-black tracking-tighter luxury-gold-text drop-shadow-sm">
                 {cmsSettings?.siteMeta?.siteName || "QUEEN 4FEET"}
-              </span>
+              </h1>
             </Link>
 
             {/* Search Bar - Desktop */}
