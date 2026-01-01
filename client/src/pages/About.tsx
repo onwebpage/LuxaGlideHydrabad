@@ -54,7 +54,7 @@ export default function About() {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              We're building India's most trusted hight speciafics women fashion and multi-vendor marketplace, connecting you with premium fashion from sellers nationwide.
+              We're building India's most trusted height specific women fashion and multi-vendor marketplace, connecting you with premium fashion from sellers nationwide.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
