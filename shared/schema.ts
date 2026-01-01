@@ -214,6 +214,22 @@ export const newsletter = pgTable("newsletter", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Vendor Receipts
+export const vendorReceipts = pgTable("vendor_receipts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  vendorId: varchar("vendor_id").notNull().references(() => vendors.id, { onDelete: "cascade" }),
+  orderId: varchar("order_id").references(() => orders.id, { onDelete: "set null" }),
+  receiptNumber: text("receipt_number").notNull().unique(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email"),
+  items: jsonb("items").notNull(), // Array of { name, quantity, price }
+  status: text("status").notNull().default("issued"), // issued, cancelled
+  notes: text("notes"),
+  issuedAt: timestamp("issued_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // CMS Settings
 export const cmsSettings = pgTable("cms_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -239,6 +255,7 @@ export const vendorsRelations = relations(vendors, ({ one, many }) => ({
   products: many(products),
   orders: many(orders),
   rfqs: many(rfqs),
+  receipts: many(vendorReceipts),
 }));
 
 export const buyersRelations = relations(buyers, ({ one }) => ({
@@ -271,6 +288,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   vendor: one(vendors, { fields: [orders.vendorId], references: [vendors.id] }),
   shippingAddress: one(addresses, { fields: [orders.shippingAddressId], references: [addresses.id] }),
   items: many(orderItems),
+  receipt: one(vendorReceipts, { fields: [orders.id], references: [vendorReceipts.orderId] }),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -293,6 +311,7 @@ export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, cre
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true, createdAt: true });
 export const insertRfqSchema = createInsertSchema(rfqs).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertNewsletterSchema = createInsertSchema(newsletter).omit({ id: true, createdAt: true });
+export const insertVendorReceiptSchema = createInsertSchema(vendorReceipts).omit({ id: true, createdAt: true, issuedAt: true });
 export const insertCmsSettingsSchema = createInsertSchema(cmsSettings).omit({ id: true, updatedAt: true });
 
 // Zod Schemas - Update
@@ -341,6 +360,8 @@ export type Rfq = typeof rfqs.$inferSelect;
 export type InsertRfq = z.infer<typeof insertRfqSchema>;
 export type Newsletter = typeof newsletter.$inferSelect;
 export type InsertNewsletter = z.infer<typeof insertNewsletterSchema>;
+export type VendorReceipt = typeof vendorReceipts.$inferSelect;
+export type InsertVendorReceipt = z.infer<typeof insertVendorReceiptSchema>;
 export type CmsSetting = typeof cmsSettings.$inferSelect;
 export type InsertCmsSetting = z.infer<typeof insertCmsSettingsSchema>;
 

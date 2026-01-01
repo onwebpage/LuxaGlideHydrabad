@@ -514,7 +514,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User logout (buyers/vendors) - requires authentication
+  // ============ Vendor Receipts Routes ============
+  
+  app.get("/api/vendors/receipts", requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== "vendor") {
+        return res.status(403).json({ message: "Unauthorized: Only vendors can access receipts" });
+      }
+      const vendor = await storage.getVendorByUserId(req.user.id);
+      if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+      
+      const receipts = await storage.getVendorReceipts(vendor.id);
+      res.json(receipts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/vendors/receipts", requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== "vendor") {
+        return res.status(403).json({ message: "Unauthorized: Only vendors can issue receipts" });
+      }
+      const vendor = await storage.getVendorByUserId(req.user.id);
+      if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+
+      const validation = insertVendorReceiptSchema.safeParse({
+        ...req.body,
+        vendorId: vendor.id,
+      });
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Validation failed", errors: validation.error.errors });
+      }
+
+      const receipt = await storage.createReceipt(validation.data);
+      res.status(201).json(receipt);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ User logout (buyers/vendors) - requires authentication ============
   app.post("/api/auth/logout", requireAuth, async (req, res) => {
     try {
       const authHeader = req.headers.authorization;

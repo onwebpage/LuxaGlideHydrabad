@@ -12,9 +12,7 @@ import {
   orders,
   orderItems,
   rfqs,
-  newsletter,
-  cmsSettings,
-  userSessions,
+  vendorReceipts,
   type User,
   type InsertUser,
   type UpdateUser,
@@ -44,6 +42,8 @@ import {
   type InsertRfq,
   type Newsletter,
   type InsertNewsletter,
+  type VendorReceipt,
+  type InsertVendorReceipt,
   type CmsSetting,
   type InsertCmsSetting,
   type UserSession,
@@ -164,6 +164,12 @@ export interface IStorage {
 
   // Newsletter
   subscribeNewsletter(email: string): Promise<Newsletter>;
+
+  // Vendor Receipts
+  getVendorReceipts(vendorId: string): Promise<VendorReceipt[]>;
+  getReceipt(id: string): Promise<VendorReceipt | undefined>;
+  getReceiptByOrder(orderId: string): Promise<VendorReceipt | undefined>;
+  createReceipt(receipt: InsertVendorReceipt): Promise<VendorReceipt>;
 
   // CMS
   getCmsSetting(key: string): Promise<CmsSetting | undefined>;
