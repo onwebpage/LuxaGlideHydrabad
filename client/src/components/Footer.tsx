@@ -139,7 +139,7 @@ export function Footer() {
         </div>
 
         {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-16">
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Collections</h4>
             <ul className="space-y-4">
@@ -170,9 +170,18 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Get In Touch</h4>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-sm text-gray-300"><Mail className="w-4 h-4 text-[#d4af37]" /> {contactEmail}</li>
-              <li className="flex items-center gap-3 text-sm text-gray-300"><Phone className="w-4 h-4 text-[#d4af37]" /> {contactPhone}</li>
-              <li className="flex items-start gap-3 text-sm text-gray-300"><MapPin className="w-4 h-4 text-[#d4af37] mt-1" /> {address}</li>
+              <li className="flex items-center gap-3 text-sm text-gray-300 break-all sm:break-normal">
+                <Mail className="w-4 h-4 text-[#d4af37] shrink-0" /> 
+                <span>{contactEmail}</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm text-gray-300">
+                <Phone className="w-4 h-4 text-[#d4af37] shrink-0" /> 
+                <span>{contactPhone}</span>
+              </li>
+              <li className="flex items-start gap-3 text-sm text-gray-300">
+                <MapPin className="w-4 h-4 text-[#d4af37] mt-1 shrink-0" /> 
+                <span className="leading-tight">{address}</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -180,13 +189,13 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[#d4af37]/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs text-gray-500 font-medium text-center md:text-left">
               &copy; {copyrightText}
             </p>
-            <div className="flex flex-wrap justify-center gap-8">
-              <Link href="/privacy-policy" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Privacy Policy</Link>
-              <Link href="/terms-of-service" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Terms of Service</Link>
-              <Link href="/refund-policy" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Refund Policy</Link>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
+              <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover-elevate transition-colors uppercase tracking-[0.15em]">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="text-[10px] text-gray-500 hover-elevate transition-colors uppercase tracking-[0.15em]">Terms of Service</Link>
+              <Link href="/refund-policy" className="text-[10px] text-gray-500 hover-elevate transition-colors uppercase tracking-[0.15em]">Refund Policy</Link>
             </div>
           </div>
         </div>
