@@ -116,9 +116,9 @@ export function Header() {
   };
 
   return (
-    <header className="z-[100] w-full">
-      {/* Main Header - White Background with Gold Border */}
-      <div className="bg-white dark:bg-black border-b border-[#bf953f]/30 dark:border-[#bf953f]/20 shadow-sm">
+    <header className="z-[100] w-full bg-gradient-to-r from-[#bf953f] via-[#fcf6ba] to-[#aa771c]">
+      {/* Main Header - Golden Gradient Background */}
+      <div className="border-b border-[#bf953f]/30 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
@@ -267,27 +267,27 @@ export function Header() {
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" data-testid="button-profile-dropdown">
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-[#4a3700] hover:text-black transition-colors" data-testid="button-profile-dropdown">
                       <User className="w-5 h-5" />
                       <div className="hidden lg:flex flex-col leading-tight">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">Hello,</span>
-                        <span className="font-medium truncate max-w-[80px]">{user?.fullName?.split(' ')[0] || 'User'}</span>
+                        <span className="text-[10px] text-[#4a3700]/70">Hello,</span>
+                        <span className="font-bold truncate max-w-[80px]">{user?.fullName?.split(' ')[0] || 'User'}</span>
                       </div>
                       <ChevronDown className="w-4 h-4 hidden lg:block" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 bg-white border-[#bf953f]/30">
                     <DropdownMenuItem asChild>
                       <Link 
                         href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'} 
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex items-center gap-2 cursor-pointer text-[#4a3700]"
                         data-testid="link-dashboard"
                       >
                         <User className="w-4 h-4" />
                         My Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-[#bf953f]/20" />
                     <DropdownMenuItem 
                       onClick={async () => {
                         await logout();
@@ -302,28 +302,28 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors" data-testid="link-login">
+                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-[#4a3700] hover:text-black transition-colors" data-testid="link-login">
                   <User className="w-5 h-5" />
                   <div className="hidden lg:flex flex-col leading-tight">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Sign In</span>
-                    <span className="font-medium">Profile</span>
+                    <span className="text-[10px] text-[#4a3700]/70 uppercase font-bold">Sign In</span>
+                    <span className="font-bold">Profile</span>
                   </div>
                 </Link>
               )}
 
               {/* Cart */}
-              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary transition-colors relative dark:text-gray-300" data-testid="link-cart">
+              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-[#4a3700] hover:text-black transition-colors relative" data-testid="link-cart">
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5" />
                   {cartItemCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-primary text-white">
+                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-red-600 text-white border-none">
                       {cartItemCount}
                     </Badge>
                   )}
                 </div>
                 <div className="hidden lg:flex flex-col leading-tight">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Your</span>
-                  <span className="font-medium">Cart</span>
+                  <span className="text-[10px] text-[#4a3700]/70 uppercase font-bold">Your</span>
+                  <span className="font-bold">Cart</span>
                 </div>
               </Link>
 
@@ -419,13 +419,13 @@ export function Header() {
       </div>
 
       {/* Category Navigation Bar - Desktop Only */}
-      <div className="bg-white dark:bg-background border-b border-gray-100 dark:border-border hidden md:block">
+      <div className="bg-gradient-to-r from-[#bf953f] via-[#fcf6ba] to-[#aa771c] border-b border-[#bf953f]/30 hidden md:block">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
             <Link 
               href="/" 
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              className={`px-4 py-2 text-sm font-bold whitespace-nowrap rounded-md transition-colors ${
+                location === '/' ? 'text-[#4a3700] bg-white/20' : 'text-[#4a3700] hover:text-black hover:bg-white/10'
               }`}
               data-testid="link-home-nav"
             >
@@ -433,8 +433,8 @@ export function Header() {
             </Link>
             <Link 
               href="/products" 
-              className={`flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' && !location.includes('category=') ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              className={`flex items-center gap-1 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-md transition-colors ${
+                location === '/products' && !location.includes('category=') ? 'text-[#4a3700] bg-white/20' : 'text-[#4a3700] hover:text-black hover:bg-white/10'
               }`}
               data-testid="link-shop-now"
             >
@@ -443,8 +443,8 @@ export function Header() {
             </Link>
             <Link 
               href="/vendors" 
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/vendors' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              className={`px-4 py-2 text-sm font-bold whitespace-nowrap rounded-md transition-colors ${
+                location === '/vendors' ? 'text-[#4a3700] bg-white/20' : 'text-[#4a3700] hover:text-black hover:bg-white/10'
               }`}
               data-testid="link-vendors"
             >
@@ -452,8 +452,8 @@ export function Header() {
             </Link>
             <Link 
               href="/about" 
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/about' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              className={`px-4 py-2 text-sm font-bold whitespace-nowrap rounded-md transition-colors ${
+                location === '/about' ? 'text-[#4a3700] bg-white/20' : 'text-[#4a3700] hover:text-black hover:bg-white/10'
               }`}
               data-testid="link-about"
             >
@@ -461,8 +461,8 @@ export function Header() {
             </Link>
             <Link 
               href="/contact" 
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
-                location === '/contact' ? 'text-primary bg-primary/5' : 'text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-muted'
+              className={`px-4 py-2 text-sm font-bold whitespace-nowrap rounded-md transition-colors ${
+                location === '/contact' ? 'text-[#4a3700] bg-white/20' : 'text-[#4a3700] hover:text-black hover:bg-white/10'
               }`}
               data-testid="link-contact"
             >
