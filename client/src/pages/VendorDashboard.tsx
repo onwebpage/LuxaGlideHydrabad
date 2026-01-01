@@ -1722,6 +1722,10 @@ export default function VendorDashboard() {
               </Card>
             </div>
           </TabsContent>
+
+          <TabsContent value="receipts">
+            <VendorReceipts />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
