@@ -1,118 +1,114 @@
-# Premium Dark Luxury B2B Multi-Vendor Ecommerce Design Guidelines
+# LuxeWholesale - Premium White & Gold B2B Ethnic Fashion Design Guidelines
 
 ## Design Approach
-**Selected Approach:** High-end luxury dark-mode e-commerce inspired by luxury watch brands (Rolex, Omega), premium automotive sites (Porsche, Tesla), and sophisticated fashion platforms, emphasizing drama through contrast and refined elegance.
+**Selected Approach:** Luxury light-mode e-commerce inspired by high-end jewelry brands (Cartier, Tiffany), premium fashion houses (Chanel, Dior), and sophisticated lifestyle platforms. Emphasizing elegance through pristine whites, refined gold accents, and exceptional photography of ethnic fashion.
 
-**Core Principles:** Maximum contrast, breathing room through negative space, photography as hero element, restrained gold accents for hierarchy.
+**Core Principles:** Pristine clarity, generous breathing room, gold as the accent of refinement, photography showcasing intricate ethnic textiles and craftsmanship.
 
 ## Color Palette
-- **Primary Background:** Rich Black (#0A0A0A) - dominant canvas
-- **Secondary Background:** Deep Charcoal (#1A1A1A) - elevated cards and panels
-- **Accent:** Champagne Gold (#D4AF37) - CTAs, borders, active states, highlights
-- **Text Primary:** Pure White (#FFFFFF) - headings, primary content
-- **Text Secondary:** Light Gray (#B8B8B8) - body text, descriptions
-- **Subtle Accents:** Dark Gray (#2A2A2A) - dividers, subtle borders
+- **Primary Background:** Pure White (#FFFFFF) - dominant canvas
+- **Secondary Background:** Warm Ivory (#FAFAF8) - elevated sections and cards
+- **Accent Gold:** #D4AF37 - CTAs, borders, active states, icons, highlights
+- **Text Primary:** Deep Charcoal (#1A1A1A) - headings, primary content
+- **Text Secondary:** Warm Gray (#6B6B6B) - body text, descriptions
+- **Subtle Elements:** Light Beige (#F5F5F3) - dividers, subtle backgrounds
+- **Gold Gradients:** Linear gradient from #D4AF37 to #E8C547 for premium elements
 
 ## Typography System
-- **Headings:** Playfair Display (serif) - timeless luxury
-  - H1: 64px/72px (desktop), 40px/48px (mobile), weight 600, white
-  - H2: 48px/56px (desktop), 32px/40px (mobile), weight 600, white
-  - H3: 36px/44px, weight 500, white
-- **Body:** Inter (sans-serif) - exceptional readability on dark
-  - Body Large: 18px/28px, weight 400, #B8B8B8
-  - Body: 16px/24px, weight 400, #B8B8B8
-  - Small: 14px/20px, weight 400, #9A9A9A
-- **Labels:** Uppercase, 12px, letter-spacing 0.1em, gold (#D4AF37)
+- **Headings:** Playfair Display (serif) - timeless elegance
+  - H1: 64px/72px (desktop), 40px/48px (mobile), weight 600, #1A1A1A
+  - H2: 48px/56px (desktop), 32px/40px (mobile), weight 600, #1A1A1A
+  - H3: 36px/44px, weight 500, #1A1A1A
+- **Body:** Inter (sans-serif) - exceptional readability
+  - Body Large: 18px/28px, weight 400, #6B6B6B
+  - Body: 16px/24px, weight 400, #6B6B6B
+  - Small: 14px/20px, weight 400, #8A8A8A
+- **Labels:** Uppercase, 12px, letter-spacing 0.12em, gold (#D4AF37), weight 500
 
 ## Layout & Spacing
 **Spacing Scale:** Tailwind units of 4, 6, 8, 12, 16, 24, 32
 - **Container:** max-w-7xl with px-6
 - **Section Padding:** py-32 (desktop), py-20 (mobile)
 - **Card Spacing:** gap-8 for grids, gap-6 for compact layouts
-- **Generous whitespace:** Embrace negative space - sections breathe with py-24 minimum
-
-## Dark Glassmorphism & Elevation
-- **Glass Cards:** 
-  - Background: rgba(26, 26, 26, 0.6)
-  - Backdrop blur: backdrop-blur-xl
-  - Border: 1px solid rgba(212, 175, 55, 0.2)
-  - Shadow: 0 8px 32px rgba(0, 0, 0, 0.4)
-  
-- **Elevated Panels:**
-  - Background: #1A1A1A
-  - Shadow: 0 4px 24px rgba(0, 0, 0, 0.5)
-  - Gold accent border (1px) on hover/active
-  - Rounded corners: rounded-2xl
+- **Generous whitespace:** Sections breathe with py-24 minimum, embrace negative space
 
 ## Component Library
 
 ### Navigation
-- Black background (#0A0A0A) with gold bottom border on scroll
-- White text with gold underline for active items
-- Glassmorphism mobile menu: dark glass with backdrop blur
-- Search: #1A1A1A background, gold focus ring (2px)
+- White background with subtle shadow on scroll (0 1px 8px rgba(0,0,0,0.08))
+- Charcoal text (#1A1A1A) with gold underline for active items (2px)
+- Mobile menu: White with gold accent border
+- Search: #FAFAF8 background, gold focus ring (2px), rounded-full
 
 ### Buttons
-- **Primary:** Solid gold (#D4AF37), black text, rounded-lg, px-8 py-4, shadow-lg
-- **Secondary:** Transparent with gold border (2px), white text, rounded-lg
-- **Ghost:** Transparent, gold text, hover: gold/10 background
-- **On Images (Hero):** Glassmorphism - rgba(10,10,10,0.3), backdrop-blur-md, white text, gold border (1px), no hover blur
+- **Primary:** Solid gold (#D4AF37), white text, rounded-lg, px-8 py-4, shadow-md, hover: #C5A028
+- **Secondary:** White with gold border (2px), gold text, rounded-lg, hover: gold/5 background
+- **Ghost:** Transparent, gold text, hover: #FAFAF8 background
+- **On Images (Hero):** White with backdrop-blur-md, gold text, gold border (1px), no hover interactions
 
 ### Product Cards
-- Background: #1A1A1A
-- Image aspect ratio: 3:4, full-bleed
-- Hover: lift (translateY(-6px)), enhanced shadow
-- Gold hairline divider between image and details
-- Price: white, larger weight; MOQ: #B8B8B8
-- Gold wishlist icon, top-right overlay
+- Background: White with subtle shadow (0 2px 12px rgba(0,0,0,0.06))
+- Image: 3:4 aspect ratio, full-bleed
+- Hover: lift (translateY(-4px)), enhanced shadow (0 8px 24px rgba(0,0,0,0.12))
+- Gold hairline border (1px) around entire card
+- Price: #1A1A1A, larger weight; MOQ: #6B6B6B
+- Gold wishlist icon, top-right overlay on white circle background
 
 ### Forms
-- Inputs: #1A1A1A background, gold focus border (2px)
-- Labels: Uppercase gold, letter-spacing 0.1em
-- Placeholder: #5A5A5A
-- File upload: Dashed gold border, dark glassmorphism
+- Inputs: White background, #F5F5F3 border (1px), gold focus border (2px), rounded-lg
+- Labels: Uppercase gold, letter-spacing 0.12em, weight 500
+- Placeholder: #A8A8A8
+- File upload: Dashed gold border (2px), #FAFAF8 background
 
 ### Dashboard Widgets
-- Charts: Gold data visualization with white labels
-- KPI cards: #1A1A1A background, gold accent icons, white numbers
-- Status badges: Gold (active), #2A2A2A (inactive)
-- Tables: Alternating rows #0A0A0A / #1A1A1A, gold hover state
+- Cards: White with gold accent borders, shadow-sm
+- Charts: Gold data visualization with charcoal labels
+- KPI cards: White background, gold icons, charcoal numbers, #FAFAF8 hover
+- Status badges: Gold background for active, #F5F5F3 for inactive
+- Tables: White rows, #FAFAF8 alternating, gold border on hover
+
+### Category/Feature Sections
+- Alternating white/ivory backgrounds per section for visual rhythm
+- Gold decorative dividers between major sections (centered, 120px wide, 2px height)
+- 3-4 column grids for categories with gold-bordered cards
+- Large section headings centered with gold underline accent
 
 ## Animations
-- **Page Transitions:** Fade + slide up (0.4s ease-out)
-- **Card Reveals:** Staggered fade-in-up (0.08s delay)
-- **Hover:** Scale 1.03, brightness increase, 0.3s smooth
-- **Modals:** Backdrop blur + scale 0.96→1
-- **Loading:** Gold shimmer effect overlay
+- **Page Transitions:** Fade + slide up (0.3s ease-out)
+- **Card Reveals:** Staggered fade-in (0.06s delay)
+- **Hover:** Lift transform, shadow enhancement, 0.25s smooth
+- **Modals:** Backdrop overlay + scale 0.97→1
+- **Loading:** Gold shimmer progress bar
 
 ## Images
 
 ### Hero Section
-**Full-width hero:** 100vw × 90vh
-- **Photography:** Dramatic fashion/luxury product photography - low-key lighting, high contrast, professional models in elegant poses, or premium products on black backgrounds
-- **Overlay:** Subtle vignette, gradient from transparent to black/40 at edges
-- **Content:** Centered glassmorphism panel with headline and CTA buttons (dark glass with blur)
+**Full-width hero:** 100vw × 85vh minimum
+- **Photography:** Luxurious ethnic fashion photography - models in exquisite sarees, lehengas, or ethnic wear with rich textiles and intricate embroidery. Professional studio lighting highlighting fabric details and craftsmanship. Warm, inviting tones.
+- **Treatment:** Subtle vignette, no heavy overlays - let the fashion shine
+- **Content:** Centered panel with Playfair headline and white blurred-background buttons with gold text/borders
 
 ### Supporting Imagery
-- **Vendor Profiles:** Monochromatic brand photography, 16:7 ratio banners
-- **Product Galleries:** 6-8 images per product - multiple angles, detail shots, lifestyle contexts
-- **Category Cards:** Lifestyle photography with dramatic lighting (2:3 ratio)
-- **Testimonials:** Professional B&W headshots (96px circular) with gold ring borders
-- **Homepage Features:** Large-scale atmospheric product photography spanning 50vw sections
+- **Vendor Banners:** Wide format (16:5) showcasing brand aesthetic with ethnic fashion context
+- **Product Galleries:** 6-10 high-resolution images - multiple angles, close-ups of embroidery/details, fabric textures, styling variations
+- **Category Cards:** Lifestyle imagery featuring ethnic wear in elegant settings (2:3 ratio), gold border frames
+- **Testimonials:** Professional color headshots (96px circular) with thin gold ring borders (2px)
+- **Homepage Features:** Large product/lifestyle photography in asymmetric grids - mix of 1:1, 3:4, and 16:9 ratios for visual interest
 
 ### Image Treatment
-- Slight desaturation for cohesion with dark theme
-- Subtle gold color grade overlay (5% opacity)
-- Sharp, high-resolution imagery essential
-
-## Responsive Strategy
-- **Mobile:** Single column, py-12 sections, gap-4, condensed type scale
-- **Tablet (md:):** 2-column grids, py-20 sections
-- **Desktop (lg:):** 3-4 column product grids, full dashboard layouts, py-32 sections
+- Bright, well-lit photography emphasizing rich colors of ethnic fabrics
+- Consistent warm color grading for cohesion
+- High resolution essential for showcasing intricate textile details
 
 ## Key Patterns
-- Gold breadcrumb separators on black
-- Floating gold FAB for cart/RFQ (mobile)
-- Toast notifications: Dark glass with gold accent border
-- Skeleton loaders: #1A1A1A with gold shimmer animation
-- Multi-step progress: Gold filled circles with white connecting lines
+- Gold breadcrumb separators (chevrons)
+- Floating gold FAB for cart/RFQ (mobile) with shadow
+- Toast notifications: White with gold left border (4px), shadow-lg
+- Multi-step progress: Gold filled circles with light gray connecting lines
+- Testimonial quotes: Large gold quotation marks as decorative elements
+- Trust badges: Gold icons with charcoal text on #FAFAF8 background
+
+## Responsive Strategy
+- **Mobile:** Single column, py-12 sections, gap-4, h1 at 40px
+- **Tablet (md:):** 2-column grids, py-20 sections
+- **Desktop (lg:):** 3-4 column layouts, py-32 sections, full asymmetric grids
