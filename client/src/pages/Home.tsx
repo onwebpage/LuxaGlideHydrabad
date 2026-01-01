@@ -400,7 +400,7 @@ export default function Home() {
               Feel Like a Queen, Every Day
             </h1>
             <h2 className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 font-medium text-white drop-shadow-md">
-              Discover stunning ethnic wear and trendy fashion from India's most trusted vendors.
+              Discover stunning Casual, Traditional, Ethnic Women’s Wear and trendy fashion from India's most trusted vendors.
             </h2>
             <Button 
               className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-xl shadow-[#d4af37]/20 btn-shiny"
