@@ -89,8 +89,8 @@ export function Footer() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left">
-                <h3 className="text-xl font-bold mb-2 tracking-tight">Get exclusive fashion drops & offers</h3>
-                <p className="text-gray-400 text-sm">Join our luxury community for early access and special rewards.</p>
+                <h3 className="text-xl font-bold mb-2 tracking-tight text-white">Get exclusive fashion drops & offers</h3>
+                <p className="text-gray-300 text-sm">Join our luxury community for early access and special rewards.</p>
               </div>
               <form onSubmit={handleNewsletterSubmit} className="flex w-full md:w-auto gap-2">
                 <Input 
@@ -113,21 +113,21 @@ export function Footer() {
           <div className="flex items-center gap-4 justify-center sm:justify-start">
             <div className="p-3 bg-white/5 rounded-xl"><ShieldCheck className="w-6 h-6 text-[#d4af37]" /></div>
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider">Secure Payments</h4>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-white">Secure Payments</h4>
               <p className="text-xs text-gray-400">100% Protected Transactions</p>
             </div>
           </div>
           <div className="flex items-center gap-4 justify-center">
             <div className="p-3 bg-white/5 rounded-xl"><RefreshCcw className="w-6 h-6 text-[#d4af37]" /></div>
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider">Easy Returns</h4>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-white">Easy Returns</h4>
               <p className="text-xs text-gray-400">7-Day Hassle-Free Policy</p>
             </div>
           </div>
           <div className="flex items-center gap-4 justify-center sm:justify-end">
             <div className="p-3 bg-white/5 rounded-xl"><UserCheck className="w-6 h-6 text-[#d4af37]" /></div>
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider">Trusted Vendors</h4>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-white">Trusted Vendors</h4>
               <p className="text-xs text-gray-400">Verified Quality Standards</p>
             </div>
           </div>
@@ -138,36 +138,36 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Collections</h4>
             <ul className="space-y-4">
-              <li><Link href="/products" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">All Products</Link></li>
-              <li><Link href="/products?category=sarees" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Sarees</Link></li>
-              <li><Link href="/products?category=kurtis" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Kurtis</Link></li>
-              <li><Link href="/products?category=dresses" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Dresses</Link></li>
+              <li><Link href="/products" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">All Products</Link></li>
+              <li><Link href="/products?category=sarees" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Sarees</Link></li>
+              <li><Link href="/products?category=kurtis" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Kurtis</Link></li>
+              <li><Link href="/products?category=dresses" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Dresses</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Company</h4>
             <ul className="space-y-4">
-              <li><Link href="/about" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Story</Link></li>
-              <li><Link href="/vendors" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Vendors</Link></li>
-              <li><Link href="/contact" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Contact Us</Link></li>
-              <li><Link href="/register?role=vendor" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Sell with Us</Link></li>
+              <li><Link href="/about" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Story</Link></li>
+              <li><Link href="/vendors" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Vendors</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Contact Us</Link></li>
+              <li><Link href="/register?role=vendor" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Sell with Us</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Support</h4>
             <ul className="space-y-4">
-              <li><Link href="/shipping-policy" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</Link></li>
-              <li><Link href="/refund-policy" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</Link></li>
-              <li><Link href="/terms-of-service" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</Link></li>
-              <li><Link href="/contact" className="text-gray-400 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</Link></li>
+              <li><Link href="/shipping-policy" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</Link></li>
+              <li><Link href="/refund-policy" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</Link></li>
+              <li><Link href="/terms-of-service" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Get In Touch</h4>
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-sm text-gray-400"><Mail className="w-4 h-4 text-[#d4af37]" /> {contactEmail}</li>
-              <li className="flex items-center gap-3 text-sm text-gray-400"><Phone className="w-4 h-4 text-[#d4af37]" /> {contactPhone}</li>
-              <li className="flex items-start gap-3 text-sm text-gray-400"><MapPin className="w-4 h-4 text-[#d4af37] mt-1" /> {address}</li>
+              <li className="flex items-center gap-3 text-sm text-gray-300"><Mail className="w-4 h-4 text-[#d4af37]" /> {contactEmail}</li>
+              <li className="flex items-center gap-3 text-sm text-gray-300"><Phone className="w-4 h-4 text-[#d4af37]" /> {contactPhone}</li>
+              <li className="flex items-start gap-3 text-sm text-gray-300"><MapPin className="w-4 h-4 text-[#d4af37] mt-1" /> {address}</li>
             </ul>
           </div>
         </div>

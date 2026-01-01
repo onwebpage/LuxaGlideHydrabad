@@ -424,7 +424,7 @@ export default function Checkout() {
                               alt={item.product.name}
                               className="w-full h-full object-cover"
                             />
-                          ) as React.ReactNode}
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium line-clamp-1">{item.product?.name}</p>
