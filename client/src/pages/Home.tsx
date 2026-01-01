@@ -604,7 +604,8 @@ export default function Home() {
                 <div className="text-center mt-12">
                   <Link href="/products">
                     <Button variant="outline" size="lg" className="rounded-full px-8">
-                      View All Products <ArrowRight className="ml-2 w-4 h-4" />
+                      <span className="text-sm font-bold tracking-[0.2em] uppercase mr-2 drop-shadow-md text-white">View All Products</span>
+                      <ArrowRight className="ml-2 w-4 h-4 text-white drop-shadow-md" />
                     </Button>
                   </Link>
                 </div>
