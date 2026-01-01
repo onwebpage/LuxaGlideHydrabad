@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useTheme } from "next-themes";
+import { useTheme } from "@/lib/theme-context";
 
 const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   // Handle the mounted state to avoid hydration mismatch
   const [mounted, setMounted] = React.useState(false);
@@ -14,9 +14,9 @@ const ThemeToggle = () => {
   if (!mounted) {
     return (
       <StyledWrapper>
-        <div className="toggle-wrapper">
-          <div className="toggle-container" />
-        </div>
+        <label className="switch">
+          <div className="slider" />
+        </label>
       </StyledWrapper>
     );
   }
@@ -25,118 +25,66 @@ const ThemeToggle = () => {
 
   return (
     <StyledWrapper>
-      <div className="toggle-wrapper">
+      <label className="switch">
         <input 
-          className="toggle-checkbox" 
           type="checkbox" 
           checked={isDark}
-          onChange={(e) => {
-            const newTheme = e.target.checked ? "dark" : "light";
-            setTheme(newTheme);
-          }}
+          onChange={() => toggleTheme()}
         />
-        <div className="toggle-container">  
-          <div className="toggle-button">
-            <div className="toggle-button-circles-container">
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-              <div className="toggle-button-circle" />
-            </div>
-          </div>
-        </div>
-      </div>
+        <span className="slider" />
+      </label>
     </StyledWrapper>
   );
 }
 
 const StyledWrapper = styled.div`
-  .toggle-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  /* The switch - the box around the slider */
+  .switch {
+    font-size: 17px;
     position: relative;
-    border-radius: .5em;
-    padding: .125em;
-    background-image: linear-gradient(to bottom, #d5d5d5, #e8e8e8);
-    box-shadow: 0 1px 1px rgb(255 255 255 / .6);
-    font-size: 1.1em;
-    pointer-events: auto;
+    display: inline-block;
+    width: 3.5em;
+    height: 2em;
   }
 
-  .toggle-checkbox {
-    appearance: none;
-    position: absolute;
-    z-index: 10;
-    border-radius: inherit;
-    width: 100%;
-    height: 100%;
-    font: inherit;
+  /* Hide default HTML checkbox */
+  .switch input {
     opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* The slider */
+  .slider {
+    position: absolute;
     cursor: pointer;
-    margin: 0;
-    padding: 0;
+    inset: 0;
+    border: 2px solid #bf953f;
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background-color: transparent;
   }
 
-  .toggle-container {
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-radius: .375em;
-    width: 3em;
-    height: 1.5em;
-    background-color: #e8e8e8;
-    box-shadow: inset 0 0 .0625em .125em rgb(255 255 255 / .2), inset 0 .0625em .125em rgb(0 0 0 / .4);
-    transition: background-color .4s linear;
-    pointer-events: none;
-  }
-
-  .toggle-checkbox:checked + .toggle-container {
-    background-color: #f3b519;
-  }
-
-  .toggle-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .slider:before {
     position: absolute;
-    left: .0625em;
-    border-radius: .3125em;
-    width: 1.375em;
-    height: 1.375em;
-    background-color: #e8e8e8;
-    box-shadow: inset 0 -.0625em .0625em .125em rgb(0 0 0 / .1), inset 0 -.125em .0625em rgb(0 0 0 / .2), inset 0 .1875em .0625em rgb(255 255 255 / .3), 0 .125em .125em rgb(0 0 0 / .5);
-    transition: left .4s;
-    pointer-events: none;
+    content: "";
+    height: 1.4em;
+    width: 1.4em;
+    left: 0.2em;
+    bottom: 0.2em;
+    background-color: #bf953f;
+    border-radius: inherit;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   }
 
-  .toggle-checkbox:checked + .toggle-container > .toggle-button {
-    left: 1.5625em;
+  .switch input:checked + .slider {
+    box-shadow: 0 0 15px rgba(191, 149, 63, 0.5);
+    border: 2px solid #fde68a;
   }
 
-  .toggle-button-circles-container {
-    display: grid;
-    grid-template-columns: repeat(3, min-content);
-    gap: .125em;
-    position: absolute;
-    margin: 0 auto;
-    pointer-events: none;
-  }
-
-  .toggle-button-circle {
-    border-radius: 50%;
-    width: .125em;
-    height: .125em;
-    background-image: radial-gradient(circle at 50% 0, #f5f5f5, #c4c4c4);
-    pointer-events: none;
+  .switch input:checked + .slider:before {
+    transform: translateX(1.5em);
+    background-color: #fde68a;
   }
 `;
 
