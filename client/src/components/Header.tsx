@@ -129,10 +129,8 @@ export function Header() {
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
-                {/* Gold Glow Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] via-[#f1d279] to-[#d4af37] rounded-full blur-md opacity-0 group-focus-within:opacity-30 transition duration-700 animate-pulse"></div>
                 
-                <div className="relative flex items-center bg-gray-50/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-gray-200 dark:border-[#d4af37]/30 rounded-full px-6 h-14 transition-all duration-500 group-focus-within:border-[#d4af37] group-focus-within:bg-white dark:group-focus-within:bg-black group-focus-within:shadow-[0_0_40px_rgba(212,175,55,0.25)]">
+                <div className="relative flex items-center bg-gray-50/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-gray-200 dark:border-[#d4af37]/30 rounded-full px-6 h-14 transition-all duration-500 group-focus-within:border-[#d4af37] group-focus-within:bg-white dark:group-focus-within:bg-black">
                   <div className="flex items-center gap-3">
                     <Search className="w-6 h-6 text-gray-400 group-focus-within:text-[#d4af37] group-focus-within:scale-125 group-focus-within:rotate-12 transition-all duration-500 ease-out" />
                     
