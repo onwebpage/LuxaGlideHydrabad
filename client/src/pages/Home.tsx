@@ -394,18 +394,18 @@ export default function Home() {
               <Sparkles className="w-4 h-4 text-[#bf953f]" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-white">AI-Powered Fashion</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className=\"text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4 sm:mb-8 luxury-gold-text drop-shadow-lg\" style={{ fontFamily: \"'Playfair Display', serif\" }}>
               Feel Like a Queen, Every Day
             </h1>
-            <h2 className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 font-medium text-white drop-shadow-md">
+            <h2 className=\"text-xs sm:text-base max-w-xs sm:max-w-sm leading-relaxed mb-6 sm:mb-8 font-medium text-white drop-shadow-md\">
               Discover stunning Casual, Traditional, Ethnic Women’s Wear and trendy fashion from India's most trusted vendors.
             </h2>
             <Button 
-              className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#bf953f] hover:bg-[#b8962d] text-white shadow-xl shadow-[#bf953f]/20 btn-shiny"
-              data-testid="button-shop-now"
+              className=\"w-full sm:w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#bf953f] hover:bg-[#b8962d] text-white shadow-xl shadow-[#bf953f]/20 btn-shiny\"
+              data-testid=\"button-shop-now\"
             >
               SHOP NOW
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <ArrowRight className=\"ml-2 w-5 h-5\" />
             </Button>
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+          <div className=\"grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4\">
             {shopCategories.map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
                 <div 
