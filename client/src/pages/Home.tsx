@@ -392,7 +392,7 @@ export default function Home() {
         style={{
           backgroundImage: `url(${bannerImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'top center',
         }}
         data-testid="section-hero-with-outfit"
       >
