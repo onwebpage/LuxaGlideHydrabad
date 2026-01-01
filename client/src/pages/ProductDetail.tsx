@@ -20,6 +20,8 @@ import {
   Check,
   Eye,
   Ticket,
+  Ruler,
+  Sparkles,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -30,6 +32,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ProductCard } from "@/components/ProductCard";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -93,6 +103,9 @@ export default function ProductDetail() {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponError, setCouponError] = useState("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [suggestedSize, setSuggestedSize] = useState("");
   const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
   const currentProductIdRef = useRef<string | null>(null);
   
@@ -264,6 +277,22 @@ export default function ProductDetail() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleFindSize = () => {
+    const h = parseInt(height);
+    const w = parseInt(weight);
+    if (!h || !w) return;
+
+    let size = "M";
+    if (h < 160) {
+      size = w < 50 ? "XS" : "S";
+    } else if (h < 175) {
+      size = w < 65 ? "M" : "L";
+    } else {
+      size = w < 80 ? "XL" : "XXL";
+    }
+    setSuggestedSize(size);
   };
 
   // Get current color images - fallback to Red color if selected color not found
