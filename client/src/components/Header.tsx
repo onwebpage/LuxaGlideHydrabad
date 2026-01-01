@@ -342,7 +342,7 @@ export function Header() {
               }`}
               data-testid="link-vendors"
             >
-              All Vendors
+              Vendors
             </Link>
             <Link 
               href="/about" 
@@ -396,7 +396,7 @@ export function Header() {
                     data-testid="link-mobile-vendors"
                   >
                     <Store className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    All Vendors
+                    Vendors
                   </Link>
                   <Link
                     href="/about"
