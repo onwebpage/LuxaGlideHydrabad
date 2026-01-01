@@ -72,7 +72,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-  const occasions = ["Casual", "Formal", "Party Wear", "Wedding", "Festive"];
+  const occasions = ["Casual", "Formal", "Party Wear", "Festive"];
   const fabrics = ["Cotton", "Silk", "Chiffon", "Georgette", "Linen", "Velvet"];
 
   const toggleFilter = (list: string[], setList: (val: string[]) => void, item: string) => {

@@ -2914,7 +2914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       contactPhone: "+91-94926 34166",
       address: "Mumbai, India",
       seoTitle: "Queen 4feet - Shop Premium Fashion Online",
-      seoDescription: "Shop the latest fashion trends from multiple trusted sellers. Discover women's wear, men's fashion, ethnic wear and more with fast delivery.",
+      seoDescription: "Shop the latest height-specific women's fashion trends from multiple trusted sellers. Discover casual, traditional, and ethnic women's wear with fast delivery.",
     },
     hero: {
       headline: "Discover Your Style",

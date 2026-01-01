@@ -146,6 +146,7 @@ export function Footer() {
               <li><Link href="/products" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">All Products</Link></li>
               <li><Link href="/products?category=kurtis" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Kurtis</Link></li>
               <li><Link href="/products?category=dresses" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Dresses</Link></li>
+              <li><Link href="/products?category=ethnic-wear" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Ethnic Wear</Link></li>
             </ul>
           </div>
           <div>
