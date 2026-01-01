@@ -1,4 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -32,6 +33,16 @@ import AdminVendors from "@/pages/AdminVendors";
 import AdminSiteSettings from "@/pages/AdminSiteSettings";
 import AdminCoupons from "@/pages/AdminCoupons";
 import NotFound from "@/pages/not-found";
+
+function ScrollToTop() {
+  const [location] = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  return null;
+}
 
 function Router() {
   return (
@@ -71,6 +82,7 @@ function AppContent() {
 
   return (
     <TooltipProvider>
+      <ScrollToTop />
       {!isAuthPage && <Header />}
       {/* Spacer for fixed header on mobile - header height is approximately 160px on mobile */}
       {!isAuthPage && <div className="h-40 md:hidden" />}
