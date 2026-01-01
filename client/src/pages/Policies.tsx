@@ -32,7 +32,7 @@ export function PrivacyPolicy() {
         <div>
           <h3 className="text-xl font-bold">1. Data Collection</h3>
           <p>
-            At LX INDIA, we respect your privacy. We collect information necessary to facilitate your store management,
+            At Queen4Feet, we respect your privacy. We collect information necessary to facilitate your store management,
             order processing, and to provide the "10x Sales Boost" our platform promises. This includes vendor details,
             product listings, and customer contact information.
           </p>
@@ -41,7 +41,7 @@ export function PrivacyPolicy() {
           <h3 className="text-xl font-bold">2. Brand Visibility and Marketing</h3>
           <p>
             We use collected data to "boost your brand visibility" by showing your products to the right audience at the right time.
-            Branding via an established platform like LX INDIA increases brand authenticity and trust among thousands of genuine customers.
+            Branding via an established platform like Queen4Feet increases brand authenticity and trust among thousands of genuine customers.
           </p>
         </div>
         <div>
@@ -63,7 +63,7 @@ export function TermsOfService() {
         <div>
           <h3 className="text-xl font-bold">1. Lifetime Free Hosting</h3>
           <p>
-            "Host your store completely free for lifetime!" Our STARTER PLAN allows you to maintain your presence on LX INDIA
+            "Host your store completely free for lifetime!" Our STARTER PLAN allows you to maintain your presence on Queen4Feet
             at no monthly cost. You only pay for "Xtra" features if you choose to upgrade.
           </p>
         </div>
@@ -78,7 +78,7 @@ export function TermsOfService() {
           <h3 className="text-xl font-bold">3. Commission and Fees</h3>
           <p>
             In this competitive market, we assure "low commission rates" so you can profit more from sales. "We always charge fairly!"
-            Marketing costs are fully covered by LX INDIA under our standard agreement.
+            Marketing costs are fully covered by Queen4Feet under our standard agreement.
           </p>
         </div>
       </section>
@@ -123,7 +123,7 @@ export function ShippingPolicy() {
         <div>
           <h3 className="text-xl font-bold">2. Delivery Expectations</h3>
           <p>
-            Sellers are expected to ship orders promptly to maintain the "Brand Visibility" and trust associated with the LX INDIA platform.
+            Sellers are expected to ship orders promptly to maintain the "Brand Visibility" and trust associated with the Queen4Feet platform.
             While you manage the physical movement, we "Support" the entire process as it's our job.
           </p>
         </div>

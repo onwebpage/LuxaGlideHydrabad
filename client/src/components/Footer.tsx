@@ -12,7 +12,7 @@ export function Footer() {
   const { toast } = useToast();
   const { data: cmsSettings } = useCmsSettings();
   
-  const siteName = cmsSettings?.siteMeta?.siteName || "LuxeFashion";
+  const siteName = cmsSettings?.siteMeta?.siteName || "Queen4Feet";
   const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@queen4feet.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";

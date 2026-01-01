@@ -307,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { message } = req.body;
       const query = message.toLowerCase();
       
-      let response = "I'm your LuxeWholesale assistant! ";
+      let response = "I'm your Queen4Feet assistant! ";
       let suggestedProducts: any[] = [];
       
       if (query.includes("party") || query.includes("wedding") || query.includes("dress")) {

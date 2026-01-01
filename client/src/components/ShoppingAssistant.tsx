@@ -17,7 +17,7 @@ export function ShoppingAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm your LuxeWholesale shopping assistant. How can I help you find the perfect outfit today?" }
+    { role: "assistant", content: "Hi! I'm your Queen4Feet shopping assistant. How can I help you find the perfect outfit today?" }
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
