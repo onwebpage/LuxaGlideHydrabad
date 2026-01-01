@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { useCmsSettings } from "@/hooks/use-cms-settings";
 import { useCart } from "@/hooks/use-cart";
@@ -28,6 +29,7 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const { data: cmsSettings } = useCmsSettings();
   const { cartItemCount } = useCart();
   const isLoggedIn = !!user;
