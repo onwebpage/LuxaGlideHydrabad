@@ -52,11 +52,11 @@ export function Footer() {
           {/* Brand Info */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" data-testid="link-footer-home">
-              <h3 className="text-2xl font-serif font-black tracking-tighter text-[#d4af37] drop-shadow-sm">
+              <h3 className="text-2xl font-serif font-black tracking-tighter text-[#bf953f] drop-shadow-sm">
                 {siteName.toUpperCase()}
               </h3>
             </Link>
-            <p className="text-[#d4af37] font-serif italic text-lg mb-6 tracking-wide drop-shadow-sm">
+            <p className="text-[#bf953f] font-serif italic text-lg mb-6 tracking-wide drop-shadow-sm">
               "Feel Like a Queen, Every Day"
             </p>
             <p className="text-gray-300 text-sm leading-relaxed mb-8 max-w-xs font-medium">
@@ -68,8 +68,8 @@ export function Footer() {
                   const Icon = getSocialIcon(link.platform);
                   return (
                     <a key={index} href={link.url} target="_blank" rel="noopener noreferrer" className="group">
-                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#d4af37]" />
+                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#bf953f] group-hover:bg-[#bf953f]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(191,149,63,0.3)]">
+                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#bf953f]" />
                       </div>
                     </a>
                   );
@@ -79,8 +79,8 @@ export function Footer() {
                   const Icon = getSocialIcon(platform);
                   return (
                     <a key={platform} href="#" className="group">
-                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#d4af37]" />
+                      <div className="p-2 rounded-full border border-white/10 group-hover:border-[#bf953f] group-hover:bg-[#bf953f]/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(191,149,63,0.3)]">
+                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-[#bf953f]" />
                       </div>
                     </a>
                   );
@@ -91,7 +91,7 @@ export function Footer() {
 
           {/* Newsletter Box */}
           <div className="lg:col-span-2 bg-[#1a1a1a] p-8 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#bf953f]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left">
                 <h3 className="text-xl font-bold mb-2 tracking-tight text-white">Get exclusive fashion drops & offers</h3>
@@ -103,9 +103,9 @@ export function Footer() {
                   placeholder="Email address" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black/50 border-white/10 focus:border-[#d4af37] h-11 w-full md:w-64"
+                  className="bg-black/50 border-white/10 focus:border-[#bf953f] h-11 w-full md:w-64"
                 />
-                <Button type="submit" className="bg-[#d4af37] hover:bg-[#b8962d] text-black font-bold px-6 h-11">
+                <Button type="submit" className="bg-[#bf953f] hover:bg-[#b8962d] text-black font-bold px-6 h-11">
                   SUBSCRIBE
                 </Button>
               </form>
@@ -116,21 +116,21 @@ export function Footer() {
         {/* Trust Indicators */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-10 border-y border-white/5 mb-16">
           <div className="flex items-center gap-4 justify-center sm:justify-start">
-            <div className="p-3 bg-white/5 rounded-xl"><ShieldCheck className="w-6 h-6 text-[#d4af37]" /></div>
+            <div className="p-3 bg-white/5 rounded-xl"><ShieldCheck className="w-6 h-6 text-[#bf953f]" /></div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-white">Secure Payments</h4>
               <p className="text-xs text-gray-400">100% Protected Transactions</p>
             </div>
           </div>
           <div className="flex items-center gap-4 justify-center">
-            <div className="p-3 bg-white/5 rounded-xl"><RefreshCcw className="w-6 h-6 text-[#d4af37]" /></div>
+            <div className="p-3 bg-white/5 rounded-xl"><RefreshCcw className="w-6 h-6 text-[#bf953f]" /></div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-white">Easy Returns</h4>
               <p className="text-xs text-gray-400">7-Day Hassle-Free Policy</p>
             </div>
           </div>
           <div className="flex items-center gap-4 justify-center sm:justify-end">
-            <div className="p-3 bg-white/5 rounded-xl"><UserCheck className="w-6 h-6 text-[#d4af37]" /></div>
+            <div className="p-3 bg-white/5 rounded-xl"><UserCheck className="w-6 h-6 text-[#bf953f]" /></div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-white">Trusted Vendors</h4>
               <p className="text-xs text-gray-400">Verified Quality Standards</p>
@@ -143,42 +143,42 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Collections</h4>
             <ul className="space-y-4">
-              <li><Link href="/products" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">All Products</Link></li>
-              <li><Link href="/products?category=kurtis" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Kurtis</Link></li>
-              <li><Link href="/products?category=dresses" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Dresses</Link></li>
+              <li><Link href="/products" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">All Products</Link></li>
+              <li><Link href="/products?category=kurtis" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Kurtis</Link></li>
+              <li><Link href="/products?category=dresses" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Dresses</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Company</h4>
             <ul className="space-y-4">
-              <li><Link href="/about" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Story</Link></li>
-              <li><Link href="/vendors" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Our Vendors</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Contact Us</Link></li>
-              <li><Link href="/register?role=vendor" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Sell with Us</Link></li>
+              <li><Link href="/about" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Our Story</Link></li>
+              <li><Link href="/vendors" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Our Vendors</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Contact Us</Link></li>
+              <li><Link href="/register?role=vendor" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Sell with Us</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Support</h4>
             <ul className="space-y-4">
-              <li><Link href="/shipping-policy" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Shipping Policy</Link></li>
-              <li><Link href="/refund-policy" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Return Center</Link></li>
-              <li><Link href="/terms-of-service" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Order Tracking</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">FAQ</Link></li>
+              <li><Link href="/shipping-policy" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Shipping Policy</Link></li>
+              <li><Link href="/refund-policy" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Return Center</Link></li>
+              <li><Link href="/terms-of-service" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">Order Tracking</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-[#bf953f] transition-all duration-300 text-sm">FAQ</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Get In Touch</h4>
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-sm text-gray-300 break-all sm:break-normal">
-                <Mail className="w-4 h-4 text-[#d4af37] shrink-0" /> 
+                <Mail className="w-4 h-4 text-[#bf953f] shrink-0" /> 
                 <span>{contactEmail}</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-300">
-                <Phone className="w-4 h-4 text-[#d4af37] shrink-0" /> 
+                <Phone className="w-4 h-4 text-[#bf953f] shrink-0" /> 
                 <span>{contactPhone}</span>
               </li>
               <li className="flex items-start gap-3 text-sm text-gray-300">
-                <MapPin className="w-4 h-4 text-[#d4af37] mt-1 shrink-0" /> 
+                <MapPin className="w-4 h-4 text-[#bf953f] mt-1 shrink-0" /> 
                 <span className="leading-tight">{address}</span>
               </li>
             </ul>
@@ -186,7 +186,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-[#d4af37]/20">
+        <div className="pt-8 border-t border-[#bf953f]/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs text-gray-500 font-medium text-center md:text-left">
               &copy; {copyrightText}

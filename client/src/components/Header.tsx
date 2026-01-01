@@ -118,7 +118,7 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] md:relative md:top-auto">
       {/* Main Header - White Background with Gold Border */}
-      <div className="bg-white dark:bg-black border-b border-[#d4af37]/30 dark:border-[#d4af37]/20 shadow-sm">
+      <div className="bg-white dark:bg-black border-b border-[#bf953f]/30 dark:border-[#bf953f]/20 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
@@ -132,14 +132,14 @@ export function Header() {
             <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
                 
-                <div className="relative flex items-center bg-gray-50/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-gray-200 dark:border-[#d4af37]/30 rounded-full px-6 h-14 transition-all duration-500 group-focus-within:border-[#d4af37] group-focus-within:bg-white dark:group-focus-within:bg-black">
+                <div className="relative flex items-center bg-gray-50/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-6 h-14 transition-all duration-500 group-focus-within:border-[#bf953f] group-focus-within:bg-white dark:group-focus-within:bg-black">
                   <div className="flex items-center gap-3">
-                    <Search className="w-6 h-6 text-gray-400 group-focus-within:text-[#d4af37] group-focus-within:scale-125 group-focus-within:rotate-12 transition-all duration-500 ease-out" />
+                    <Search className="w-6 h-6 text-gray-400 group-focus-within:text-[#bf953f] group-focus-within:scale-125 group-focus-within:rotate-12 transition-all duration-500 ease-out" />
                     
                     {/* AI Smart Search Indicator */}
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30 group-focus-within:hidden transition-all duration-300">
-                      <Sparkles className="w-4 h-4 text-[#d4af37] animate-pulse" />
-                      <span className="text-[10px] font-black text-[#d4af37] tracking-[0.2em] uppercase">AI SMART</span>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#bf953f]/15 border border-[#bf953f]/30 group-focus-within:hidden transition-all duration-300">
+                      <Sparkles className="w-4 h-4 text-[#bf953f] animate-pulse" />
+                      <span className="text-[10px] font-black text-[#bf953f] tracking-[0.2em] uppercase">AI SMART</span>
                     </div>
                   </div>
 
@@ -167,7 +167,7 @@ export function Header() {
                         e.stopPropagation();
                         startVoiceSearch();
                       }}
-                      className={`rounded-full w-10 h-10 transition-all duration-300 ${isListening ? 'bg-[#d4af37] text-white animate-pulse shadow-lg shadow-[#d4af37]/30' : 'text-gray-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10'}`}
+                      className={`rounded-full w-10 h-10 transition-all duration-300 ${isListening ? 'bg-[#bf953f] text-white animate-pulse shadow-lg shadow-[#bf953f]/30' : 'text-gray-400 hover:text-[#bf953f] hover:bg-[#bf953f]/10'}`}
                       title="Voice Search"
                       data-testid="button-voice-search"
                     >
@@ -177,7 +177,7 @@ export function Header() {
                     <Button 
                       type="submit" 
                       size="icon"
-                      className="rounded-full w-10 h-10 bg-[#d4af37] hover:bg-[#f1d279] text-white shadow-lg shadow-[#d4af37]/30 transition-all active:scale-90 hover:scale-110"
+                      className="rounded-full w-10 h-10 bg-[#bf953f] hover:bg-[#f1d279] text-white shadow-lg shadow-[#bf953f]/30 transition-all active:scale-90 hover:scale-110"
                       data-testid="button-search-submit"
                     >
                       <ArrowRight className="w-6 h-6" />
@@ -197,10 +197,10 @@ export function Header() {
                   >
                     {/* Default Trending Suggestions when no query */}
                     {!searchQuery && (
-                      <div className="p-6 border-b border-gray-50 dark:border-[#d4af37]/10 bg-gradient-to-br from-white to-gray-50 dark:from-black dark:to-zinc-900/50">
+                      <div className="p-6 border-b border-gray-50 dark:border-[#bf953f]/10 bg-gradient-to-br from-white to-gray-50 dark:from-black dark:to-zinc-900/50">
                         <div className="flex items-center gap-2 mb-4">
-                          <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                          <p className="text-[10px] font-black text-[#d4af37] uppercase tracking-[0.3em]">Trending Now</p>
+                          <Sparkles className="w-4 h-4 text-[#bf953f]" />
+                          <p className="text-[10px] font-black text-[#bf953f] uppercase tracking-[0.3em]">Trending Now</p>
                         </div>
                         <div className="flex flex-wrap gap-3">
                           {['Banarasi Silk', 'Cotton Kurti', 'Wedding Collection', 'Under ₹1999'].map((tag) => (
@@ -211,7 +211,7 @@ export function Header() {
                                 setLocation(`/products?search=${encodeURIComponent(tag)}`);
                                 setShowSuggestions(false);
                               }}
-                              className="px-5 py-2.5 text-xs font-semibold rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-[#d4af37]/20 text-gray-700 dark:text-gray-200 hover:border-[#d4af37] hover:text-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)] transition-all active:scale-95"
+                              className="px-5 py-2.5 text-xs font-semibold rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-[#bf953f]/20 text-gray-700 dark:text-gray-200 hover:border-[#bf953f] hover:text-[#bf953f] hover:shadow-[0_0_15px_rgba(191,149,63,0.2)] transition-all active:scale-95"
                             >
                               {tag}
                             </button>

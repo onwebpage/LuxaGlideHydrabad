@@ -390,8 +390,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#d4af37]/50 mb-6 w-fit">
-              <Sparkles className="w-4 h-4 text-[#d4af37]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#bf953f]/50 mb-6 w-fit">
+              <Sparkles className="w-4 h-4 text-[#bf953f]" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-white">AI-Powered Fashion</span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -401,7 +401,7 @@ export default function Home() {
               Discover stunning Casual, Traditional, Ethnic Women’s Wear and trendy fashion from India's most trusted vendors.
             </h2>
             <Button 
-              className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-xl shadow-[#d4af37]/20 btn-shiny"
+              className="w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#bf953f] hover:bg-[#b8962d] text-white shadow-xl shadow-[#bf953f]/20 btn-shiny"
               data-testid="button-shop-now"
             >
               SHOP NOW
@@ -412,14 +412,14 @@ export default function Home() {
       </section>
 
       {/* Quick Category Icons */}
-      <section className="py-12 bg-[#fcfaf2] border-b border-[#d4af37]/20">
+      <section className="py-12 bg-[#fcfaf2] border-b border-[#bf953f]/20">
         <div className="container mx-auto px-4">
           <div className="flex justify-start sm:justify-center gap-6 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
             {shopCategories.slice(0, 8).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
                 <div className="flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#d4af37] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#bf953f] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(191,149,63,0.3)]">
                       <img 
                         src={category.image} 
                         alt={category.name}
@@ -427,11 +427,11 @@ export default function Home() {
                       />
                     </div>
                     {/* Hover Explore Text */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#d4af37] text-white text-[8px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 whitespace-nowrap shadow-lg">
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#bf953f] text-white text-[8px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 whitespace-nowrap shadow-lg">
                       Explore →
                     </div>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold tracking-wide text-[#4a3700] dark:text-foreground group-hover:text-[#d4af37] transition-colors duration-300">
+                  <span className="text-xs sm:text-sm font-bold tracking-wide text-[#4a3700] dark:text-foreground group-hover:text-[#bf953f] transition-colors duration-300">
                     {category.name.split(' ').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
@@ -478,8 +478,8 @@ export default function Home() {
       <section className="py-12 bg-[#fcfaf2]">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-             <div className="flex items-center gap-2 text-sm text-[#b8962d]">
-               <Link href="/" className="hover:text-[#d4af37]">Home</Link>
+             <div className="flex items-center gap-2 text-sm text-[#bf953f]">
+               <Link href="/" className="hover:text-[#bf953f]">Home</Link>
                <span>&gt;</span>
                <span className="text-[#8a6d1e]">Products</span>
              </div>
