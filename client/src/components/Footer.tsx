@@ -144,7 +144,6 @@ export function Footer() {
             <h4 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Collections</h4>
             <ul className="space-y-4">
               <li><Link href="/products" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">All Products</Link></li>
-              <li><Link href="/products?category=sarees" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Sarees</Link></li>
               <li><Link href="/products?category=kurtis" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Kurtis</Link></li>
               <li><Link href="/products?category=dresses" className="text-gray-300 hover:text-[#d4af37] transition-all duration-300 text-sm">Dresses</Link></li>
             </ul>

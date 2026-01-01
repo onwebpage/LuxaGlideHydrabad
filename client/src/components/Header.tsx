@@ -145,7 +145,7 @@ export function Header() {
 
                   <input
                     type="text"
-                    placeholder="Search Sarees, Kurtis, Brands or Product Code…"
+                    placeholder="Search Kurtis, Brands or Product Code…"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -203,7 +203,7 @@ export function Header() {
                           <p className="text-[10px] font-black text-[#d4af37] uppercase tracking-[0.3em]">Trending Now</p>
                         </div>
                         <div className="flex flex-wrap gap-3">
-                          {['Banarasi Saree', 'Cotton Kurti', 'Wedding Collection', 'Under ₹1999'].map((tag) => (
+                          {['Banarasi Silk', 'Cotton Kurti', 'Wedding Collection', 'Under ₹1999'].map((tag) => (
                             <button
                               key={tag}
                               onClick={() => {
