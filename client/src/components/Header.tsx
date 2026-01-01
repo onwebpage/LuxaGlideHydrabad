@@ -366,7 +366,7 @@ export function Header() {
           </form>
 
           {/* Mobile Navigation - Below Search Bar */}
-          <nav className="md:hidden flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide pb-2">
+          <nav className="md:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-2 px-2">
             <Link 
               href="/" 
               className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap rounded-md transition-colors ${
