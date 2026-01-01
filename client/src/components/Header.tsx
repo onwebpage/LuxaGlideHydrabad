@@ -129,15 +129,14 @@ export function Header() {
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
-                <div className="relative flex items-center">
-                  <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
-                    <Search className="w-5 h-5 text-gray-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300" />
-                    {!searchQuery && (
-                      <div className="flex items-center gap-1.5 opacity-50 group-focus-within:opacity-0 transition-opacity">
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-[10px] font-bold uppercase tracking-tighter text-primary">AI</span>
-                      </div>
-                    )}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] via-[#f1d279] to-[#d4af37] rounded-full blur-md opacity-0 group-focus-within:opacity-20 transition duration-700"></div>
+                <div className="relative flex items-center bg-gray-50/50 dark:bg-muted/30 border border-gray-200 dark:border-border rounded-full px-5 h-12 transition-all duration-500 group-focus-within:border-[#d4af37]/40 group-focus-within:bg-white dark:group-focus-within:bg-background group-focus-within:shadow-[0_0_25px_rgba(212,175,55,0.15)]">
+                  <div className="flex items-center gap-3">
+                    <Search className="w-5 h-5 text-gray-400 group-focus-within:text-[#d4af37] group-focus-within:scale-110 group-hover:rotate-12 transition-all duration-500" />
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/20 group-focus-within:opacity-0 transition-opacity">
+                      <Sparkles className="w-3 h-3 text-[#d4af37] animate-pulse" />
+                      <span className="text-[8px] font-black text-[#d4af37] tracking-widest uppercase">AI</span>
+                    </div>
                   </div>
                   <Input
                     type="search"
@@ -149,28 +148,26 @@ export function Header() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleSearchKeyDown}
-                    className="w-full pl-16 pr-24 h-12 bg-gray-50/50 dark:bg-muted/30 border-gray-200 dark:border-border rounded-full focus:bg-white dark:focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-300 text-sm shadow-sm hover:shadow-md placeholder:text-gray-400"
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 placeholder:text-gray-400 h-full"
                     data-testid="input-search"
                   />
-                  <div className="absolute right-2 flex items-center gap-1">
+                  <div className="flex items-center gap-1">
                     <Button 
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={startVoiceSearch}
-                      className={`rounded-full w-9 h-9 transition-all ${isListening ? 'bg-primary/20 text-primary animate-pulse' : 'text-gray-400 hover:text-primary hover:bg-primary/10'}`}
+                      className={`rounded-full w-9 h-9 transition-all ${isListening ? 'bg-[#d4af37]/20 text-[#d4af37] animate-pulse' : 'text-gray-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10'}`}
                       title="Voice Search"
-                      data-testid="button-voice-search"
                     >
-                      <Mic className="w-5 h-5" />
+                      <Mic className="w-4 h-4" />
                     </Button>
                     <Button 
                       type="submit" 
                       size="icon"
-                      className="rounded-full w-9 h-9 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-transform active:scale-95"
-                      data-testid="button-search"
+                      className="rounded-full w-9 h-9 bg-[#d4af37] hover:bg-[#d4af37]/90 shadow-lg shadow-[#d4af37]/20 transition-all active:scale-90"
                     >
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 text-white" />
                     </Button>
                   </div>
                 </div>
