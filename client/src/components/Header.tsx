@@ -341,8 +341,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="md:hidden pb-2">
+          {/* Mobile Search - Hidden based on user request */}
+          {/* <form onSubmit={handleSearch} className="md:hidden pb-2">
             <div className="relative flex">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -363,7 +363,7 @@ export function Header() {
                 <Search className="w-4 h-4" />
               </Button>
             </div>
-          </form>
+          </form> */}
 
           {/* Mobile Navigation - Below Search Bar */}
           <nav className="md:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-2 px-2">
