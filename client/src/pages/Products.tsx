@@ -146,17 +146,17 @@ export default function Products() {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-60" />
         
         <div className="relative z-20 container mx-auto px-4 lg:px-6">
-          <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400 mb-6 font-medium">
+          <nav className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-300 mb-6 font-medium">
             <Link href="/" className="hover:text-[#d4af37] transition-colors">Home</Link>
             <ChevronRight className="w-3 h-3" />
             <span className="text-[#d4af37]">Shop</span>
           </nav>
           
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-black font-serif mb-4 leading-tight tracking-tight">
+            <h1 className="text-4xl md:text-6xl font-black font-serif mb-4 leading-tight tracking-tight text-white">
               Curated Collections
             </h1>
-            <p className="text-gray-400 text-sm md:text-base max-w-lg leading-relaxed font-light uppercase tracking-widest">
+            <p className="text-gray-300 text-sm md:text-base max-w-lg leading-relaxed font-light uppercase tracking-widest">
               Exquisite designer wear tailored for the modern queen.
             </p>
           </div>
@@ -275,15 +275,15 @@ export default function Products() {
                   <LayoutGrid className="w-5 h-5 text-[#d4af37]" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-xl tracking-tight">Luxury Gallery</h2>
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                  <h2 className="font-bold text-xl tracking-tight text-foreground">Luxury Gallery</h2>
+                  <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
                     {sortedProducts.length} Exceptional Pieces Found
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">Sort By</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest hidden sm:block">Sort By</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-full sm:w-[220px] bg-[#fafafa] dark:bg-[#121212] border-white/5 h-11 rounded-xl shadow-lg focus:ring-[#d4af37]">
                     <SelectValue placeholder="Featured" />

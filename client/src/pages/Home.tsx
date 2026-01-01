@@ -400,14 +400,14 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-[#d4af37]/50 mb-6 w-fit">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#d4af37]/50 mb-6 w-fit">
               <Sparkles className="w-4 h-4 text-[#d4af37]" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-white">AI-Powered Fashion</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
               Feel Like a Queen, Every Day
             </h1>
-            <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 opacity-90 text-white/90">
+            <p className="text-sm sm:text-base max-w-sm leading-relaxed mb-8 font-medium text-white drop-shadow-md">
               Discover stunning ethnic wear and trendy fashion from India's most trusted vendors.
             </p>
             <Button 
@@ -460,7 +460,7 @@ export default function Home() {
                       Explore →
                     </div>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold tracking-wide text-foreground group-hover:text-[#d4af37] transition-colors duration-300">
+                  <span className="text-xs sm:text-sm font-bold tracking-wide text-[#4a3700] dark:text-foreground group-hover:text-[#d4af37] transition-colors duration-300">
                     {category.name.split(' ').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
@@ -474,7 +474,7 @@ export default function Home() {
       <section className="py-8 sm:py-12 md:py-16 bg-[#fcfaf2]">
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="text-center mb-6 sm:mb-8 md:mb-10">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-muted-foreground mb-2 sm:mb-4">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-[#8a6d1e] dark:text-muted-foreground mb-2 sm:mb-4 font-bold">
               SHOP BY CATEGORIES
             </p>
           </div>
