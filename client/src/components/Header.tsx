@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, ChevronDown, Shield, Store, LogOut, LayoutGrid, Truck, MessageSquare, Sparkles, ArrowRight, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [isListening, setIsListening] = useState(false);
   const { user, logout } = useAuth();
   const { data: cmsSettings } = useCmsSettings();
   const { cartItemCount } = useCart();
@@ -52,6 +53,50 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const startVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: "Not Supported",
+        description: "Your browser doesn't support voice recognition.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+      setShowSuggestions(true);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast({
+        title: "Voice Error",
+        description: "Could not recognize your voice. Please try again.",
+        variant: "destructive"
+      });
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,10 +147,21 @@ export function Header() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleSearchKeyDown}
-                    className="w-full pl-16 pr-12 h-12 bg-gray-50/50 dark:bg-muted/30 border-gray-200 dark:border-border rounded-full focus:bg-white dark:focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-300 text-sm shadow-sm hover:shadow-md placeholder:text-gray-400"
+                    className="w-full pl-16 pr-24 h-12 bg-gray-50/50 dark:bg-muted/30 border-gray-200 dark:border-border rounded-full focus:bg-white dark:focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-300 text-sm shadow-sm hover:shadow-md placeholder:text-gray-400"
                     data-testid="input-search"
                   />
-                  <div className="absolute right-2">
+                  <div className="absolute right-2 flex items-center gap-1">
+                    <Button 
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={startVoiceSearch}
+                      className={`rounded-full w-9 h-9 transition-all ${isListening ? 'bg-primary/20 text-primary animate-pulse' : 'text-gray-400 hover:text-primary hover:bg-primary/10'}`}
+                      title="Voice Search"
+                      data-testid="button-voice-search"
+                    >
+                      <Mic className="w-5 h-5" />
+                    </Button>
                     <Button 
                       type="submit" 
                       size="icon"
