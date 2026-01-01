@@ -181,9 +181,9 @@ export function Footer() {
               &copy; {copyrightText}
             </p>
             <div className="flex flex-wrap justify-center gap-8">
-              <Link href="/privacy-policy" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Privacy Policy</Link>
-              <Link href="/terms-of-service" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Terms of Service</Link>
-              <Link href="/refund-policy" className="text-xs text-gray-500 hover:text-[#d4af37] transition-colors uppercase tracking-widest">Refund Policy</Link>
+              <Link href="/privacy-policy" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Privacy Policy</Link>
+              <Link href="/terms-of-service" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Terms of Service</Link>
+              <Link href="/refund-policy" className="text-xs text-gray-500 hover-elevate transition-colors uppercase tracking-widest">Refund Policy</Link>
             </div>
           </div>
         </div>
