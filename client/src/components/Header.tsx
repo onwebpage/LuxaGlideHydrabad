@@ -123,7 +123,7 @@ export function Header() {
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
             <Link href="/" className="flex-shrink-0 flex items-center" data-testid="link-home">
-              <h1 className="text-xl lg:text-2xl font-sans font-black tracking-tighter text-[#fde68a] drop-shadow-sm">
+              <h1 className="text-xl lg:text-2xl font-black tracking-tighter text-[#fde68a] drop-shadow-sm" style={{ fontFamily: "'Tagesschrift', system-ui" }}>
                 {cmsSettings?.siteMeta?.siteName || "QUEEN 4FEET"}
               </h1>
             </Link>
