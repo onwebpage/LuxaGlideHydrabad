@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { Product } from '@shared/schema';
 import { Link } from 'wouter';
+import { Heart, Eye, ShoppingCart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProductCardProps {
   product: Product;
@@ -8,29 +10,66 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
-  const image = Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg';
+  const image = Array.isArray(images) && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop';
 
   return (
-    <Link href={`/product/${product.id}`}>
+    <Link href={`/products/${product.id}`}>
       <StyledWrapper>
-        <div className="card">
+        <div className="card group">
           {product.isNew && (
             <div id="cardnewfilter">
               <p>NEW</p>
             </div>
           )}
-          <div id="cardbrightfilter" />
-          <div id="cardtop">
+          
+          <div id="cardtop" className="relative overflow-hidden">
             <img 
               src={image} 
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=800&auto=format&fit=crop';
+              }}
             />
+            
+            {/* Quick Actions Overlay */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end pb-4 gap-2">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="w-[85%] bg-white/90 hover:bg-white text-black border-none rounded-full h-8 text-[10px] font-bold tracking-wider uppercase"
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Quick view logic would go here
+                }}
+              >
+                <Eye className="w-3 h-3 mr-1" />
+                Quick View
+              </Button>
+            </div>
+            
+            <button 
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                // Wishlist logic
+              }}
+            >
+              <Heart className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <div id="cardbottom">
-            <p id="cardbottomtitle">{product.name}</p>
-            <p id="cardbottomprice">₹{parseFloat(product.price).toLocaleString()}</p>
+
+          <div id="cardbottom" className="p-3 bg-white dark:bg-card">
+            <p id="cardbottomtitle" className="font-bold text-gray-800 dark:text-gray-100 mb-1">{product.name}</p>
+            <div className="flex items-center justify-between mt-auto">
+              <p id="cardbottomprice" className="text-[#d4af37] font-bold text-sm">₹{parseFloat(product.price).toLocaleString()}</p>
+              <div className="p-1.5 rounded-full bg-primary/10 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                <ShoppingCart className="w-3.5 h-3.5" />
+              </div>
+            </div>
           </div>
+          
+          <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/30 rounded-2xl transition-colors pointer-events-none" />
         </div>
       </StyledWrapper>
     </Link>
@@ -43,113 +82,69 @@ const StyledWrapper = styled.div`
   
   .card {
     width: 100%;
-    aspect-ratio: 250 / 325;
-    background: #fdfbf7;
-    border-radius: 12px;
-    box-shadow: -4px 4px 0px 2px rgba(212, 175, 55, 0.1);
-    border: solid 1px #d4af3722;
+    aspect-ratio: 3/4.5;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     overflow: hidden;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform: rotate(1deg) skewX(1deg);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transform: none;
   }
 
   #cardtop {
     width: 100%;
-    height: 70%;
+    height: 72%;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.1s ease;
-    overflow: hidden;
+    background-color: #f8f8f8;
   }
 
   #cardbottom {
     width: 100%;
-    height: 30%;
-    background-color: white;
-    font-weight: 500;
-    font-size: 16px;
-    padding: 12px;
-    color: #1a1a1a;
-    transition: all 0.2s ease;
+    height: 28%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
   }
 
   #cardbottomtitle {
-    margin-bottom: 4px;
-    font-family: 'Playfair Display', serif;
-    font-size: 14px;
-    line-height: 1.2;
+    font-size: 13px;
+    line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-
-  #cardbottomprice {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: auto;
-    border-top: 1px solid #d4af3733;
-    padding-top: 4px;
-    font-weight: 700;
-    color: #d4af37;
-    font-size: 15px;
-  }
-
-  #cardbrightfilter {
-    width: 200%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.3);
-    position: absolute;
-    transform: rotate(-45deg) translateX(-100%) translateY(-100%);
-    transition: all 0.6s ease;
-    z-index: 1;
-    pointer-events: none;
+    height: 2.6em;
   }
 
   #cardnewfilter {
-    width: 60px;
-    height: 24px;
+    width: 45px;
+    height: 20px;
     background-color: #d4af37;
     position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
     display: flex;
     color: white;
     align-items: center;
     justify-content: center;
-    border-bottom-right-radius: 12px;
-    font-weight: 700;
-    font-size: 10px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 9px;
     letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
   }
 
   .card:hover {
-    transform: translateY(-8px) rotate(0deg) skewX(0deg);
-    box-shadow: 0px 12px 24px rgba(212, 175, 55, 0.15);
-    border-color: #d4af3744;
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(212, 175, 55, 0.12);
   }
 
-  .card:hover #cardbrightfilter {
-    transform: rotate(-45deg) translateX(50%) translateY(50%);
-  }
-
-  .card:active #cardtop {
-    transform: scale(1.02);
-  }
-
-  .card:active #cardbottom {
-    background-color: #d4af37;
-    color: white;
-  }
-
-  .card:active #cardbottomprice {
-    border-top-color: rgba(255, 255, 255, 0.3);
-    color: white;
+  .dark .card {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.05);
   }
 `;
