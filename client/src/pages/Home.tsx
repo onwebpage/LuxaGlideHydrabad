@@ -441,20 +441,26 @@ export default function Home() {
       )}
 
       {/* Quick Category Icons */}
-      <section className="py-4 sm:py-6 md:py-8 bg-background">
-        <div className="container mx-auto px-2 sm:px-4">
-          <div className="flex justify-start sm:justify-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 overflow-x-auto scrollbar-hide pb-2 px-2">
+      <section className="py-12 bg-background border-b border-primary/5">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-start sm:justify-center gap-6 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
             {shopCategories.slice(0, 8).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
-                <div className="flex flex-col items-center gap-2 sm:gap-3 min-w-[70px] sm:min-w-[90px] cursor-pointer group" data-testid={`quick-category-${index}`}>
-                  <div className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 lg:w-28 lg:h-32 rounded-t-full bg-pink-100 dark:bg-pink-900/30 overflow-hidden">
-                    <img 
-                      src={category.image} 
-                      alt={category.name}
-                      className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
-                    />
+                <div className="flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#d4af37] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                      <img 
+                        src={category.image} 
+                        alt={category.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
+                    {/* Hover Explore Text */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#d4af37] text-white text-[8px] font-bold px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 whitespace-nowrap shadow-lg">
+                      Explore →
+                    </div>
                   </div>
-                  <span className="text-xs sm:text-sm md:text-base text-center text-foreground font-medium leading-tight">
+                  <span className="text-xs sm:text-sm font-bold tracking-wide text-foreground group-hover:text-[#d4af37] transition-colors duration-300">
                     {category.name.split(' ').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
                   </span>
                 </div>
