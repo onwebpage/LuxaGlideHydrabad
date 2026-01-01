@@ -331,21 +331,6 @@ async function seed() {
       sizes: ["S", "M", "L", "XL", "XXL"],
       featured: false,
     },
-    // Elegant Outfits
-    {
-      name: "Evening Gown",
-      slug: "evening-gown",
-      description: "Luxurious evening gown for special occasions. Exquisite design and premium fabric.",
-      categorySlug: "womens-wear",
-      fabric: "Silk Satin",
-      price: "4999.00",
-      moq: 1,
-      stock: 40,
-      images: [productImages.elegantOutfits[0], productImages.elegantOutfits[1]],
-      colors: ["Black", "Emerald", "Burgundy"],
-      sizes: ["XS", "S", "M", "L"],
-      featured: true,
-    },
     // Additional Casual Wear
     {
       name: "Weekend Casual Shirt",
