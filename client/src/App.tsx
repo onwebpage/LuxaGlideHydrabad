@@ -90,8 +90,6 @@ function AppContent() {
     <TooltipProvider>
       <ScrollToTop />
       {!isAuthPage && <Header />}
-      {/* Spacer for fixed header on mobile - header height is approximately 160px on mobile */}
-      {!isAuthPage && <div className="h-40 md:hidden" />}
       <Router />
       {!isAuthPage && <ShoppingAssistant />}
       {!isAuthPage && <Footer />}

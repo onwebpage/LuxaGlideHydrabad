@@ -116,7 +116,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] md:relative md:top-auto">
+    <header className="z-[100] w-full">
       {/* Main Header - White Background with Gold Border */}
       <div className="bg-white dark:bg-black border-b border-[#bf953f]/30 dark:border-[#bf953f]/20 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
