@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter, Sparkles } from "lucide-react";
