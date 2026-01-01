@@ -617,19 +617,15 @@ export default function Cart() {
                 )}
               </CardContent>
               <CardFooter className="flex flex-col gap-3">
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={() => {
-                    toast({
-                      title: "Checkout",
-                      description: "Checkout functionality coming soon!",
-                    });
-                  }}
-                  data-testid="button-checkout"
-                >
-                  Proceed to Checkout
-                </Button>
+                <Link href="/checkout" className="w-full">
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    data-testid="button-checkout"
+                  >
+                    Proceed to Checkout
+                  </Button>
+                </Link>
                 <Link href="/products" className="w-full">
                   <Button variant="outline" className="w-full" data-testid="button-continue-shopping-bottom">
                     Continue Shopping
