@@ -129,17 +129,22 @@ export function Header() {
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] via-[#f1d279] to-[#d4af37] rounded-full blur-md opacity-0 group-focus-within:opacity-20 transition duration-700"></div>
-                <div className="relative flex items-center bg-gray-50/50 dark:bg-muted/30 border border-gray-200 dark:border-border rounded-full px-5 h-12 transition-all duration-500 group-focus-within:border-[#d4af37]/40 group-focus-within:bg-white dark:group-focus-within:bg-background group-focus-within:shadow-[0_0_25px_rgba(212,175,55,0.15)]">
+                {/* Gold Glow Effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#d4af37] via-[#f1d279] to-[#d4af37] rounded-full blur-md opacity-0 group-focus-within:opacity-25 transition duration-700 animate-pulse"></div>
+                
+                <div className="relative flex items-center bg-gray-50/80 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-full px-5 h-14 transition-all duration-500 group-focus-within:border-[#d4af37]/50 group-focus-within:bg-white dark:group-focus-within:bg-black group-focus-within:shadow-[0_0_30px_rgba(212,175,55,0.2)]">
                   <div className="flex items-center gap-3">
-                    <Search className="w-5 h-5 text-gray-400 group-focus-within:text-[#d4af37] group-focus-within:scale-110 group-hover:rotate-12 transition-all duration-500" />
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/20 group-focus-within:opacity-0 transition-opacity">
-                      <Sparkles className="w-3 h-3 text-[#d4af37] animate-pulse" />
-                      <span className="text-[8px] font-black text-[#d4af37] tracking-widest uppercase">AI</span>
+                    <Search className="w-6 h-6 text-gray-400 group-focus-within:text-[#d4af37] group-focus-within:scale-125 group-focus-within:rotate-12 transition-all duration-500 ease-out" />
+                    
+                    {/* AI Smart Search Indicator */}
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/20 group-focus-within:hidden transition-all duration-300">
+                      <Sparkles className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
+                      <span className="text-[9px] font-black text-[#d4af37] tracking-widest uppercase">AI</span>
                     </div>
                   </div>
-                  <Input
-                    type="search"
+
+                  <input
+                    type="text"
                     placeholder="Search Sarees, Kurtis, Brands or Product Code…"
                     value={searchQuery}
                     onChange={(e) => {
@@ -148,26 +153,34 @@ export function Header() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleSearchKeyDown}
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 placeholder:text-gray-400 h-full"
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-base px-4 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 font-light tracking-wide outline-none h-full"
                     data-testid="input-search"
                   />
-                  <div className="flex items-center gap-1">
+
+                  <div className="flex items-center gap-2">
+                    {/* Voice Search Feature */}
                     <Button 
                       type="button"
                       variant="ghost"
                       size="icon"
-                      onClick={startVoiceSearch}
-                      className={`rounded-full w-9 h-9 transition-all ${isListening ? 'bg-[#d4af37]/20 text-[#d4af37] animate-pulse' : 'text-gray-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startVoiceSearch();
+                      }}
+                      className={`rounded-full w-10 h-10 transition-all duration-300 ${isListening ? 'bg-[#d4af37] text-white animate-pulse shadow-lg shadow-[#d4af37]/30' : 'text-gray-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10'}`}
                       title="Voice Search"
+                      data-testid="button-voice-search"
                     >
-                      <Mic className="w-4 h-4" />
+                      <Mic className="w-5 h-5" />
                     </Button>
+
                     <Button 
                       type="submit" 
                       size="icon"
-                      className="rounded-full w-9 h-9 bg-[#d4af37] hover:bg-[#d4af37]/90 shadow-lg shadow-[#d4af37]/20 transition-all active:scale-90"
+                      className="rounded-full w-10 h-10 bg-[#d4af37] hover:bg-[#d4af37]/90 text-white shadow-lg shadow-[#d4af37]/20 transition-all active:scale-90 hover:scale-105"
+                      data-testid="button-search-submit"
                     >
-                      <ArrowRight className="w-4 h-4 text-white" />
+                      <ArrowRight className="w-5 h-5" />
                     </Button>
                   </div>
                 </div>
