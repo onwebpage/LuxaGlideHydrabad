@@ -164,7 +164,7 @@ export default function Register() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+91 98765 43210"
+                        placeholder="+91-94926 34166"
                         value={formData.phone}
                         onChange={(e) => updateFormData("phone", e.target.value)}
                         className="pl-10"

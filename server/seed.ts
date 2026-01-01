@@ -83,7 +83,7 @@ async function seed() {
     password: hashedPassword,
     fullName: "Admin User",
     role: "admin",
-    phone: "+91 9876543210",
+    phone: "+91-94926 34166",
   } as InsertUser).returning();
   console.log("Created admin user");
 

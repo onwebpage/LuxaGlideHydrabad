@@ -191,7 +191,7 @@ export default function Contact() {
                         type="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="+91 98765 43210"
+                        placeholder="+91-94926 34166"
                         className="transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                         data-testid="input-phone"
                       />

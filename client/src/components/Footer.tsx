@@ -14,7 +14,7 @@ export function Footer() {
   
   const siteName = cmsSettings?.siteMeta?.siteName || "Queen4Feet";
   const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@queen4feet.com";
-  const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91 98765 43210";
+  const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91-94926 34166";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const socialLinks = cmsSettings?.footer?.socialLinks || [];

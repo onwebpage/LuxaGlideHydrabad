@@ -2911,7 +2911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       siteName: "Queen 4feet",
       tagline: "Your Style, Your Way",
       contactEmail: "contact@queen4feel.com",
-      contactPhone: "+91 98765 43210",
+      contactPhone: "+91-94926 34166",
       address: "Mumbai, India",
       seoTitle: "Queen 4feet - Shop Premium Fashion Online",
       seoDescription: "Shop the latest fashion trends from multiple trusted sellers. Discover women's wear, men's fashion, ethnic wear and more with fast delivery.",
