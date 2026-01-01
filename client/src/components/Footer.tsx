@@ -52,7 +52,9 @@ export function Footer() {
           {/* Brand Info */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" data-testid="link-footer-home">
-              <img src={logoImage} alt={siteName} className="h-14 w-auto object-contain brightness-110" />
+              <span className="text-2xl font-serif font-black tracking-tighter text-[#d4af37]">
+                {siteName.toUpperCase()}
+              </span>
             </Link>
             <p className="text-[#d4af37] font-serif italic text-lg mb-6 tracking-wide">
               "Feel Like a Queen, Every Day"

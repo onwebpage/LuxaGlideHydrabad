@@ -121,9 +121,11 @@ export function Header() {
       <div className="bg-white dark:bg-black border-b border-[#d4af37]/30 dark:border-[#d4af37]/20 shadow-sm">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0" data-testid="link-home">
-              <img src={logoImage} alt={cmsSettings?.siteMeta?.siteName || "Queen 4feet"} className="h-32 w-auto lg:h-40 object-contain" />
+            {/* Logo - Removed Image, showing Site Name */}
+            <Link href="/" className="flex-shrink-0 flex items-center" data-testid="link-home">
+              <span className="text-xl lg:text-2xl font-serif font-black tracking-tighter luxury-gold-text">
+                {cmsSettings?.siteMeta?.siteName || "QUEEN 4FEET"}
+              </span>
             </Link>
 
             {/* Search Bar - Desktop */}
