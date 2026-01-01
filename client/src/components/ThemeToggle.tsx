@@ -5,14 +5,30 @@ import { useTheme } from "next-themes";
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
 
+  // Handle the mounted state to avoid hydration mismatch
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <StyledWrapper>
+        <div className="toggle-wrapper">
+          <div className="toggle-container" />
+        </div>
+      </StyledWrapper>
+    );
+  }
+
+  const isDark = theme === "dark";
+
   return (
     <StyledWrapper>
       <div className="toggle-wrapper">
         <input 
           className="toggle-checkbox" 
           type="checkbox" 
-          checked={theme === "dark"}
-          onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+          checked={isDark}
+          onChange={() => setTheme(isDark ? "light" : "dark")}
         />
         <div className="toggle-container">  
           <div className="toggle-button">
