@@ -59,7 +59,7 @@ const StyledWrapper = styled.div`
     position: absolute;
     cursor: pointer;
     inset: 0;
-    border: 2px solid #bf953f;
+    border: 2px solid #fde68a;
     border-radius: 50px;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     background-color: transparent;
@@ -72,7 +72,7 @@ const StyledWrapper = styled.div`
     width: 1.4em;
     left: 0.2em;
     bottom: 0.2em;
-    background-color: #bf953f;
+    background-color: #fde68a;
     border-radius: inherit;
     transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   }
