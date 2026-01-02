@@ -403,6 +403,14 @@ export default function Home() {
             <Button 
               className="w-full sm:w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#bf953f] hover:bg-[#b8962d] text-white shadow-xl shadow-[#bf953f]/20 btn-shiny"
               data-testid="button-shop-now"
+              onClick={() => {
+                const productsSection = document.getElementById('products-section');
+                if (productsSection) {
+                  productsSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setLocation('/products');
+                }
+              }}
             >
               SHOP NOW
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -475,7 +483,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 bg-background">
+      <section id="products-section" className="py-12 bg-background">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
              <div className="flex items-center gap-2 text-sm text-[#bf953f]">
