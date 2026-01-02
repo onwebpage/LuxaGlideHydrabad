@@ -73,7 +73,7 @@ export function Header() {
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'en-IN';
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
@@ -83,19 +83,25 @@ export function Header() {
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setLiveTranscript(transcript);
-      setTimeout(() => {
-        setSearchQuery(transcript);
-        setShowSuggestions(true);
-        setVoiceOverlayOpen(false);
-        setIsListening(false);
-        if (mobileSearchOpen) {
-           // We are already in mobile search, so just update query
-        } else if (window.innerWidth < 1024) {
-           setMobileSearchOpen(true);
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          const finalTranscript = event.results[i][0].transcript;
+          setLiveTranscript(finalTranscript);
+          setTimeout(() => {
+            setSearchQuery(finalTranscript);
+            setShowSuggestions(true);
+            setVoiceOverlayOpen(false);
+            setIsListening(false);
+            if (!mobileSearchOpen && window.innerWidth < 1024) {
+               setMobileSearchOpen(true);
+            }
+          }, 1000);
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+          setLiveTranscript(interimTranscript);
         }
-      }, 1000);
+      }
     };
 
     recognition.onerror = () => {
@@ -359,19 +365,31 @@ export function Header() {
           </div>
 
           {/* Mobile Search Bar - Trigger */}
-          <div className="lg:hidden px-2 pb-4 pt-1">
+          <div className="lg:hidden px-2 pb-4 pt-1 flex items-center gap-2">
             <button 
               onClick={() => setMobileSearchOpen(true)}
-              className="w-full relative flex items-center bg-gray-50/90 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-4 h-10 transition-all text-left"
+              className="flex-1 relative flex items-center bg-gray-50/90 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-4 h-10 transition-all text-left"
               data-testid="button-mobile-search-trigger"
             >
               <Search className="w-4 h-4 text-gray-400 mr-3" />
-              <span className="text-sm text-gray-400 flex-1">Search Kurtis, Brands or Product Code…</span>
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#bf953f]/10 border border-[#bf953f]/20">
+              <span className="text-sm text-gray-400 flex-1 truncate">Search Kurtis, Brands...</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#bf953f]/10 border border-[#bf953f]/20 shrink-0">
                 <Sparkles className="w-3 h-3 text-[#bf953f]" />
                 <span className="text-[8px] font-black text-[#bf953f] uppercase tracking-wider">AI</span>
               </div>
             </button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                startVoiceSearch();
+              }}
+              className="rounded-full w-10 h-10 bg-white/10 text-[#fde68a] shrink-0"
+              data-testid="button-mobile-voice-trigger"
+            >
+              <Mic className="w-5 h-5" />
+            </Button>
           </div>
 
           {/* Mobile Search Overlay */}
