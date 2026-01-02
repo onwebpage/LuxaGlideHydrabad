@@ -425,20 +425,20 @@ export function Header() {
                 className="fixed inset-0 bg-white dark:bg-background z-[150] flex flex-col"
               >
                 {/* Overlay Header */}
-                <div className="bg-[#bf953f] px-4 py-4 flex items-center gap-4">
+                <div className="bg-[#bf953f] px-2 py-3 flex items-center gap-2">
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setMobileSearchOpen(false)}
-                    className="text-[#fde68a] hover:bg-white/10"
+                    className="text-[#fde68a] hover:bg-white/10 shrink-0"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5" />
                   </Button>
                   
                   <div className="flex-1 relative" ref={searchRef}>
                     <form onSubmit={handleSearch} className="relative group">
-                      <div className="relative flex items-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-white/20 rounded-full px-4 h-12">
-                        <Search className="w-5 h-5 text-[#bf953f]" />
+                      <div className="relative flex items-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-white/20 rounded-full px-3 h-11">
+                        <Search className="w-4 h-4 text-[#bf953f] shrink-0" />
                         <input
                           type="text"
                           autoFocus
@@ -449,9 +449,9 @@ export function Header() {
                             setShowSuggestions(true);
                           }}
                           onKeyDown={handleSearchKeyDown}
-                          className="flex-1 bg-transparent border-none focus:ring-0 text-base px-3 text-gray-800 dark:text-gray-100 outline-none h-full"
+                          className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-2 text-gray-800 dark:text-gray-100 outline-none h-full min-w-0"
                         />
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button 
                             type="button"
                             variant="ghost"
@@ -462,10 +462,10 @@ export function Header() {
                             }}
                             className={`rounded-full w-8 h-8 ${isListening ? 'text-[#bf953f] animate-pulse' : 'text-gray-400'}`}
                           >
-                            <Mic className="w-5 h-5" />
+                            <Mic className="w-4 h-4" />
                           </Button>
                           <button type="submit" className="p-1 text-[#bf953f]">
-                            <ArrowRight className="w-6 h-6" />
+                            <ArrowRight className="w-5 h-5" />
                           </button>
                         </div>
                       </div>
@@ -494,8 +494,9 @@ export function Header() {
                             key={tag}
                             onClick={() => {
                               setSearchQuery(tag);
-                              setLocation(`/products?search=${encodeURIComponent(tag)}`);
+                              // First update suggestions if needed, but we'll just search
                               setMobileSearchOpen(false);
+                              setLocation(`/products?search=${encodeURIComponent(tag)}`);
                             }}
                             className="px-4 py-2 text-sm font-medium rounded-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 text-gray-700 dark:text-gray-200"
                           >
