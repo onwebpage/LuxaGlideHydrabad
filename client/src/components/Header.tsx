@@ -33,6 +33,7 @@ export function Header() {
   const { data: cmsSettings } = useCmsSettings();
   const { cartItemCount } = useCart();
   const isLoggedIn = !!user;
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   
   // AI Smart Search logic
   const { data: suggestions = [] } = useQuery<Product[]>({
@@ -343,24 +344,148 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Search Bar - Simplified */}
+          {/* Mobile Search Bar - Trigger */}
           <div className="lg:hidden px-2 pb-4 pt-1">
-            <form onSubmit={handleSearch} className="relative group">
-              <div className="relative flex items-center bg-gray-50/90 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-4 h-10 transition-all focus-within:border-[#bf953f]">
-                <Search className="w-4 h-4 text-gray-400 group-focus-within:text-[#bf953f] transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-3 text-gray-800 dark:text-gray-100 outline-none h-full w-full"
-                />
-                <button type="submit" className="p-1 text-[#bf953f]">
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+            <button 
+              onClick={() => setMobileSearchOpen(true)}
+              className="w-full relative flex items-center bg-gray-50/90 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-4 h-10 transition-all text-left"
+              data-testid="button-mobile-search-trigger"
+            >
+              <Search className="w-4 h-4 text-gray-400 mr-3" />
+              <span className="text-sm text-gray-400 flex-1">Search Kurtis, Brands or Product Code…</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#bf953f]/10 border border-[#bf953f]/20">
+                <Sparkles className="w-3 h-3 text-[#bf953f]" />
+                <span className="text-[8px] font-black text-[#bf953f] uppercase tracking-wider">AI</span>
               </div>
-            </form>
+            </button>
           </div>
+
+          {/* Mobile Search Overlay */}
+          <AnimatePresence>
+            {mobileSearchOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: "100%" }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="fixed inset-0 bg-white dark:bg-background z-[150] flex flex-col"
+              >
+                {/* Overlay Header */}
+                <div className="bg-[#bf953f] px-4 py-4 flex items-center gap-4">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setMobileSearchOpen(false)}
+                    className="text-[#fde68a] hover:bg-white/10"
+                  >
+                    <X className="w-6 h-6" />
+                  </Button>
+                  
+                  <div className="flex-1 relative" ref={searchRef}>
+                    <form onSubmit={handleSearch} className="relative group">
+                      <div className="relative flex items-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-white/20 rounded-full px-4 h-12">
+                        <Search className="w-5 h-5 text-[#bf953f]" />
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Search Kurtis, Brands..."
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setShowSuggestions(true);
+                          }}
+                          onKeyDown={handleSearchKeyDown}
+                          className="flex-1 bg-transparent border-none focus:ring-0 text-base px-3 text-gray-800 dark:text-gray-100 outline-none h-full"
+                        />
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startVoiceSearch();
+                            }}
+                            className={`rounded-full w-8 h-8 ${isListening ? 'text-[#bf953f] animate-pulse' : 'text-gray-400'}`}
+                          >
+                            <Mic className="w-5 h-5" />
+                          </Button>
+                          <button type="submit" className="p-1 text-[#bf953f]">
+                            <ArrowRight className="w-6 h-6" />
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                {/* Suggestions / Results area */}
+                <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-950 p-4">
+                  {/* AI Indicator */}
+                  <div className="flex items-center gap-2 mb-6 p-3 rounded-xl bg-gradient-to-r from-[#bf953f]/10 to-transparent border-l-4 border-[#bf953f]">
+                    <Sparkles className="w-5 h-5 text-[#bf953f]" />
+                    <div>
+                      <p className="text-[10px] font-black text-[#bf953f] uppercase tracking-widest leading-none mb-1">AI SMART SEARCH ENABLED</p>
+                      <p className="text-xs text-muted-foreground">Finding the perfect style for you...</p>
+                    </div>
+                  </div>
+
+                  {/* Trending Tags */}
+                  {!searchQuery && (
+                    <div className="mb-8">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Trending Searches</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Banarasi Silk', 'Cotton Kurti', 'Wedding Wear', 'New Arrivals', 'Best Sellers'].map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => {
+                              setSearchQuery(tag);
+                              setLocation(`/products?search=${encodeURIComponent(tag)}`);
+                              setMobileSearchOpen(false);
+                            }}
+                            className="px-4 py-2 text-sm font-medium rounded-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 text-gray-700 dark:text-gray-200"
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Search Results / Suggestions */}
+                  {suggestions.length > 0 && (
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recommended Products</p>
+                      {suggestions.map((product) => {
+                        const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+                        const image = Array.isArray(images) && images.length > 0 ? images[0] : '/placeholder.jpg';
+                        return (
+                          <Link 
+                            key={product.id} 
+                            href={`/products/${product.id}`}
+                            onClick={() => setMobileSearchOpen(false)}
+                            className="flex items-center gap-4 p-3 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-50 dark:border-zinc-800"
+                          >
+                            <div className="w-16 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                              <img src={image} alt={product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-base font-semibold truncate text-gray-900 dark:text-gray-100">{product.name}</h4>
+                              <p className="text-lg font-black text-[#bf953f]">₹{parseFloat(product.price).toLocaleString()}</p>
+                              <div className="flex items-center gap-1 mt-1">
+                                <Badge variant="secondary" className="text-[10px] bg-[#bf953f]/10 text-[#bf953f] border-none">AI Suggested</Badge>
+                              </div>
+                            </div>
+                            <ArrowRight className="w-5 h-5 text-gray-300" />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Mobile Navigation - Scrollable */}
           <nav className="lg:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-3 px-2 font-sans">
