@@ -10,14 +10,14 @@ interface PolicyLayoutProps {
 function PolicyLayout({ title, icon, children }: PolicyLayoutProps) {
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card className="max-w-4xl mx-auto border-none shadow-lg bg-white/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center gap-4 pb-8 border-b">
-          <div className="p-3 bg-primary/10 rounded-xl text-primary">
+      <Card className="max-w-4xl mx-auto border border-[#bf953f]/20 shadow-xl bg-card">
+        <CardHeader className="flex flex-row items-center gap-4 pb-8 border-b border-[#bf953f]/10">
+          <div className="p-3 bg-[#bf953f]/10 rounded-xl text-[#bf953f]">
             {icon}
           </div>
-          <CardTitle className="text-3xl font-serif">{title}</CardTitle>
+          <CardTitle className="text-3xl font-serif text-[#4a3700] dark:text-foreground">{title}</CardTitle>
         </CardHeader>
-        <CardContent className="pt-8 prose prose-slate max-w-none dark:prose-invert">
+        <CardContent className="pt-8 prose prose-slate max-w-none dark:prose-invert prose-headings:text-[#8a6d1e] prose-p:text-muted-foreground prose-strong:text-[#4a3700] dark:prose-strong:text-foreground">
           {children}
         </CardContent>
       </Card>
@@ -62,8 +62,8 @@ export function TermsOfService() {
   return (
     <PolicyLayout title="Terms and Conditions" icon={<FileText className="w-8 h-8" />}>
       <section className="space-y-8">
-        <div className="bg-muted/30 p-4 rounded-lg border border-primary/10 mb-8">
-          <p className="text-sm font-medium italic">
+        <div className="bg-[#bf953f]/5 p-4 rounded-lg border border-[#bf953f]/20 mb-8">
+          <p className="text-sm font-medium italic text-[#8a6d1e]">
             Last Updated: January 2026. By accessing or using the Queen4Feet platform, you agree to be bound by these Terms and Conditions.
           </p>
         </div>
