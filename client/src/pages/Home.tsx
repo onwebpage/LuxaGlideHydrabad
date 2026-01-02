@@ -419,7 +419,7 @@ export default function Home() {
               <Link key={category.name} href={`/products?category=${category.slug}`}>
                 <div className="flex flex-col items-center gap-2 sm:gap-4 min-w-[70px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
                   <div className="relative">
-                    <div className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#bf953f] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(191,149,63,0.3)]">
+                    <div className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 hexagon-clip overflow-hidden border-2 border-transparent group-hover:border-[#bf953f] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(191,149,63,0.3)] bg-muted">
                       <img 
                         src={category.image} 
                         alt={category.name}

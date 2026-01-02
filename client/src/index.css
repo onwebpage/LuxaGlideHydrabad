@@ -8,6 +8,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .hexagon-clip {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+}
+
 /* LIGHT MODE - Luxury B2B Theme */
 /* Global Luxury Enhancements */
 h1, h2, h3, h4, h5, h6 {
