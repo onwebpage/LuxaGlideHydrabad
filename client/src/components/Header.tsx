@@ -34,6 +34,8 @@ export function Header() {
   const { cartItemCount } = useCart();
   const isLoggedIn = !!user;
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [voiceOverlayOpen, setVoiceOverlayOpen] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   
   // AI Smart Search logic
   const { data: suggestions = [] } = useQuery<Product[]>({
@@ -76,17 +78,29 @@ export function Header() {
 
     recognition.onstart = () => {
       setIsListening(true);
+      setVoiceOverlayOpen(true);
+      setLiveTranscript("Listening...");
     };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
-      setSearchQuery(transcript);
-      setShowSuggestions(true);
-      setIsListening(false);
+      setLiveTranscript(transcript);
+      setTimeout(() => {
+        setSearchQuery(transcript);
+        setShowSuggestions(true);
+        setVoiceOverlayOpen(false);
+        setIsListening(false);
+        if (mobileSearchOpen) {
+           // We are already in mobile search, so just update query
+        } else if (window.innerWidth < 1024) {
+           setMobileSearchOpen(true);
+        }
+      }, 1000);
     };
 
     recognition.onerror = () => {
       setIsListening(false);
+      setVoiceOverlayOpen(false);
       toast({
         title: "Voice Error",
         description: "Could not recognize your voice. Please try again.",
@@ -362,6 +376,46 @@ export function Header() {
 
           {/* Mobile Search Overlay */}
           <AnimatePresence>
+            {voiceOverlayOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex flex-col items-center justify-center p-6 text-center"
+              >
+                <div className="relative mb-12">
+                  <div className="absolute inset-0 bg-[#bf953f]/20 blur-3xl rounded-full animate-pulse" />
+                  <div className="relative w-24 h-24 rounded-full bg-[#bf953f] flex items-center justify-center shadow-[0_0_50px_rgba(191,149,63,0.5)]">
+                    <Mic className="w-10 h-10 text-white" />
+                  </div>
+                  <motion.div 
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="absolute -inset-4 border-2 border-[#bf953f]/30 rounded-full" 
+                  />
+                </div>
+                
+                <h2 className="text-[#fde68a] text-2xl font-serif mb-4">Listening...</h2>
+                <div className="max-w-md">
+                  <p className="text-white text-3xl font-bold leading-tight tracking-tight min-h-[4rem]">
+                    {liveTranscript || "Speak now"}
+                  </p>
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    setVoiceOverlayOpen(false);
+                    setIsListening(false);
+                  }}
+                  className="mt-12 text-white/50 hover:text-white"
+                >
+                  <X className="w-5 h-5 mr-2" />
+                  Cancel
+                </Button>
+              </motion.div>
+            )}
+
             {mobileSearchOpen && (
               <motion.div
                 initial={{ opacity: 0, x: "100%" }}
