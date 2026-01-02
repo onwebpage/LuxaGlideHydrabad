@@ -122,14 +122,14 @@ export function Header() {
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
-            <Link href="/" className="flex-shrink-0 flex items-center" data-testid="link-home">
-              <h1 className="text-xl lg:text-2xl font-black tracking-tighter text-[#fde68a] drop-shadow-sm" style={{ fontFamily: "'Tagesschrift', system-ui" }}>
+            <Link href="/" className="flex-shrink-0 flex items-center z-10" data-testid="link-home">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-[#fde68a] drop-shadow-sm truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: "'Tagesschrift', system-ui" }}>
                 {cmsSettings?.siteMeta?.siteName || "QUEEN 4FEET"}
               </h1>
             </Link>
 
             {/* Search Bar - Desktop */}
-            <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
+            <div className="hidden lg:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
                 
                 <div className="relative flex items-center bg-gray-50/80 dark:bg-zinc-900/60 backdrop-blur-2xl border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-6 h-14 transition-all duration-500 group-focus-within:border-[#bf953f] group-focus-within:bg-white dark:group-focus-within:bg-black">
@@ -334,7 +334,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden ml-1"
+                className="lg:hidden ml-1 text-[#fde68a] hover:bg-white/10"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 data-testid="button-mobile-menu"
               >
@@ -343,32 +343,27 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Search - Hidden based on user request */}
-          {/* <form onSubmit={handleSearch} className="md:hidden pb-2">
-            <div className="relative flex">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  type="search"
+          {/* Mobile Search Bar - Simplified */}
+          <div className="lg:hidden px-2 pb-4 pt-1">
+            <form onSubmit={handleSearch} className="relative group">
+              <div className="relative flex items-center bg-gray-50/90 dark:bg-zinc-900/80 backdrop-blur-md border border-gray-200 dark:border-[#bf953f]/30 rounded-full px-4 h-10 transition-all focus-within:border-[#bf953f]">
+                <Search className="w-4 h-4 text-gray-400 group-focus-within:text-[#bf953f] transition-colors" />
+                <input
+                  type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-10 bg-gray-50 dark:bg-muted border-gray-200 dark:border-border rounded-l-lg rounded-r-none text-sm"
-                  data-testid="input-search-mobile"
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-3 text-gray-800 dark:text-gray-100 outline-none h-full w-full"
                 />
+                <button type="submit" className="p-1 text-[#bf953f]">
+                  <ArrowRight className="w-5 h-5" />
+                </button>
               </div>
-              <Button 
-                type="submit" 
-                size="sm"
-                className="rounded-l-none rounded-r-lg px-4 h-10"
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-            </div>
-          </form> */}
+            </form>
+          </div>
 
-          {/* Mobile Navigation - Below Search Bar */}
-          <nav className="md:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-2 px-2 font-sans">
+          {/* Mobile Navigation - Scrollable */}
+          <nav className="lg:hidden flex items-center justify-start gap-1 overflow-x-auto scrollbar-hide pb-3 px-2 font-sans">
             <Link 
               href="/" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
@@ -419,7 +414,7 @@ export function Header() {
       </div>
 
       {/* Category Navigation Bar - Desktop Only */}
-      <div className="bg-[#bf953f] border-b border-black/10 hidden md:block">
+      <div className="bg-[#bf953f] border-b border-black/10 hidden lg:block">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2 font-sans">
             <Link 
@@ -479,99 +474,105 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white dark:bg-background border-b border-gray-200 dark:border-border overflow-hidden shadow-lg"
+            className="lg:hidden bg-white dark:bg-background border-b border-gray-200 dark:border-border overflow-hidden shadow-lg"
           >
-            <div className="container mx-auto px-4 py-4">
-              {/* Mobile Quick Links */}
-              <div className="pb-4">
-                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">Quick Links</h3>
-                <div className="space-y-1">
+            <div className="flex flex-col py-4">
+              <div className="px-6 py-4 border-b flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-500 uppercase">Dark Mode</span>
+                <ThemeToggle />
+              </div>
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-6 py-4 text-sm font-bold tracking-widest uppercase transition-colors hover:bg-gray-50 ${
+                  location === '/' ? 'text-[#bf953f] bg-gray-50 border-r-4 border-[#bf953f]' : 'text-gray-700'
+                }`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/products"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-6 py-4 text-sm font-bold tracking-widest uppercase transition-colors hover:bg-gray-50 ${
+                  location === '/products' ? 'text-[#bf953f] bg-gray-50 border-r-4 border-[#bf953f]' : 'text-gray-700'
+                }`}
+              >
+                All Products
+              </Link>
+              <Link
+                href="/vendors"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-6 py-4 text-sm font-bold tracking-widest uppercase transition-colors hover:bg-gray-50 ${
+                  location === '/vendors' ? 'text-[#bf953f] bg-gray-50 border-r-4 border-[#bf953f]' : 'text-gray-700'
+                }`}
+              >
+                Vendors
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-6 py-4 text-sm font-bold tracking-widest uppercase transition-colors hover:bg-gray-50 ${
+                  location === '/about' ? 'text-[#bf953f] bg-gray-50 border-r-4 border-[#bf953f]' : 'text-gray-700'
+                }`}
+              >
+                About Us
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-6 py-4 text-sm font-bold tracking-widest uppercase transition-colors hover:bg-gray-50 ${
+                  location === '/contact' ? 'text-[#bf953f] bg-gray-50 border-r-4 border-[#bf953f]' : 'text-gray-700'
+                }`}
+              >
+                Contact
+              </Link>
+            </div>
+
+            <div className="border-t border-gray-100 dark:border-border pt-4 mt-4 px-6 pb-6">
+              {isLoggedIn ? (
+                <div className="space-y-2">
                   <Link
-                    href="/"
+                    href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
-                    data-testid="link-mobile-home"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#bf953f] text-white rounded-lg font-medium"
+                    data-testid="link-mobile-dashboard"
                   >
-                    <LayoutGrid className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    Home
+                    <User className="w-4 h-4" />
+                    Go to Dashboard
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      setMobileMenuOpen(false);
+                      setLocation('/');
+                    }}
+                    className="flex items-center justify-center gap-2 w-full py-3 border border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    data-testid="button-mobile-logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex-1 py-3 text-center border border-[#bf953f] text-[#bf953f] rounded-lg font-medium hover:bg-[#bf953f]/5 dark:hover:bg-[#bf953f]/10 transition-colors"
+                    data-testid="link-mobile-login"
+                  >
+                    Sign In
                   </Link>
                   <Link
-                    href="/vendors"
+                    href="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
-                    data-testid="link-mobile-vendors"
+                    className="flex-1 py-3 text-center bg-[#bf953f] text-white rounded-lg font-medium hover:bg-[#bf953f]/90 transition-colors"
+                    data-testid="link-mobile-register"
                   >
-                    <Store className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    Vendors
-                  </Link>
-                  <Link
-                    href="/about"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
-                    data-testid="link-mobile-about"
-                  >
-                    <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    About Us
-                  </Link>
-                  <Link
-                    href="/contact"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-muted transition-colors"
-                    data-testid="link-mobile-contact"
-                  >
-                    <Truck className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    Contact
+                    Register
                   </Link>
                 </div>
-              </div>
-
-              {/* Mobile Auth Actions */}
-              <div className="border-t border-gray-100 dark:border-border pt-4 mt-4">
-                {isLoggedIn ? (
-                  <div className="space-y-2">
-                    <Link
-                      href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white rounded-lg font-medium"
-                      data-testid="link-mobile-dashboard"
-                    >
-                      <User className="w-4 h-4" />
-                      Go to Dashboard
-                    </Link>
-                    <button
-                      onClick={async () => {
-                        await logout();
-                        setMobileMenuOpen(false);
-                        setLocation('/');
-                      }}
-                      className="flex items-center justify-center gap-2 w-full py-3 border border-red-500 text-red-500 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-                      data-testid="button-mobile-logout"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex gap-3">
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex-1 py-3 text-center border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
-                      data-testid="link-mobile-login"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex-1 py-3 text-center bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-                      data-testid="link-mobile-register"
-                    >
-                      Register
-                    </Link>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </motion.div>
         )}

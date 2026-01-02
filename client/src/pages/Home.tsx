@@ -379,7 +379,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <section 
-        className="relative min-h-[500px] h-[70vh] flex items-center overflow-hidden w-full"
+        className="relative min-h-[300px] sm:min-h-[500px] h-[50vh] sm:h-[70vh] flex items-center overflow-hidden w-full"
         style={{
           backgroundImage: `url(${bannerImage})`,
           backgroundSize: 'cover',
@@ -414,12 +414,12 @@ export default function Home() {
       {/* Quick Category Icons */}
       <section className="py-12 bg-background border-b border-[#bf953f]/20">
         <div className="container mx-auto px-4">
-          <div className="flex justify-start sm:justify-center gap-6 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
+          <div className="flex justify-start sm:justify-center gap-4 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
             {shopCategories.slice(0, 8).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
-                <div className="flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
+                <div className="flex flex-col items-center gap-2 sm:gap-4 min-w-[70px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#bf953f] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(191,149,63,0.3)]">
+                    <div className="w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#bf953f] transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-[0_0_20px_rgba(191,149,63,0.3)]">
                       <img 
                         src={category.image} 
                         alt={category.name}
