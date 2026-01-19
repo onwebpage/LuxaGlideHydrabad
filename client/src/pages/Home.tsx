@@ -67,13 +67,11 @@ export default function Home() {
   const [brandSearch, setBrandSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
-  const [selectedFabrics, setSelectedFabrics] = useState<string[]>([]);
+  const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   const [, setLocation] = useLocation();
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-  const occasions = ["Casual", "Formal", "Party Wear", "Festive"];
-  const fabrics = ["Cotton", "Silk", "Chiffon", "Georgette", "Linen", "Velvet"];
+  const heights = ["4'8\" - 5'0\"", "5'0\" - 5'3\"", "5'3\" - 5'6\"", "5'6\" - 5'9\"", "5'9\" - 6'0\""];
 
   const toggleFilter = (list: string[], setList: (val: string[]) => void, item: string) => {
     if (list.includes(item)) {
@@ -88,8 +86,7 @@ export default function Home() {
     setPriceRange([0, 50000]);
     setSelectedCategory("all");
     setSelectedSizes([]);
-    setSelectedOccasions([]);
-    setSelectedFabrics([]);
+    setSelectedHeights([]);
   };
 
   const { data: homepageProductsData, isLoading: productsLoading } = useQuery<{
@@ -194,7 +191,7 @@ export default function Home() {
                 <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
                 <h3 className="text-lg font-bold text-[#4a3700] dark:text-foreground">Filters</h3>
               </div>
-        {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedOccasions.length > 0 || selectedFabrics.length > 0) && (
+        {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedHeights.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -227,7 +224,7 @@ export default function Home() {
         )}
       </div>
 
-      <Accordion type="multiple" defaultValue={["category", "price", "brand", "size"]} className="w-full">
+      <Accordion type="multiple" defaultValue={["category", "price", "brand", "size", "height"]} className="w-full">
         <AccordionItem value="category" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
             <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Category</span>
@@ -329,43 +326,21 @@ export default function Home() {
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="occasion" className="border-none">
+        <AccordionItem value="height" className="border-none">
           <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Occasion</span>
+            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Height</span>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-4">
             <div className="space-y-2">
-              {occasions.map((occasion) => (
-                <div key={occasion} className="flex items-center space-x-2">
+              {heights.map((height) => (
+                <div key={height} className="flex items-center space-x-2">
                   <Checkbox 
-                    id={`occasion-${occasion}`} 
-                    checked={selectedOccasions.includes(occasion)}
-                    onCheckedChange={() => toggleFilter(selectedOccasions, setSelectedOccasions, occasion)}
+                    id={`height-${height}`} 
+                    checked={selectedHeights.includes(height)}
+                    onCheckedChange={() => toggleFilter(selectedHeights, setSelectedHeights, height)}
                   />
-                  <label htmlFor={`occasion-${occasion}`} className="text-sm font-medium leading-none cursor-pointer">
-                    {occasion}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="fabric" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Fabric</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <div className="space-y-2">
-              {fabrics.map((fabric) => (
-                <div key={fabric} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`fabric-${fabric}`} 
-                    checked={selectedFabrics.includes(fabric)}
-                    onCheckedChange={() => toggleFilter(selectedFabrics, setSelectedFabrics, fabric)}
-                  />
-                  <label htmlFor={`fabric-${fabric}`} className="text-sm font-medium leading-none cursor-pointer">
-                    {fabric}
+                  <label htmlFor={`height-${height}`} className="text-sm font-medium leading-none cursor-pointer">
+                    {height}
                   </label>
                 </div>
               ))}
