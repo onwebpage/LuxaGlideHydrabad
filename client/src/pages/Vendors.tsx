@@ -111,7 +111,7 @@ export default function Vendors() {
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Connect with KYC-verified vendors offering premium quality products, competitive pricing, and reliable delivery across India.
+              Accessible for KYC-verified offering premium quality products, competitive pricing, and reliable delivery across India.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -134,7 +134,7 @@ export default function Vendors() {
                 <h2 className="font-serif text-5xl md:text-6xl font-bold mb-6 text-[#bf953f]">
                   Lifetime FREE!
                 </h2>
-                <h3 className="text-2xl font-semibold mb-4">Host your store completely free for lifetime!</h3>
+                <h3 className="text-2xl font-semibold mb-4">Host your vendor page completely free for lifetime!</h3>
                 <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
                   We support you, and as a part of that, you can host your store free for LIFETIME! Only pay if you need Xtra, its your choice! If you don't need Xtra, you can continue on the STARTER PLAN!
                 </p>

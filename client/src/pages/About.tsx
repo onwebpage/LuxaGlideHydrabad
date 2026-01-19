@@ -97,7 +97,7 @@ export default function About() {
                 </div>
                 <div className="space-y-4">
                   <p className="text-lg leading-relaxed">
-                    To make premium fashion accessible to everyone by creating a transparent, efficient, and trustworthy marketplace that connects quality sellers with fashion-conscious shoppers.
+                    To create a home for height specific requirements and premium fashion store with transparent, efficient and trustworthy marketplace as a whole that connects quality sellers to the fashion conscious shoppers
                   </p>
                   <p className="text-lg text-muted-foreground leading-relaxed">
                     We believe in democratizing access to stylish fashion through fair pricing, verified quality, and seamless delivery to your doorstep.

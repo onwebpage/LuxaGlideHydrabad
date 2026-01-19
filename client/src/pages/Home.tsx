@@ -423,7 +423,7 @@ export default function Home() {
       <section className="py-12 bg-background border-b border-[#bf953f]/20">
         <div className="container mx-auto px-4">
           <div className="flex justify-start sm:justify-center gap-4 sm:gap-10 md:gap-14 lg:gap-16 overflow-x-auto scrollbar-hide pb-4 px-2">
-            {shopCategories.slice(0, 8).map((category, index) => (
+            {shopCategories.slice(0, 15).map((category, index) => (
               <Link key={category.name} href={`/products?category=${category.slug}`}>
                 <div className="flex flex-col items-center gap-3 sm:gap-4 min-w-[85px] sm:min-w-[100px] cursor-pointer group" data-testid={`quick-category-${index}`}>
                   <div className="relative">

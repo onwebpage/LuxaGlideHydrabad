@@ -121,7 +121,7 @@ export function RefundPolicy() {
         <div>
           <h3 className="text-xl font-bold mb-4">1. Return Eligibility</h3>
           <p className="text-muted-foreground leading-relaxed">
-            We offer a 7-day hassle-free return policy for most products. To be eligible for a return, the item must be unused, in its original packaging, and in the same condition as received. Specific custom-made or intimate wear items may be excluded from returns for hygiene reasons.
+            We offer a 2-day hassle-free return policy for most products. To be eligible for a return, the item must be unused, in its original packaging, and in the same condition as received. Specific custom-made or intimate wear items may be excluded from returns for hygiene reasons.
           </p>
         </div>
         <div>
@@ -133,7 +133,7 @@ export function RefundPolicy() {
         <div>
           <h3 className="text-xl font-bold mb-4">3. Damaged or Incorrect Items</h3>
           <p className="text-muted-foreground leading-relaxed">
-            If you receive a damaged or incorrect item, please contact us within 48 hours of delivery with photographic evidence. We will arrange for a replacement or full refund at no additional cost to you.
+            If you receive a damaged or incorrect item, please contact us within 48 hours of delivery with Unboxing vide evidence. We will arrange for a replacement or full refund at no additional cost to you.
           </p>
         </div>
       </section>
