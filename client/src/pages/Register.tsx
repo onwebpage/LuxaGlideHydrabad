@@ -65,7 +65,7 @@ export default function Register() {
 
       toast({
         title: "Account created!",
-        description: "Welcome to Queen4Feel!",
+        description: "Welcome to Queen4Feet!",
       });
       setLocation(getDashboardPath(user.role));
     } catch (error: any) {
@@ -91,7 +91,7 @@ export default function Register() {
         className="w-full max-w-2xl"
       >
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Join Queen4Feel</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Join Queen4Feet</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Create your account and start your shopping journey
           </p>

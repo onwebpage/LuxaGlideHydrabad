@@ -137,9 +137,9 @@ export function Header() {
   };
 
   return (
-    <header className="z-[100] w-full bg-[#bf953f]">
-      {/* Main Header - Golden Background */}
-      <div className="border-b border-black/10 shadow-sm">
+    <header className="z-[100] w-full relative overflow-hidden" style={{ backgroundImage: 'url(/golden-background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      {/* Main Header */}
+      <div className="border-b border-black/10 shadow-sm relative z-10">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
@@ -443,17 +443,17 @@ export function Header() {
                 className="fixed inset-0 bg-white dark:bg-background z-[150] flex flex-col"
               >
                 {/* Overlay Header */}
-                <div className="bg-[#bf953f] px-2 py-3 flex items-center gap-2">
+                <div className="px-2 py-3 flex items-center gap-2 relative overflow-hidden" style={{ backgroundImage: 'url(/golden-background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setMobileSearchOpen(false)}
-                    className="text-[#fde68a] hover:bg-white/10 shrink-0"
+                    className="text-[#fde68a] hover:bg-white/10 shrink-0 relative z-10"
                   >
                     <X className="w-5 h-5" />
                   </Button>
                   
-                  <div className="flex-1 relative" ref={searchRef}>
+                  <div className="flex-1 relative z-10" ref={searchRef}>
                     <form onSubmit={handleSearch} className="relative group">
                       <div className="relative flex items-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-white/20 rounded-full px-3 h-11">
                         <Search className="w-4 h-4 text-[#bf953f] shrink-0" />
@@ -612,7 +612,7 @@ export function Header() {
       </div>
 
       {/* Category Navigation Bar - Desktop Only */}
-      <div className="bg-[#bf953f] border-b border-black/10 hidden lg:block">
+      <div className="border-b border-black/10 hidden lg:block relative z-10">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2 font-sans">
             <Link 

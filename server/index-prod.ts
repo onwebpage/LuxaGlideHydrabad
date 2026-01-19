@@ -1,4 +1,5 @@
 import "dotenv/config";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import fs from "node:fs";
 import path from "node:path";
 import { type Server } from "node:http";
