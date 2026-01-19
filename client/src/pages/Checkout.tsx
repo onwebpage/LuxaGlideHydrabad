@@ -420,13 +420,25 @@ export default function Checkout() {
                         <div className="w-16 h-16 rounded bg-secondary shrink-0 overflow-hidden">
                           {item.product?.images && (
                             <img
-                              src={(JSON.parse(item.product.images as string) as string[])[0]}
+                              src={typeof item.product.images === 'string' ? 
+                                (item.product.images.startsWith('[') ? 
+                                  (JSON.parse(item.product.images) as string[])[0] : 
+                                  item.product.images
+                                ) : 
+                                (item.product.images as string[])[0]
+                              }
                               alt={item.product.name}
                               className="w-full h-full object-cover"
                             />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
+                          {/* Buying Activity Indicator */}
+                          <div className="flex items-center gap-1.5 text-xs text-[#bf953f] mb-2">
+                            <ShoppingCart className="w-3 h-3" />
+                            <span>{Math.floor(Math.random() * 12) + 3} people are buying this product</span>
+                          </div>
+                          
                           <p className="text-sm font-medium line-clamp-1">{item.product?.name}</p>
                           <p className="text-xs text-muted-foreground">
                             Qty: {item.quantity} | {item.selectedSize}

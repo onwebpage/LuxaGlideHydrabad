@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import { Product } from '@shared/schema';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Heart, Eye, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCart } from '@/hooks/use-cart';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   product: Product;
@@ -11,6 +13,29 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
   const image = Array.isArray(images) && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=800&auto=format&fit=crop';
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await addToCart(product.id, 1);
+      toast({
+        title: "Added to cart",
+        description: "Redirecting to checkout...",
+      });
+      setLocation('/checkout');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <Link href={`/products/${product.id}`}>
@@ -35,11 +60,21 @@ export function ProductCard({ product }: ProductCardProps) {
             {/* Quick Actions Overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end pb-4 gap-2">
               <Button 
+                variant="default" 
+                size="sm" 
+                className="w-[85%] bg-[#d4af37] hover:bg-[#bf953f] text-white border-none rounded-full h-8 text-[10px] font-bold tracking-wider uppercase"
+                onClick={handleBuyNow}
+              >
+                <ShoppingCart className="w-3 h-3 mr-1" />
+                Buy Now
+              </Button>
+              <Button 
                 variant="secondary" 
                 size="sm" 
                 className="w-[85%] bg-white/90 hover:bg-white text-black border-none rounded-full h-8 text-[10px] font-bold tracking-wider uppercase"
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   // Quick view logic would go here
                 }}
               >
