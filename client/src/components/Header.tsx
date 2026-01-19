@@ -145,7 +145,7 @@ export function Header() {
             {/* Logo - Removed Image, showing Site Name */}
             <Link href="/" className="flex-shrink-0 flex items-center z-10" data-testid="link-home">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-[#fde68a] drop-shadow-sm truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: "'Tagesschrift', system-ui" }}>
-                {cmsSettings?.siteMeta?.siteName || "QUEEN 4FEET"}
+                {cmsSettings?.siteMeta?.siteName || "Queen4Feet"}
               </h1>
             </Link>
 
