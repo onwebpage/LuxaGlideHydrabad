@@ -24,6 +24,7 @@ import {
   RefreshCcw,
   Loader2,
   Zap,
+  ShoppingCart,
 } from "lucide-react";
 
 // Minimal schema as requested
@@ -434,7 +435,7 @@ export default function Checkout() {
                         </div>
                         <div className="flex-1 min-w-0">
                           {/* Buying Activity Indicator */}
-                          <div className="flex items-center gap-1.5 text-xs text-[#bf953f] mb-2">
+                          <div className="flex items-center gap-1.5 text-xs text-[#d4af37] mb-2">
                             <ShoppingCart className="w-3 h-3" />
                             <span>{Math.floor(Math.random() * 12) + 3} people are buying this product</span>
                           </div>

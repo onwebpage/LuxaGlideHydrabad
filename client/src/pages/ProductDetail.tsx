@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,15 +46,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, Vendor } from "@shared/schema";
 
-function getOrCreateSessionId(): string {
-  const key = 'viewer_session_id';
-  let sessionId = sessionStorage.getItem(key);
-  if (!sessionId) {
-    sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-    sessionStorage.setItem(key, sessionId);
-  }
-  return sessionId;
-}
 
 import redSaree1 from "@assets/stock_images/red_silk_saree_india_274954fe.jpg";
 import redSaree2 from "@assets/stock_images/red_silk_saree_india_cb81e8d8.jpg";
@@ -98,7 +89,6 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedHeight, setSelectedHeight] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
-  const [viewerCount, setViewerCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponError, setCouponError] = useState("");
@@ -106,70 +96,10 @@ export default function ProductDetail() {
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [suggestedSize, setSuggestedSize] = useState("");
-  const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
-  const currentProductIdRef = useRef<string | null>(null);
   
   const { addToCart, isAddingToCart } = useCart();
   const { user } = useAuth();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const productId = params?.id;
-    if (!productId) return;
-
-    const sessionId = getOrCreateSessionId();
-    
-    const cleanupPreviousProduct = () => {
-      if (heartbeatRef.current) {
-        clearInterval(heartbeatRef.current);
-        heartbeatRef.current = null;
-      }
-      if (currentProductIdRef.current && currentProductIdRef.current !== productId) {
-        fetch(`/api/products/${currentProductIdRef.current}/view`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId }),
-        }).catch(() => {});
-      }
-    };
-
-    cleanupPreviousProduct();
-    currentProductIdRef.current = productId;
-    setViewerCount(0);
-
-    const registerView = async () => {
-      try {
-        const response = await fetch(`/api/products/${productId}/view`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setViewerCount(data.viewerCount);
-        }
-      } catch (error) {
-        console.error('Failed to register view:', error);
-      }
-    };
-
-    registerView();
-
-    heartbeatRef.current = setInterval(registerView, 15000);
-
-    return () => {
-      if (heartbeatRef.current) {
-        clearInterval(heartbeatRef.current);
-        heartbeatRef.current = null;
-      }
-      fetch(`/api/products/${productId}/view`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      }).catch(() => {});
-      currentProductIdRef.current = null;
-    };
-  }, [params?.id]);
 
   const { data: similarProducts } = useQuery<Product[]>({
     queryKey: [`/api/products/${params?.id}/similar`],
@@ -180,6 +110,26 @@ export default function ProductDetail() {
     queryKey: ['/api/products', params?.id],
     enabled: !!params?.id,
   });
+
+  // Generate system-generated viewer count based on product data
+  const generateViewerCount = (productId: string, price: number, rating: number) => {
+    // Create a deterministic but seemingly random number based on product properties
+    const seed = productId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const priceInfluence = Math.floor(price / 100);
+    const ratingInfluence = Math.floor(rating * 10);
+    
+    // Generate a number between 8-45 based on product characteristics
+    const baseCount = (seed + priceInfluence + ratingInfluence) % 38 + 8;
+    
+    // Add some time-based variation (changes every 5 minutes)
+    const timeVariation = Math.floor(Date.now() / (5 * 60 * 1000)) % 7;
+    
+    return baseCount + timeVariation;
+  };
+
+  const viewerCount = useMemo(() => {
+    return productData ? generateViewerCount(productData.id, parseFloat(productData.price), parseFloat(productData.rating || '4.5')) : 0;
+  }, [productData]);
 
   const { data: vendorData } = useQuery<Vendor>({
     queryKey: ['/api/vendors', productData?.vendorId],
@@ -274,6 +224,25 @@ export default function ProductDetail() {
       toast({
         title: "Error",
         description: error.message || "Failed to add to cart",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      await addToCart({
+        productId: product.id,
+        quantity,
+        selectedColor: selectedColor || undefined,
+        selectedSize: selectedSize || undefined,
+      });
+      
+      setLocation("/checkout?buyNow=true");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to proceed to checkout",
         variant: "destructive",
       });
     }
@@ -428,7 +397,7 @@ export default function ProductDetail() {
               {viewerCount > 0 && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-orange-600" data-testid="text-viewer-count">
                   <Eye className="w-4 h-4" />
-                  <span>{viewerCount} {viewerCount === 1 ? 'person' : 'people'} viewing this product</span>
+                  <span>{viewerCount} people viewing this product</span>
                 </div>
               )}
             </div>
@@ -642,7 +611,7 @@ export default function ProductDetail() {
               <Button 
                 className="flex-1 text-xs sm:text-sm rounded-full bg-[#d4af37] hover:bg-[#b8962d] text-white shadow-lg shadow-[#d4af37]/20" 
                 size="default"
-                onClick={() => setLocation("/checkout?buyNow=true")}
+                onClick={handleBuyNow}
                 disabled={isAddingToCart}
                 data-testid="button-buy-now"
               >
