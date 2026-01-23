@@ -111,6 +111,8 @@ export default function ProductDetail() {
     enabled: !!params?.id,
   });
 
+  const [viewerCount, setViewerCount] = useState(0);
+
   // Generate system-generated viewer count based on product data
   const generateViewerCount = (productId: string, price: number, rating: number) => {
     // Create a deterministic but seemingly random number based on product properties
@@ -118,17 +120,28 @@ export default function ProductDetail() {
     const priceInfluence = Math.floor(price / 100);
     const ratingInfluence = Math.floor(rating * 10);
     
-    // Generate a number between 8-45 based on product characteristics
-    const baseCount = (seed + priceInfluence + ratingInfluence) % 38 + 8;
+    // Generate a number between 100-999 based on product characteristics
+    const baseCount = (seed + priceInfluence + ratingInfluence) % 900 + 100;
     
-    // Add some time-based variation (changes every 5 minutes)
-    const timeVariation = Math.floor(Date.now() / (5 * 60 * 1000)) % 7;
+    // Add some time-based variation (changes every 3 seconds)
+    const timeVariation = Math.floor(Date.now() / 3000) % 50;
     
     return baseCount + timeVariation;
   };
 
-  const viewerCount = useMemo(() => {
-    return productData ? generateViewerCount(productData.id, parseFloat(productData.price), parseFloat(productData.rating || '4.5')) : 0;
+  // Update viewer count every 3 seconds
+  useEffect(() => {
+    if (!productData) return;
+    
+    const updateCount = () => {
+      const count = generateViewerCount(productData.id, parseFloat(productData.price), parseFloat(productData.rating || '4.5'));
+      setViewerCount(count);
+    };
+    
+    updateCount(); // Initial count
+    const interval = setInterval(updateCount, 3000);
+    
+    return () => clearInterval(interval);
   }, [productData]);
 
   const { data: vendorData } = useQuery<Vendor>({
@@ -397,7 +410,7 @@ export default function ProductDetail() {
               {viewerCount > 0 && (
                 <div className="flex items-center gap-2 mt-2 text-sm text-orange-600" data-testid="text-viewer-count">
                   <Eye className="w-4 h-4" />
-                  <span>{viewerCount} people viewing this product</span>
+                  <span>{viewerCount.toLocaleString()} people viewing this product</span>
                 </div>
               )}
             </div>

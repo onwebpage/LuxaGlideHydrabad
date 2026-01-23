@@ -85,6 +85,7 @@ function Router() {
 function AppContent() {
   const [location] = useLocation();
   const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/admin-login");
+  const isDashboardPage = location.includes("/dashboard");
 
   return (
     <TooltipProvider>
@@ -92,7 +93,7 @@ function AppContent() {
       {!isAuthPage && <Header />}
       <Router />
       {!isAuthPage && <ShoppingAssistant />}
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isDashboardPage && <Footer />}
       <Toaster />
     </TooltipProvider>
   );

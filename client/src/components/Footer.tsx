@@ -15,9 +15,10 @@ export function Footer() {
   const siteName = cmsSettings?.siteMeta?.siteName || "Queen4Feet";
   const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@queen4feet.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91-94926 34166";
-  const address = cmsSettings?.siteMeta?.address || "Mumbai, Maharashtra, India";
+  const address = cmsSettings?.siteMeta?.address || "Mumbai, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const socialLinks = cmsSettings?.footer?.socialLinks || [];
+  
   
   const getSocialIcon = (platform: string) => {
     const icons: Record<string, typeof Facebook> = {
@@ -190,7 +191,7 @@ export function Footer() {
         <div className="pt-8 border-t border-[#bf953f]/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs text-gray-500 font-medium text-center md:text-left">
-              &copy; {copyrightText}
+              {copyrightText}
             </p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
               <Link href="/privacy-policy" className="text-[10px] text-gray-500 hover-elevate transition-colors uppercase tracking-[0.15em]">Privacy Policy</Link>
