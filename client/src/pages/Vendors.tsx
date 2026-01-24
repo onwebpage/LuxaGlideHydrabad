@@ -115,7 +115,7 @@ export default function Vendors() {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-10">
-              <Link href="/register?role=vendor">
+              <Link href="/vendor-register">
                 <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor-hero">
                   Apply as a Vendor
                 </Button>
@@ -166,7 +166,7 @@ export default function Vendors() {
                       </div>
                     ))}
                   </div>
-                  <Link href="/register?role=vendor">
+                  <Link href="/vendor-register">
                     <Button className="w-full py-6 text-lg btn-shiny" data-testid="button-register-offer">
                       Register Now
                     </Button>
@@ -286,7 +286,7 @@ export default function Vendors() {
               Become a part of the premium wholesale segment. Connect with verified vendors and grow your business.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/register?role=vendor">
+              <Link href="/vendor-register">
                 <Button size="lg" className="text-lg px-10 py-6" data-testid="button-become-vendor">
                   Apply as Vendor
                   <ArrowRight className="ml-2 w-5 h-5" />

@@ -508,5 +508,18 @@ export const userSessions = pgTable("user_sessions", {
   expiresAt: timestamp("expires_at").notNull(),
 });
 
+// Staff Accounts table (for vendor management access)
+export const staffAccounts = pgTable("staff_accounts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = typeof userSessions.$inferInsert;
+export type StaffAccount = typeof staffAccounts.$inferSelect;
+export type InsertStaffAccount = typeof staffAccounts.$inferInsert;

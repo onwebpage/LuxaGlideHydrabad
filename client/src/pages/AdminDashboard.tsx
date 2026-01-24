@@ -37,6 +37,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Order, Vendor, Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { VendorManagementDialog } from "@/components/VendorManagementDialog";
+import { StaffManagement } from "@/components/StaffManagement";
 
 interface AdminStats {
   totalVendors: number;
@@ -536,6 +537,7 @@ export default function AdminDashboard() {
         <Tabs defaultValue="vendor-management" className="space-y-6">
           <TabsList>
             <TabsTrigger value="vendor-management" data-testid="tab-vendor-management">Vendor Management</TabsTrigger>
+            <TabsTrigger value="staff-management" data-testid="tab-staff-management">Staff Management</TabsTrigger>
             <TabsTrigger value="pending-kyc" data-testid="tab-pending-kyc">Pending KYC</TabsTrigger>
             <TabsTrigger value="all-orders" data-testid="tab-all-orders">All Orders</TabsTrigger>
           </TabsList>
@@ -623,6 +625,10 @@ export default function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="staff-management">
+            <StaffManagement />
           </TabsContent>
 
           <TabsContent value="pending-kyc">

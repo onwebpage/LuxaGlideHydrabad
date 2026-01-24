@@ -21,6 +21,8 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import VendorRegister from "@/pages/VendorRegister";
+import VendorManagement from "@/pages/VendorManagement";
 import BuyerDashboard from "@/pages/BuyerDashboard";
 import VendorDashboard from "@/pages/VendorDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -58,6 +60,8 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/vendor-register" component={VendorRegister} />
+      <Route path="/vendor-management" component={VendorManagement} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
       <Route path="/dashboard/vendor" component={VendorDashboard} />
@@ -84,7 +88,7 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
-  const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/admin-login");
+  const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/vendor-register") || location.includes("/vendor-management") || location.includes("/admin-login");
   const isDashboardPage = location.includes("/dashboard");
 
   return (

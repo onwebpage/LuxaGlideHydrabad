@@ -15,8 +15,9 @@ import {
   vendorReceipts,
   cmsSettings,
   newsletter,
-  userSessions,
-  type User,
+  staffAccounts,
+  type StaffAccount,
+  type InsertStaffAccount,
   type InsertUser,
   type UpdateUser,
   type Vendor,
@@ -51,6 +52,8 @@ import {
   type InsertCmsSetting,
   type UserSession,
   type InsertUserSession,
+  type StaffAccount,
+  type InsertStaffAccount,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, gte, lte, sql, or } from "drizzle-orm";
@@ -222,6 +225,13 @@ export interface IStorage {
   updateSessionAccess(token: string): Promise<UserSession | undefined>;
   deleteSession(token: string): Promise<void>;
   deleteExpiredSessions(): Promise<void>;
+
+  // Staff Management
+  getAllStaffAccounts(): Promise<StaffAccount[]>;
+  getStaffByUsername(username: string): Promise<StaffAccount | undefined>;
+  createStaffAccount(staff: InsertStaffAccount): Promise<StaffAccount>;
+  updateStaffLastLogin(id: string): Promise<StaffAccount | undefined>;
+  deleteStaffAccount(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1039,6 +1049,33 @@ export class DatabaseStorage implements IStorage {
   async deleteExpiredSessions(): Promise<void> {
     await db.delete(userSessions).where(lte(userSessions.expiresAt, new Date()));
   }
+
+  // Staff Management
+  async getAllStaffAccounts(): Promise<StaffAccount[]> {
+    return await db.select().from(staffAccounts).orderBy(desc(staffAccounts.createdAt));
+  }
+
+  async getStaffByUsername(username: string): Promise<StaffAccount | undefined> {
+    const [staff] = await db.select().from(staffAccounts).where(eq(staffAccounts.username, username));
+    return staff || undefined;
+  }
+
+  async createStaffAccount(insertStaff: InsertStaffAccount): Promise<StaffAccount> {
+    const [staff] = await db.insert(staffAccounts).values(insertStaff).returning();
+    return staff;
+  }
+
+  async updateStaffLastLogin(id: string): Promise<StaffAccount | undefined> {
+    const [staff] = await db.update(staffAccounts)
+      .set({ lastLogin: new Date(), updatedAt: new Date() })
+      .where(eq(staffAccounts.id, id))
+      .returning();
+    return staff || undefined;
+  }
+
+  async deleteStaffAccount(id: string): Promise<void> {
+    await db.delete(staffAccounts).where(eq(staffAccounts.id, id));
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -1058,6 +1095,7 @@ export class MemStorage implements IStorage {
   private newsletter = new Map<string, Newsletter>();
   private cmsSettings = new Map<string, CmsSetting>();
   private userSessions = new Map<string, UserSession>();
+  private staffAccounts = new Map<string, StaffAccount>();
 
   // Users
   async getUser(id: string): Promise<User | undefined> {
@@ -1942,6 +1980,39 @@ export class MemStorage implements IStorage {
         this.userSessions.delete(token);
       }
     });
+  }
+
+  // Staff Management
+  async getAllStaffAccounts(): Promise<StaffAccount[]> {
+    return Array.from(this.staffAccounts.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getStaffByUsername(username: string): Promise<StaffAccount | undefined> {
+    return Array.from(this.staffAccounts.values()).find(s => s.username === username);
+  }
+
+  async createStaffAccount(insertStaff: InsertStaffAccount): Promise<StaffAccount> {
+    const staff: StaffAccount = {
+      id: nanoid(),
+      ...insertStaff,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.staffAccounts.set(staff.id, staff);
+    return staff;
+  }
+
+  async updateStaffLastLogin(id: string): Promise<StaffAccount | undefined> {
+    const staff = this.staffAccounts.get(id);
+    if (!staff) return undefined;
+    const updated = { ...staff, lastLogin: new Date(), updatedAt: new Date() };
+    this.staffAccounts.set(id, updated);
+    return updated;
+  }
+
+  async deleteStaffAccount(id: string): Promise<void> {
+    this.staffAccounts.delete(id);
   }
 }
 

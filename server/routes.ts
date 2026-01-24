@@ -1030,8 +1030,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all vendors (public - for staff vendor management)
+  app.get("/api/vendors", async (req, res) => {
+    try {
+      const { kycStatus, limit } = req.query;
+      const vendors = await storage.getAllVendors({
+        kycStatus: kycStatus as string,
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      res.json(vendors);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get vendor stats (public - for staff vendor management)
+  app.get("/api/vendors/:id/stats", async (req, res) => {
+    try {
+      const stats = await storage.getVendorDashboardStats(req.params.id);
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
   // Get all vendors (admin only)
-  app.get("/api/vendors", requireAdminAuth, async (req, res) => {
+  app.get("/api/admin/vendors-admin", requireAdminAuth, async (req, res) => {
     try {
       const { kycStatus, limit } = req.query;
       const vendors = await storage.getAllVendors({
@@ -1086,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get vendor stats/earnings (admin only)
-  app.get("/api/vendors/:id/stats", requireAdminAuth, async (req, res) => {
+  app.get("/api/admin/vendors/:id/stats", requireAdminAuth, async (req, res) => {
     try {
       const stats = await storage.getVendorDashboardStats(req.params.id);
       res.json(stats);
@@ -2908,9 +2933,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Default CMS settings
   const defaultCmsSettings: AllCmsSettings = {
     siteMeta: {
-      siteName: "Queen 4feet",
+      siteName: "Queen4feet",
       tagline: "Your Style, Your Way",
-      contactEmail: "contact@queen4feet.com",
+      contactEmail: "connect@queen4feet.com",
       contactPhone: "+91-94926 34166",
       address: "Mumbai, India",
       seoTitle: "Queen 4feet - Shop Premium Fashion Online",
@@ -3255,6 +3280,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Get homepage products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Staff Management Routes (Admin Only) ============
+
+  // Get all staff accounts
+  app.get("/api/admin/staff", requireAdminAuth, async (req, res) => {
+    try {
+      const staffAccounts = await storage.getAllStaffAccounts();
+      res.json(staffAccounts);
+    } catch (error: any) {
+      console.error("Get staff accounts error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create staff account
+  app.post("/api/admin/staff", requireAdminAuth, async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Check if username already exists
+      const existingStaff = await storage.getStaffByUsername(username);
+      if (existingStaff) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const staffAccount = await storage.createStaffAccount({
+        username,
+        password: hashedPassword,
+      });
+
+      // Return account without password
+      const { password: _, ...safeAccount } = staffAccount;
+      res.status(201).json(safeAccount);
+    } catch (error: any) {
+      console.error("Create staff account error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete staff account
+  app.delete("/api/admin/staff/:id", requireAdminAuth, async (req, res) => {
+    try {
+      await storage.deleteStaffAccount(req.params.id);
+      res.json({ message: "Staff account deleted successfully" });
+    } catch (error: any) {
+      console.error("Delete staff account error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff login for vendor management
+  app.post("/api/staff/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password required" });
+      }
+
+      const staff = await storage.getStaffByUsername(username);
+      if (!staff) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      if (!staff.isActive) {
+        return res.status(401).json({ message: "Account is disabled" });
+      }
+
+      const isValid = await bcrypt.compare(password, staff.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Update last login
+      await storage.updateStaffLastLogin(staff.id);
+
+      res.json({ 
+        message: "Login successful",
+        staff: {
+          id: staff.id,
+          username: staff.username,
+          lastLogin: new Date().toISOString(),
+        }
+      });
+    } catch (error: any) {
+      console.error("Staff login error:", error);
       res.status(500).json({ message: error.message });
     }
   });
