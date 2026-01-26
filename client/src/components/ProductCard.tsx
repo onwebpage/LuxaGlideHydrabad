@@ -17,6 +17,12 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLocation(`/products/${product.id}`);
+  };
+
   const handleBuyNow = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -25,9 +31,9 @@ export function ProductCard({ product }: ProductCardProps) {
       await addToCart(product.id, 1);
       toast({
         title: "Added to cart",
-        description: "Redirecting to checkout...",
+        description: "Redirecting to cart...",
       });
-      setLocation('/checkout');
+      setLocation('/cart');
     } catch (error) {
       toast({
         title: "Error",
@@ -60,23 +66,10 @@ export function ProductCard({ product }: ProductCardProps) {
             {/* Quick Actions Overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end pb-4 gap-2">
               <Button 
-                variant="default" 
-                size="sm" 
-                className="w-[85%] bg-[#d4af37] hover:bg-[#bf953f] text-white border-none rounded-full h-8 text-[10px] font-bold tracking-wider uppercase"
-                onClick={handleBuyNow}
-              >
-                <ShoppingCart className="w-3 h-3 mr-1" />
-                Buy Now
-              </Button>
-              <Button 
                 variant="secondary" 
                 size="sm" 
                 className="w-[85%] bg-white/90 hover:bg-white text-black border-none rounded-full h-8 text-[10px] font-bold tracking-wider uppercase"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  // Quick view logic would go here
-                }}
+                onClick={handleQuickView}
               >
                 <Eye className="w-3 h-3 mr-1" />
                 Quick View
