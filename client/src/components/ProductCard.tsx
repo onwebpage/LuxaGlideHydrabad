@@ -1,10 +1,8 @@
 import styled from 'styled-components';
 import { Product } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
-import { Heart, Eye, ShoppingCart } from 'lucide-react';
+import { Heart, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/hooks/use-cart';
-import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   product: Product;
@@ -13,34 +11,12 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
   const image = Array.isArray(images) && images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1445205170230-053b830c6050?q=80&w=800&auto=format&fit=crop';
-  const { addToCart } = useCart();
-  const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setLocation(`/products/${product.id}`);
-  };
-
-  const handleBuyNow = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      await addToCart(product.id, 1);
-      toast({
-        title: "Added to cart",
-        description: "Redirecting to cart...",
-      });
-      setLocation('/cart');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart",
-        variant: "destructive"
-      });
-    }
   };
 
   return (
@@ -92,7 +68,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="flex items-center justify-between mt-auto">
               <p id="cardbottomprice" className="text-[#d4af37] font-bold text-sm">₹{parseFloat(product.price).toLocaleString()}</p>
               <div className="p-1.5 rounded-full bg-primary/10 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                <ShoppingCart className="w-3.5 h-3.5" />
+                <Eye className="w-3.5 h-3.5" />
               </div>
             </div>
           </div>
