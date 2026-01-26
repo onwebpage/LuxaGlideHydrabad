@@ -144,7 +144,7 @@ export function Header() {
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
             <Link href="/" className="flex-shrink-0 flex items-center z-10" data-testid="link-home">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-[#fde68a] drop-shadow-sm truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: "'Tagesschrift', system-ui" }}>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-white drop-shadow-lg truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: "'Tagesschrift', system-ui", textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
                 {cmsSettings?.siteMeta?.siteName || "Queen4Feet"}
               </h1>
             </Link>
@@ -288,13 +288,13 @@ export function Header() {
               {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors" data-testid="button-profile-dropdown">
-                      <User className="w-5 h-5 text-[#fde68a]" />
+                    <button className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:text-white transition-colors" data-testid="button-profile-dropdown" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                      <User className="w-5 h-5 text-white drop-shadow-md" />
                       <div className="hidden lg:flex flex-col leading-tight">
-                        <span className="text-[10px] text-[#fde68a]/80 font-bold">Hello,</span>
-                        <span className="font-black truncate max-w-[80px] text-[#fde68a]">{user?.fullName?.split(' ')[0] || 'User'}</span>
+                        <span className="text-[10px] text-white/90 font-bold">Hello,</span>
+                        <span className="font-black truncate max-w-[80px] text-white">{user?.fullName?.split(' ')[0] || 'User'}</span>
                       </div>
-                      <ChevronDown className="w-4 h-4 hidden lg:block text-[#fde68a]" />
+                      <ChevronDown className="w-4 h-4 hidden lg:block text-white" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-white border-[#bf953f]/30">
@@ -323,28 +323,28 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors" data-testid="link-login">
-                  <User className="w-5 h-5 text-[#fde68a]" />
+                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:text-white transition-colors" data-testid="link-login" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                  <User className="w-5 h-5 text-white drop-shadow-md" />
                   <div className="hidden lg:flex flex-col leading-tight">
-                    <span className="text-[10px] text-[#fde68a]/80 uppercase font-black">Sign In</span>
-                    <span className="font-black text-[#fde68a]">Profile</span>
+                    <span className="text-[10px] text-white/90 uppercase font-black">Sign In</span>
+                    <span className="font-black text-white">Profile</span>
                   </div>
                 </Link>
               )}
 
               {/* Cart */}
-              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-[#fde68a] hover:text-[#fde68a] transition-colors relative" data-testid="link-cart">
+              <Link href="/cart" className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:text-white transition-colors relative" data-testid="link-cart" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
                 <div className="relative">
-                  <ShoppingCart className="w-5 h-5 text-[#fde68a]" />
+                  <ShoppingCart className="w-5 h-5 text-white drop-shadow-md" />
                   {cartItemCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-red-600 text-[#fde68a] border-none font-bold">
+                    <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[10px] bg-red-600 text-white border-none font-bold">
                       {cartItemCount}
                     </Badge>
                   )}
                 </div>
                 <div className="hidden lg:flex flex-col leading-tight">
-                  <span className="text-[10px] text-[#fde68a]/80 uppercase font-black">Your</span>
-                  <span className="font-black text-[#fde68a]">Cart</span>
+                  <span className="text-[10px] text-white/90 uppercase font-black">Your</span>
+                  <span className="font-black text-white">Cart</span>
                 </div>
               </Link>
 
@@ -355,11 +355,11 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden ml-1 text-[#fde68a] hover:bg-white/10"
+                className="lg:hidden ml-1 text-white hover:bg-white/10"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 data-testid="button-mobile-menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 drop-shadow-md" /> : <Menu className="w-5 h-5 drop-shadow-md" />}
               </Button>
             </div>
           </div>
@@ -385,10 +385,10 @@ export function Header() {
                 e.stopPropagation();
                 startVoiceSearch();
               }}
-              className="rounded-full w-10 h-10 bg-white/10 text-[#fde68a] shrink-0"
+              className="rounded-full w-10 h-10 bg-white/10 text-white shrink-0"
               data-testid="button-mobile-voice-trigger"
             >
-              <Mic className="w-5 h-5" />
+              <Mic className="w-5 h-5 drop-shadow-md" />
             </Button>
           </div>
 
@@ -448,7 +448,7 @@ export function Header() {
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setMobileSearchOpen(false)}
-                    className="text-[#fde68a] hover:bg-white/10 shrink-0 relative z-10"
+                    className="text-white hover:bg-white/10 shrink-0 relative z-10"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -565,45 +565,50 @@ export function Header() {
             <Link 
               href="/" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
+                location === '/' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-mobile-home-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Home
             </Link>
             <Link 
               href="/products" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
+                location === '/products' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-mobile-products-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               All Products
             </Link>
             <Link 
               href="/vendors" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/vendors' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
+                location === '/vendors' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-mobile-vendors-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Vendor
             </Link>
             <Link 
               href="/about" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/about' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
+                location === '/about' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-mobile-about-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               About Us
             </Link>
             <Link 
               href="/contact" 
               className={`px-3 py-1.5 text-xs font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/contact' ? 'text-white bg-black/30' : 'text-[#fde68a] hover:text-white hover:bg-white/10'
+                location === '/contact' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-mobile-contact-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Contact
             </Link>
@@ -618,46 +623,51 @@ export function Header() {
             <Link 
               href="/" 
               className={`px-4 py-2 text-sm font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/' ? 'text-[#fde68a] bg-black/30' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+                location === '/' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-home-nav"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Home
             </Link>
             <Link 
               href="/products" 
               className={`flex items-center gap-1 px-4 py-2 text-sm font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/products' && !location.includes('category=') ? 'text-[#fde68a] bg-black/30' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+                location === '/products' && !location.includes('category=') ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-shop-now"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-4 h-4 drop-shadow-md" />
               All Products
             </Link>
             <Link 
               href="/vendors" 
               className={`px-4 py-2 text-sm font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/vendors' ? 'text-[#fde68a] bg-black/30' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+                location === '/vendors' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-vendors"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Vendors
             </Link>
             <Link 
               href="/about" 
               className={`px-4 py-2 text-sm font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/about' ? 'text-[#fde68a] bg-black/30' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+                location === '/about' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-about"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               About Us
             </Link>
             <Link 
               href="/contact" 
               className={`px-4 py-2 text-sm font-black whitespace-nowrap rounded-md transition-colors ${
-                location === '/contact' ? 'text-[#fde68a] bg-black/30' : 'text-[#fde68a] hover:text-[#fde68a] hover:bg-white/10'
+                location === '/contact' ? 'text-white bg-black/30' : 'text-white hover:text-white hover:bg-white/10'
               }`}
               data-testid="link-contact"
+              style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
             >
               Contact
             </Link>

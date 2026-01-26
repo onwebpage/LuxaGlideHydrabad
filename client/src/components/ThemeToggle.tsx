@@ -59,10 +59,11 @@ const StyledWrapper = styled.div`
     position: absolute;
     cursor: pointer;
     inset: 0;
-    border: 2px solid #fde68a;
+    border: 2px solid #ffffff;
     border-radius: 50px;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     background-color: transparent;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .slider:before {
@@ -72,19 +73,20 @@ const StyledWrapper = styled.div`
     width: 1.4em;
     left: 0.2em;
     bottom: 0.2em;
-    background-color: #fde68a;
+    background-color: #ffffff;
     border-radius: inherit;
     transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
   .switch input:checked + .slider {
-    box-shadow: 0 0 15px rgba(191, 149, 63, 0.5);
-    border: 2px solid #fde68a;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0,0,0,0.3);
+    border: 2px solid #ffffff;
   }
 
   .switch input:checked + .slider:before {
     transform: translateX(1.5em);
-    background-color: #fde68a;
+    background-color: #ffffff;
   }
 `;
 

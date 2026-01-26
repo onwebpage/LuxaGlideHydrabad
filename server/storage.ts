@@ -16,6 +16,7 @@ import {
   cmsSettings,
   newsletter,
   staffAccounts,
+  userSessions,
   type StaffAccount,
   type InsertStaffAccount,
   type InsertUser,
