@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,6 +46,7 @@ export default function Checkout() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
+  const [viewerCounts, setViewerCounts] = useState<Record<string, number>>({});
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -67,6 +68,39 @@ export default function Checkout() {
 
   const shipping = cartSubtotal > 1000 ? 0 : 99;
   const total = cartSubtotal + shipping;
+
+  const productIdsString = useMemo(() => {
+    return cartItems.map(item => item.productId).sort().join(',');
+  }, [cartItems]);
+
+  useEffect(() => {
+    if (!productIdsString) {
+      setViewerCounts({});
+      return;
+    }
+
+    const fetchViewerCounts = async () => {
+      const productIds = productIdsString.split(',');
+      try {
+        const response = await fetch('/api/products/viewers/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productIds }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setViewerCounts(data.viewerCounts || {});
+        }
+      } catch (error) {
+        console.error('Failed to fetch viewer counts:', error);
+      }
+    };
+
+    fetchViewerCounts();
+    const interval = setInterval(fetchViewerCounts, 15000);
+    
+    return () => clearInterval(interval);
+  }, [productIdsString]);
 
   const handlePincodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -437,7 +471,7 @@ export default function Checkout() {
                           {/* Buying Activity Indicator */}
                           <div className="flex items-center gap-1.5 text-xs text-[#d4af37] mb-2">
                             <ShoppingCart className="w-3 h-3" />
-                            <span>{Math.floor(Math.random() * 12) + 3} people are buying this product</span>
+                            <span>{Math.floor(Math.random() * 31) + 70} people are buying this product</span>
                           </div>
                           
                           <p className="text-sm font-medium line-clamp-1">{item.product?.name}</p>

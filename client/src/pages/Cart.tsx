@@ -407,7 +407,7 @@ export default function Cart() {
                         {/* Buying Activity Indicator */}
                         <div className="flex items-center gap-1.5 text-xs text-[#d4af37] mb-2" data-testid={`text-buying-activity-${item.id}`}>
                           <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                          <span>{Math.floor(Math.random() * 15) + 5} people are buying this product</span>
+                          <span>{Math.floor(Math.random() * 31) + 70} people are buying this product</span>
                         </div>
 
                         {viewerCounts[item.productId] > 0 && (
