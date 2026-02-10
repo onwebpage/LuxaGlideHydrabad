@@ -470,6 +470,7 @@ export interface AllCmsSettings {
   homepageProducts: HomepageFeaturedProducts;
   filterSettings: FilterSettings;
   vendorPageCards: VendorPageCards;
+  vendorLifetimeOffer: VendorLifetimeOffer;
 }
 
 // Homepage Featured Products Schema
@@ -517,6 +518,17 @@ export const vendorPageCardsSchema = z.object({
 export type VendorPageCard = z.infer<typeof vendorPageCardSchema>;
 export type VendorPageCards = z.infer<typeof vendorPageCardsSchema>;
 
+// Vendor Lifetime Offer Schema
+export const vendorLifetimeOfferSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  subtitle: z.string().min(1, "Subtitle is required"),
+  description: z.string().min(1, "Description is required"),
+  perks: z.array(z.string()),
+  isVisible: z.boolean().optional(),
+});
+
+export type VendorLifetimeOffer = z.infer<typeof vendorLifetimeOfferSchema>;
+
 // CMS Setting Keys
 export const CMS_KEYS = {
   SITE_META: 'site.meta',
@@ -528,6 +540,7 @@ export const CMS_KEYS = {
   HOMEPAGE_PRODUCTS: 'home.products',
   FILTER_SETTINGS: 'home.filterSettings',
   VENDOR_PAGE_CARDS: 'vendor.cards',
+  VENDOR_LIFETIME_OFFER: 'vendor.lifetimeOffer',
 } as const;
 
 // User Sessions table (for persistent authentication)

@@ -33,6 +33,17 @@ export default function AdminVendorCards() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [cards, setCards] = useState<any[]>([]);
+  const [lifetimeOffer, setLifetimeOffer] = useState({
+    title: "100-4-100 Offer",
+    subtitle: "Register Now, First 100 get 100 Products added 4 Free!",
+    description: "The first 100 sellers who register on Queen4feet will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
+    perks: [
+      "100 Products added for FREE!",
+      "PRO-Onboarding Service",
+      "Free Marketing for Sales Boost"
+    ],
+    isVisible: true,
+  });
 
   useEffect(() => {
     fetchCards();
@@ -50,6 +61,9 @@ export default function AdminVendorCards() {
         if (data.vendorPageCards?.cards) {
           setCards(data.vendorPageCards.cards);
         }
+        if (data.vendorLifetimeOffer) {
+          setLifetimeOffer(data.vendorLifetimeOffer);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch cards:", error);
@@ -61,7 +75,7 @@ export default function AdminVendorCards() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await fetch("/api/admin/cms/vendor-cards", {
+      const cardsResponse = await fetch("/api/admin/cms/vendor-cards", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -70,18 +84,27 @@ export default function AdminVendorCards() {
         body: JSON.stringify({ cards }),
       });
 
-      if (response.ok) {
+      const offerResponse = await fetch("/api/admin/cms/vendor-lifetime-offer", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify(lifetimeOffer),
+      });
+
+      if (cardsResponse.ok && offerResponse.ok) {
         toast({
           title: "Success",
-          description: "Vendor page cards updated successfully",
+          description: "Vendor page content updated successfully",
         });
       } else {
-        throw new Error("Failed to update cards");
+        throw new Error("Failed to update content");
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update vendor page cards",
+        description: "Failed to update vendor page content",
         variant: "destructive",
       });
     } finally {
@@ -135,13 +158,56 @@ export default function AdminVendorCards() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Vendor Page Cards</h1>
-          <p className="text-muted-foreground">
-            Manage the "Why On-Board Queen4feet?" section cards
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Vendor Page Content</h1>
+        <p className="text-muted-foreground">
+          Manage vendor page cards and lifetime offer section
+        </p>
+      </div>
+
+      {/* Lifetime Offer Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Lifetime Offer (100-4-100 Card)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={lifetimeOffer.title}
+              onChange={(e) => setLifetimeOffer({ ...lifetimeOffer, title: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Subtitle</Label>
+            <Input
+              value={lifetimeOffer.subtitle}
+              onChange={(e) => setLifetimeOffer({ ...lifetimeOffer, subtitle: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={lifetimeOffer.description}
+              onChange={(e) => setLifetimeOffer({ ...lifetimeOffer, description: e.target.value })}
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Perks (one per line)</Label>
+            <Textarea
+              value={lifetimeOffer.perks.join('\n')}
+              onChange={(e) => setLifetimeOffer({ ...lifetimeOffer, perks: e.target.value.split('\n').filter(p => p.trim()) })}
+              rows={4}
+              placeholder="Enter each perk on a new line"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Why On-Board Cards Section */}
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Why On-Board Queen4feet? Cards</h2>
         <Button onClick={addCard}>
           <Plus className="w-4 h-4 mr-2" />
           Add Card

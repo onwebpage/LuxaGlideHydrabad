@@ -3003,6 +3003,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: "6", icon: "HeartHandshake", title: "Support, Its Our Job!", description: "Don't worry about customer calls. We have total customer support coverage, from marketing to fulfillment. You ship, we handle customers.", displayOrder: 5, isVisible: true },
       ],
     },
+    vendorLifetimeOffer: {
+      title: "100-4-100 Offer",
+      subtitle: "Register Now, First 100 get 100 Products added 4 Free!",
+      description: "The first 100 sellers who register on Queen4feet will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
+      perks: [
+        "100 Products added for FREE!",
+        "PRO-Onboarding Service",
+        "Free Marketing for Sales Boost"
+      ],
+      isVisible: true,
+    },
   };
 
   // Public endpoint to get all CMS settings (no auth required)
@@ -3041,7 +3052,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case CMS_KEYS.VENDOR_PAGE_CARDS:
             settingsMap.vendorPageCards = setting.value as any;
-            break;
+            break;`r`n          case CMS_KEYS.VENDOR_LIFETIME_OFFER:`r`n            settingsMap.vendorLifetimeOffer = setting.value as any;`r`n            break;
         }
       }
 
@@ -3055,7 +3066,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
         filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
-        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,`r`n        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
       };
 
       res.json(result);
@@ -3100,7 +3111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case CMS_KEYS.VENDOR_PAGE_CARDS:
             settingsMap.vendorPageCards = setting.value as any;
-            break;
+            break;`r`n          case CMS_KEYS.VENDOR_LIFETIME_OFFER:`r`n            settingsMap.vendorLifetimeOffer = setting.value as any;`r`n            break;
         }
       }
 
@@ -3113,7 +3124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
         filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
-        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,`r`n        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
       };
 
       res.json(result);
@@ -3468,3 +3479,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   return httpServer;
 }
+
