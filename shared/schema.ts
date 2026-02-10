@@ -468,6 +468,8 @@ export interface AllCmsSettings {
   promotions: Promotions;
   footer: Footer;
   homepageProducts: HomepageFeaturedProducts;
+  filterSettings: FilterSettings;
+  vendorPageCards: VendorPageCards;
 }
 
 // Homepage Featured Products Schema
@@ -487,6 +489,34 @@ export const homepageFeaturedProductsSchema = z.object({
 export type HomepageFeaturedProduct = z.infer<typeof homepageFeaturedProductSchema>;
 export type HomepageFeaturedProducts = z.infer<typeof homepageFeaturedProductsSchema>;
 
+// Filter Settings Schema
+export const filterSettingsSchema = z.object({
+  category: z.boolean().optional(),
+  priceRange: z.boolean().optional(),
+  brand: z.boolean().optional(),
+  size: z.boolean().optional(),
+  height: z.boolean().optional(),
+});
+
+export type FilterSettings = z.infer<typeof filterSettingsSchema>;
+
+// Vendor Page Cards Schema
+export const vendorPageCardSchema = z.object({
+  id: z.string(),
+  icon: z.string(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  displayOrder: z.number().min(0),
+  isVisible: z.boolean().optional(),
+});
+
+export const vendorPageCardsSchema = z.object({
+  cards: z.array(vendorPageCardSchema),
+});
+
+export type VendorPageCard = z.infer<typeof vendorPageCardSchema>;
+export type VendorPageCards = z.infer<typeof vendorPageCardsSchema>;
+
 // CMS Setting Keys
 export const CMS_KEYS = {
   SITE_META: 'site.meta',
@@ -496,6 +526,8 @@ export const CMS_KEYS = {
   PROMOTIONS: 'home.promotions',
   FOOTER: 'site.footer',
   HOMEPAGE_PRODUCTS: 'home.products',
+  FILTER_SETTINGS: 'home.filterSettings',
+  VENDOR_PAGE_CARDS: 'vendor.cards',
 } as const;
 
 // User Sessions table (for persistent authentication)

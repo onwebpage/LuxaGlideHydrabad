@@ -2986,6 +2986,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxProducts: 12,
       products: [],
     },
+    filterSettings: {
+      category: true,
+      priceRange: true,
+      brand: true,
+      size: true,
+      height: true,
+    },
+    vendorPageCards: {
+      cards: [
+        { id: "1", icon: "TrendingUp", title: "10x Sales Boost", description: "Queen4feet is an established platform, trusted by thousands of genuine customers. We can help you boost sales and increase revenue.", displayOrder: 0, isVisible: true },
+        { id: "2", icon: "Users", title: "Brand Visibility", description: "Boost your brand visibility by showing your products to the right audience at the right time. Branding via our platform increases authenticity.", displayOrder: 1, isVisible: true },
+        { id: "3", icon: "Gem", title: "More Profit", description: "In this competitive market, high commission is a burden. We assure low commission rates, so you profit more from sales. We always charge fairly!", displayOrder: 2, isVisible: true },
+        { id: "4", icon: "Zap", title: "Zero Marketing Cost", description: "Worry no more about marketing teams! We take care of all marketing needs, ensuring your brands and products reach the right people.", displayOrder: 3, isVisible: true },
+        { id: "5", icon: "Package", title: "You Ship, We Manage", description: "You are the best people to ship your own products. Offer self-shipping via your preferred partners, convey details, we handle the rest!", displayOrder: 4, isVisible: true },
+        { id: "6", icon: "HeartHandshake", title: "Support, Its Our Job!", description: "Don't worry about customer calls. We have total customer support coverage, from marketing to fulfillment. You ship, we handle customers.", displayOrder: 5, isVisible: true },
+      ],
+    },
   };
 
   // Public endpoint to get all CMS settings (no auth required)
