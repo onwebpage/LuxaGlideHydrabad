@@ -3036,6 +3036,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case CMS_KEYS.HOMEPAGE_PRODUCTS:
             settingsMap.homepageProducts = setting.value as any;
             break;
+          case CMS_KEYS.FILTER_SETTINGS:
+            settingsMap.filterSettings = setting.value as any;
+            break;
+          case CMS_KEYS.VENDOR_PAGE_CARDS:
+            settingsMap.vendorPageCards = setting.value as any;
+            break;
         }
       }
 
@@ -3048,6 +3054,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         promotions: settingsMap.promotions || defaultCmsSettings.promotions,
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
+        filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
       };
 
       res.json(result);
@@ -3087,6 +3095,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case CMS_KEYS.HOMEPAGE_PRODUCTS:
             settingsMap.homepageProducts = setting.value as any;
             break;
+          case CMS_KEYS.FILTER_SETTINGS:
+            settingsMap.filterSettings = setting.value as any;
+            break;
+          case CMS_KEYS.VENDOR_PAGE_CARDS:
+            settingsMap.vendorPageCards = setting.value as any;
+            break;
         }
       }
 
@@ -3098,6 +3112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         promotions: settingsMap.promotions || defaultCmsSettings.promotions,
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
+        filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
       };
 
       res.json(result);
@@ -3243,6 +3259,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(setting);
     } catch (error: any) {
       console.error("Update homepage products error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update filter settings
+  app.patch("/api/admin/cms/filter-settings", requireAdminAuth, async (req, res) => {
+    try {
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.FILTER_SETTINGS,
+        value: req.body,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update filter settings error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin: Update vendor page cards
+  app.patch("/api/admin/cms/vendor-cards", requireAdminAuth, async (req, res) => {
+    try {
+      const setting = await storage.upsertCmsSetting({
+        key: CMS_KEYS.VENDOR_PAGE_CARDS,
+        value: req.body,
+      });
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error("Update vendor cards error:", error);
       res.status(500).json({ message: error.message });
     }
   });

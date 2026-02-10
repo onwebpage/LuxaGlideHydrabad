@@ -4,14 +4,34 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Award, Shield, CheckCircle, Users, ArrowRight, FileText, Gavel, Scale, Zap, TrendingUp, Gem, Package, HeartHandshake } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { Vendor } from "@shared/schema";
+import type { Vendor, AllCmsSettings } from "@shared/schema";
 
 export default function Vendors() {
   const { data: vendors = [], isLoading: vendorsLoading } = useQuery<Vendor[]>({
     queryKey: ['/api/vendors/approved'],
   });
 
-  const onboardingReasons = [
+  const { data: cmsSettings } = useQuery<AllCmsSettings>({
+    queryKey: ['/api/cms/public'],
+  });
+
+  const iconMap: Record<string, any> = {
+    TrendingUp,
+    Users,
+    Gem,
+    Zap,
+    Package,
+    HeartHandshake,
+  };
+
+  const onboardingReasons = cmsSettings?.vendorPageCards?.cards
+    ?.filter(card => card.isVisible !== false)
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map(card => ({
+      icon: iconMap[card.icon] || TrendingUp,
+      title: card.title,
+      description: card.description,
+    })) || [
     {
       icon: TrendingUp,
       title: "10x Sales Boost",

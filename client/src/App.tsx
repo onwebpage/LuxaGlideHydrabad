@@ -35,6 +35,8 @@ import AdminCustomers from "@/pages/AdminCustomers";
 import AdminVendors from "@/pages/AdminVendors";
 import AdminSiteSettings from "@/pages/AdminSiteSettings";
 import AdminCoupons from "@/pages/AdminCoupons";
+import AdminFilterSettings from "@/pages/AdminFilterSettings";
+import AdminVendorCards from "@/pages/AdminVendorCards";
 import NotFound from "@/pages/not-found";
 import { PrivacyPolicy, TermsOfService, RefundPolicy, ShippingPolicy } from "@/pages/Policies";
 function ScrollToTop() {
@@ -74,6 +76,8 @@ function Router() {
       <Route path="/dashboard/admin/vendors" component={AdminVendors} />
       <Route path="/dashboard/admin/site-settings" component={AdminSiteSettings} />
       <Route path="/dashboard/admin/coupons" component={AdminCoupons} />
+      <Route path="/dashboard/admin/filter-settings" component={AdminFilterSettings} />
+      <Route path="/dashboard/admin/vendor-cards" component={AdminVendorCards} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />

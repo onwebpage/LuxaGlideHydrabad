@@ -70,6 +70,19 @@ export default function Home() {
   const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   const [, setLocation] = useLocation();
 
+  // Fetch filter settings from CMS
+  const { data: cmsSettings } = useQuery<AllCmsSettings>({
+    queryKey: ['/api/cms/public'],
+  });
+
+  const filterSettings = cmsSettings?.filterSettings || {
+    category: true,
+    priceRange: true,
+    brand: true,
+    size: true,
+    height: true,
+  };
+
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const heights = ["4'8\" - 5'0\"", "5'0\" - 5'3\"", "5'3\" - 5'6\"", "5'6\" - 5'9\"", "5'9\" - 6'0\""];
 
@@ -225,128 +238,138 @@ export default function Home() {
       </div>
 
       <Accordion type="multiple" defaultValue={["category", "price", "brand", "size", "height"]} className="w-full">
-        <AccordionItem value="category" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Category</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="bg-muted/30 border-none">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {apiCategories?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </AccordionContent>
-        </AccordionItem>
+        {filterSettings.category && (
+          <AccordionItem value="category" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Category</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="bg-muted/30 border-none">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {apiCategories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="price" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Price Range</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <div className="space-y-6">
-              <div className="px-2">
-                <Slider
-                  min={0}
-                  max={50000}
-                  step={500}
-                  value={priceRange}
-                  onValueChange={(val) => setPriceRange(val as [number, number])}
-                  className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
+        {filterSettings.priceRange && (
+          <AccordionItem value="price" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Price Range</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <div className="space-y-6">
+                <div className="px-2">
+                  <Slider
+                    min={0}
+                    max={50000}
+                    step={500}
+                    value={priceRange}
+                    onValueChange={(val) => setPriceRange(val as [number, number])}
+                    className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                  <span>₹0</span>
+                  <span>₹50,000</span>
+                </div>
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                    <Input 
+                      type="number"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                    <Input 
+                      type="number"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {filterSettings.brand && (
+          <AccordionItem value="brand" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Brand</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search brand..." 
+                  className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
+                  value={brandSearch}
+                  onChange={(e) => setBrandSearch(e.target.value)}
                 />
               </div>
-              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                <span>₹0</span>
-                <span>₹50,000</span>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {filterSettings.size && (
+          <AccordionItem value="size" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Size</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <div className="grid grid-cols-3 gap-2">
+                {sizes.map((size) => (
+                  <Button
+                    key={size}
+                    variant={selectedSizes.includes(size) ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs h-9"
+                    onClick={() => toggleFilter(selectedSizes, setSelectedSizes, size)}
+                  >
+                    {size}
+                  </Button>
+                ))}
               </div>
-              <div className="flex gap-3">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                  <Input 
-                    type="number"
-                    value={priceRange[0]}
-                    onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                    className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                  />
-                </div>
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                  <Input 
-                    type="number"
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
-                    className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                  />
-                </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {filterSettings.height && (
+          <AccordionItem value="height" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Height</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <div className="space-y-2">
+                {heights.map((height) => (
+                  <div key={height} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`height-${height}`} 
+                      checked={selectedHeights.includes(height)}
+                      onCheckedChange={() => toggleFilter(selectedHeights, setSelectedHeights, height)}
+                    />
+                    <label htmlFor={`height-${height}`} className="text-sm font-medium leading-none cursor-pointer">
+                      {height}
+                    </label>
+                  </div>
+                ))}
               </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="brand" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Brand</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search brand..." 
-                className="pl-9 bg-muted/30 border-none h-10 text-sm focus-visible:ring-1 focus-visible:ring-primary" 
-                value={brandSearch}
-                onChange={(e) => setBrandSearch(e.target.value)}
-              />
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="size" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Size</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <div className="grid grid-cols-3 gap-2">
-              {sizes.map((size) => (
-                <Button
-                  key={size}
-                  variant={selectedSizes.includes(size) ? "default" : "outline"}
-                  size="sm"
-                  className="text-xs h-9"
-                  onClick={() => toggleFilter(selectedSizes, setSelectedSizes, size)}
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="height" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-4">
-            <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Height</span>
-          </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-4">
-            <div className="space-y-2">
-              {heights.map((height) => (
-                <div key={height} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`height-${height}`} 
-                    checked={selectedHeights.includes(height)}
-                    onCheckedChange={() => toggleFilter(selectedHeights, setSelectedHeights, height)}
-                  />
-                  <label htmlFor={`height-${height}`} className="text-sm font-medium leading-none cursor-pointer">
-                    {height}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
     </div>
   );

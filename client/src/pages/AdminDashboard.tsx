@@ -316,6 +316,30 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/filter-settings")} data-testid="card-filter-settings">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Filter Settings</h3>
+                  <p className="text-muted-foreground text-sm">Control home page filter visibility</p>
+                </div>
+                <FileText className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/vendor-cards")} data-testid="card-vendor-cards">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Vendor Page Cards</h3>
+                  <p className="text-muted-foreground text-sm">Manage vendor onboarding cards</p>
+                </div>
+                <Store className="w-10 h-10 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {lowStockProducts.length > 0 && (
