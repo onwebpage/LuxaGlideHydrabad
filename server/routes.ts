@@ -3052,7 +3052,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case CMS_KEYS.VENDOR_PAGE_CARDS:
             settingsMap.vendorPageCards = setting.value as any;
-            break;`r`n          case CMS_KEYS.VENDOR_LIFETIME_OFFER:`r`n            settingsMap.vendorLifetimeOffer = setting.value as any;`r`n            break;
+            break;
+          case CMS_KEYS.VENDOR_LIFETIME_OFFER:
+            settingsMap.vendorLifetimeOffer = setting.value as any;
+            break;
         }
       }
 
@@ -3066,7 +3069,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
         filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
-        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,`r`n        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
+        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
       };
 
       res.json(result);
@@ -3111,7 +3115,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case CMS_KEYS.VENDOR_PAGE_CARDS:
             settingsMap.vendorPageCards = setting.value as any;
-            break;`r`n          case CMS_KEYS.VENDOR_LIFETIME_OFFER:`r`n            settingsMap.vendorLifetimeOffer = setting.value as any;`r`n            break;
+            break;
+          case CMS_KEYS.VENDOR_LIFETIME_OFFER:
+            settingsMap.vendorLifetimeOffer = setting.value as any;
+            break;
         }
       }
 
@@ -3124,7 +3131,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         footer: { ...defaultCmsSettings.footer, ...settingsMap.footer },
         homepageProducts: settingsMap.homepageProducts || defaultCmsSettings.homepageProducts,
         filterSettings: settingsMap.filterSettings || defaultCmsSettings.filterSettings,
-        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,`r`n        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
+        vendorPageCards: settingsMap.vendorPageCards || defaultCmsSettings.vendorPageCards,
+        vendorLifetimeOffer: settingsMap.vendorLifetimeOffer || defaultCmsSettings.vendorLifetimeOffer,
       };
 
       res.json(result);
