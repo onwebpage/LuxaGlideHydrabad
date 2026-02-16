@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +35,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
+const bannerImage2 = "/banner2.png";
+const bannerImage3 = "/banner3.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
 import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
@@ -69,6 +71,16 @@ export default function Home() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   const [, setLocation] = useLocation();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const banners = [bannerImage, bannerImage2, bannerImage3];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch filter settings from CMS
   const { data: cmsSettings } = useQuery<AllCmsSettings>({
@@ -84,7 +96,7 @@ export default function Home() {
   };
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-  const heights = ["4'8\" - 5'0\"", "5'0\" - 5'3\"", "5'3\" - 5'6\"", "5'6\" - 5'9\"", "5'9\" - 6'0\""];
+  const heights = ["4 - 4.5", "4.5 - 5", "5 - 5.5", "5.5 - Above"];
 
   const toggleFilter = (list: string[], setList: (val: string[]) => void, item: string) => {
     if (list.includes(item)) {
@@ -266,6 +278,10 @@ export default function Home() {
             </AccordionTrigger>
             <AccordionContent className="pt-1 pb-4">
               <div className="space-y-6">
+              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                  <span>₹{priceRange[0].toLocaleString()}</span>
+                  <span>₹{priceRange[1].toLocaleString()}</span>
+                </div>
                 <div className="px-2">
                   <Slider
                     min={0}
@@ -275,10 +291,6 @@ export default function Home() {
                     onValueChange={(val) => setPriceRange(val as [number, number])}
                     className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
                   />
-                </div>
-                <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                  <span>₹0</span>
-                  <span>₹50,000</span>
                 </div>
                 <div className="flex gap-3">
                   <div className="relative flex-1">
@@ -362,7 +374,7 @@ export default function Home() {
                       onCheckedChange={() => toggleFilter(selectedHeights, setSelectedHeights, height)}
                     />
                     <label htmlFor={`height-${height}`} className="text-sm font-medium leading-none cursor-pointer">
-                      {height}
+                      {height} ft
                     </label>
                   </div>
                 ))}
@@ -378,13 +390,20 @@ export default function Home() {
     <div className="min-h-screen">
       <section 
         className="relative min-h-[300px] sm:min-h-[500px] h-[50vh] sm:h-[70vh] flex items-center overflow-hidden w-full"
-        style={{
-          backgroundImage: `url(${bannerImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-        }}
         data-testid="section-hero-with-outfit"
       >
+        {banners.map((banner, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 transition-opacity duration-1000"
+            style={{
+              backgroundImage: `url(${banner})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'top center',
+              opacity: currentSlide === index ? 1 : 0,
+            }}
+          />
+        ))}
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">

@@ -22,6 +22,8 @@ import {
   Ticket,
   Ruler,
   Sparkles,
+  Upload,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -96,6 +98,10 @@ export default function ProductDetail() {
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [suggestedSize, setSuggestedSize] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewImages, setReviewImages] = useState<File[]>([]);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   
   const { addToCart, isAddingToCart } = useCart();
   const { user } = useAuth();
@@ -103,6 +109,11 @@ export default function ProductDetail() {
 
   const { data: similarProducts } = useQuery<Product[]>({
     queryKey: [`/api/products/${params?.id}/similar`],
+    enabled: !!params?.id,
+  });
+
+  const { data: reviews = [], refetch: refetchReviews } = useQuery<any[]>({
+    queryKey: [`/api/reviews/product/${params?.id}`],
     enabled: !!params?.id,
   });
 
@@ -285,24 +296,80 @@ export default function ProductDetail() {
     setSelectedImage(0);
   }, [selectedColor]);
 
-  const reviews = [
-    {
-      id: "1",
-      user: "Priya S.",
-      rating: 5,
-      comment: "Excellent quality! My customers loved these sarees.",
-      date: "2 weeks ago",
-      verified: true,
-    },
-    {
-      id: "2",
-      user: "Rajesh K.",
-      rating: 4,
-      comment: "Good product, timely delivery. Will order again.",
-      date: "1 month ago",
-      verified: true,
-    },
-  ];
+  const handleReviewImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (reviewImages.length + files.length > 5) {
+      toast({
+        title: "Too many files",
+        description: "You can upload maximum 5 images",
+        variant: "destructive",
+      });
+      return;
+    }
+    setReviewImages([...reviewImages, ...files]);
+  };
+
+  const removeReviewImage = (index: number) => {
+    setReviewImages(reviewImages.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitReview = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to submit a review",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (reviewRating === 0) {
+      toast({
+        title: "Rating Required",
+        description: "Please select a rating",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      const formData = new FormData();
+      formData.append("productId", product.id);
+      formData.append("userId", user.id);
+      formData.append("rating", reviewRating.toString());
+      formData.append("comment", reviewComment);
+      
+      reviewImages.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to submit review");
+
+      toast({
+        title: "Review Submitted",
+        description: "Thank you for your review!",
+      });
+
+      setReviewRating(0);
+      setReviewComment("");
+      setReviewImages([]);
+      refetchReviews();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit review",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   return (
     <div className="min-h-screen py-4 sm:py-8">
@@ -731,38 +798,152 @@ export default function ProductDetail() {
 
           <TabsContent value="reviews" className="mt-8">
             <div className="space-y-6">
-              {reviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold">{review.user}</span>
-                          {review.verified && (
-                            <Badge variant="secondary" className="text-xs">
-                              Verified Purchase
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
+              {/* Submit Review Form */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-4">Write a Review</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="mb-2 block">Your Rating</Label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => setReviewRating(star)}
+                            className="transition-transform hover:scale-110"
+                          >
                             <Star
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < review.rating
+                              className={`w-8 h-8 ${
+                                star <= reviewRating
                                   ? "fill-primary text-primary"
                                   : "text-muted-foreground"
                               }`}
                             />
-                          ))}
-                        </div>
+                          </button>
+                        ))}
                       </div>
-                      <span className="text-sm text-muted-foreground">{review.date}</span>
                     </div>
-                    <p className="text-muted-foreground">{review.comment}</p>
-                  </CardContent>
-                </Card>
-              ))}
+                    <div>
+                      <Label htmlFor="review-comment" className="mb-2 block">Your Review</Label>
+                      <Textarea
+                        id="review-comment"
+                        placeholder="Share your experience with this product..."
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-2 block">Add Photos/Videos (Optional)</Label>
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-3">
+                          {reviewImages.map((file, index) => (
+                            <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden border">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`Review ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                onClick={() => removeReviewImage(index)}
+                                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                          {reviewImages.length < 5 && (
+                            <label className="w-20 h-20 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                              <Upload className="w-6 h-6 text-muted-foreground" />
+                              <input
+                                type="file"
+                                accept="image/*,video/*"
+                                multiple
+                                onChange={handleReviewImageUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Upload up to 5 images or videos</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleSubmitReview}
+                      disabled={isSubmittingReview || reviewRating === 0}
+                      className="w-full"
+                    >
+                      {isSubmittingReview ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Submit Review"
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Display Reviews */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Customer Reviews ({reviews.length})</h3>
+                {reviews.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground">
+                      No reviews yet. Be the first to review this product!
+                    </CardContent>
+                  </Card>
+                ) : (
+                  reviews.map((review) => (
+                    <Card key={review.id}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold">{review.userName || review.user}</span>
+                              {review.isVerifiedPurchase && (
+                                <Badge variant="secondary" className="text-xs">
+                                  Verified Purchase
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-3 h-3 ${
+                                    i < review.rating
+                                      ? "fill-primary text-primary"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {review.date || new Date(review.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-muted-foreground mb-3">{review.comment}</p>
+                        {review.images && Array.isArray(review.images) && review.images.length > 0 && (
+                          <div className="flex gap-2 flex-wrap">
+                            {review.images.map((img: string, idx: number) => (
+                              <img
+                                key={idx}
+                                src={img}
+                                alt={`Review image ${idx + 1}`}
+                                className="w-20 h-20 object-cover rounded-lg border"
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

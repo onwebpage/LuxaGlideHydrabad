@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -54,6 +55,10 @@ export default function AdminProducts() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [editStockDialogOpen, setEditStockDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [stockQuantity, setStockQuantity] = useState<number>(0);
+  const [showStock, setShowStock] = useState<boolean>(true);
 
   const { data: products = [], isLoading, refetch } = useQuery<Product[]>({
     queryKey: ["/api/admin/products", { status: statusFilter !== "all" ? statusFilter : undefined, search: search || undefined }],
@@ -129,6 +134,48 @@ export default function AdminProducts() {
     },
   });
 
+  const updateStockMutation = useMutation({
+    mutationFn: async ({ productId, stock }: { productId: string; stock: number }) => {
+      return await apiRequest("PUT", `/api/admin/products/${productId}`, { stock });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      toast({
+        title: "Stock Updated",
+        description: "Product stock has been updated successfully",
+      });
+      setEditStockDialogOpen(false);
+      setEditingProduct(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update stock",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleStockVisibilityMutation = useMutation({
+    mutationFn: async ({ productId, showStock }: { productId: string; showStock: boolean }) => {
+      return await apiRequest("PUT", `/api/admin/products/${productId}`, { showStock });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      toast({
+        title: "Stock Visibility Updated",
+        description: "Product stock visibility has been updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update stock visibility",
+        variant: "destructive",
+      });
+    },
+  });
+
   const filteredProducts = products.filter(product => {
     const matchesCategory = categoryFilter === "all" || product.categoryId === categoryFilter;
     return matchesCategory;
@@ -158,6 +205,25 @@ export default function AdminProducts() {
     if (productToDelete) {
       deleteProductMutation.mutate(productToDelete);
     }
+  };
+
+  const handleEditStock = (product: Product) => {
+    setEditingProduct(product);
+    setStockQuantity(product.stock);
+    setEditStockDialogOpen(true);
+  };
+
+  const handleSaveStock = () => {
+    if (editingProduct) {
+      updateStockMutation.mutate({ productId: editingProduct.id, stock: stockQuantity });
+    }
+  };
+
+  const handleToggleStockVisibility = (product: Product) => {
+    toggleStockVisibilityMutation.mutate({ 
+      productId: product.id, 
+      showStock: !(product as any).showStock 
+    });
   };
 
   const getVendorName = (vendorId: string) => {
@@ -280,7 +346,7 @@ export default function AdminProducts() {
                       <TableHead>Price</TableHead>
                       <TableHead>Stock</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -293,13 +359,33 @@ export default function AdminProducts() {
                         <TableCell>{getCategoryName(product.categoryId)}</TableCell>
                         <TableCell>₹{Number(product.price).toLocaleString()}</TableCell>
                         <TableCell>
-                          <span className={product.stock < 10 ? "text-orange-600" : ""}>
-                            {product.stock}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={product.stock < 10 ? "text-orange-600" : ""}>
+                              {product.stock}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditStock(product)}
+                              className="h-6 px-2"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Switch
+                                checked={(product as any).showStock !== false}
+                                onCheckedChange={() => handleToggleStockVisibility(product)}
+                                className="scale-75"
+                              />
+                              <span className="text-xs text-muted-foreground">
+                                {(product as any).showStock !== false ? "Visible" : "Hidden"}
+                              </span>
+                            </div>
+                          </div>
                         </TableCell>
                         <TableCell>{getStatusBadge(product.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
                             <Button
                               size="sm"
                               variant="ghost"
@@ -413,6 +499,37 @@ export default function AdminProducts() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editStockDialogOpen} onOpenChange={setEditStockDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Stock</DialogTitle>
+            <DialogDescription>
+              Update stock quantity for {editingProduct?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="stock">Stock Quantity</Label>
+              <Input
+                id="stock"
+                type="number"
+                min="0"
+                value={stockQuantity}
+                onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditStockDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveStock} disabled={updateStockMutation.isPending}>
+              {updateStockMutation.isPending ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -2826,11 +2826,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/reviews", async (req, res) => {
+  app.post("/api/reviews", upload.array("images", 5), async (req, res) => {
     try {
-      const review = await storage.createReview(req.body);
+      const { productId, userId, rating, comment } = req.body;
+      
+      if (!productId || !userId || !rating) {
+        return res.status(400).json({ message: "Product ID, User ID, and rating are required" });
+      }
+
+      const images = (req.files as Express.Multer.File[])?.map(file => `/uploads/${file.filename}`) || [];
+
+      const review = await storage.createReview({
+        productId,
+        userId,
+        rating: parseInt(rating),
+        comment: comment || null,
+        images: images.length > 0 ? images : null,
+        isVerifiedPurchase: false,
+      });
+
       res.status(201).json(review);
     } catch (error: any) {
+      console.error("Create review error:", error);
       res.status(500).json({ message: error.message });
     }
   });

@@ -116,6 +116,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   moq: integer("moq").notNull().default(1), // Minimum Order Quantity
   stock: integer("stock").notNull().default(0),
+  showStock: boolean("show_stock").default(true),
   images: jsonb("images").notNull(), // Array of image URLs
   colors: jsonb("colors"), // Array of available colors
   sizes: jsonb("sizes"), // Array of available sizes

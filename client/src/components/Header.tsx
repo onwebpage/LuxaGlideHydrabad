@@ -297,7 +297,7 @@ export function Header() {
                       <ChevronDown className="w-4 h-4 hidden lg:block text-white" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white border-[#bf953f]/30">
+                  <DropdownMenuContent align="end" className="w-48 bg-white border-[#bf953f]/30 z-[110]">
                     <DropdownMenuItem asChild>
                       <Link 
                         href={user?.role === 'vendor' ? '/dashboard/vendor' : user?.role === 'buyer' ? '/dashboard/buyer' : '/dashboard'} 
