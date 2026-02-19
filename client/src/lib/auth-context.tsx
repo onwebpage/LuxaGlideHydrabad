@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile;
   token: string | null;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string, otpId?: string) => Promise<User>;
   logout: () => Promise<void>;
   register: (data: any) => Promise<User>;
   refreshProfile: (updatedUser: User, updatedProfile: UserProfile) => void;
@@ -55,9 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (email: string, password: string, otpId?: string): Promise<User> => {
     try {
-      const res = await apiRequest("POST", "/api/auth/login", { email, password });
+      const res = await apiRequest("POST", "/api/auth/login", { email, password, otpId });
       const response = await res.json() as {
         user: User;
         profile: UserProfile;

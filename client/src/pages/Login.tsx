@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Eye, EyeOff, ShieldCheck, Zap, Users } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, ShieldCheck, Zap, Users, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 
@@ -18,6 +18,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpId, setOtpId] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   const getDashboardPath = (role: string): string => {
     switch (role) {
@@ -43,7 +47,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const user = await login(email, password);
+      const user = await login(email, password, otpId);
       
       toast({
         title: "Welcome back!",
@@ -51,9 +55,107 @@ export default function Login() {
       });
       setLocation(getDashboardPath(user.role));
     } catch (error: any) {
+      if (error.message?.includes("Phone verification required")) {
+        setShowOTP(true);
+        toast({
+          title: "OTP Required",
+          description: "Please verify your phone number to continue.",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: error.message || "Invalid credentials",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendOTP = async () => {
+    if (!email) {
       toast({
-        title: "Login failed",
-        description: error.message || "Invalid credentials",
+        title: "Error",
+        description: "Please enter your email first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setOtpId(data.otpId);
+        setOtpSent(true);
+        toast({
+          title: "OTP Sent",
+          description: "Please check your phone for the verification code.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to send OTP",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send OTP",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp) {
+      toast({
+        title: "Error",
+        description: "Please enter the OTP",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otpId, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Verified",
+          description: "Phone number verified successfully.",
+        });
+        // Retry login with verified OTP
+        handleSubmit(new Event("submit") as any);
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Invalid OTP",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to verify OTP",
         variant: "destructive",
       });
     } finally {
@@ -273,24 +375,77 @@ export default function Login() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                   >
-                    <Button
-                      type="submit"
-                      className="w-full h-12 text-lg font-semibold shadow-xl"
-                      disabled={isLoading}
-                      data-testid="button-submit"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Signing in...
-                        </span>
-                      ) : (
-                        <>
-                          Sign In
-                          <ArrowRight className="ml-2 w-5 h-5" />
-                        </>
-                      )}
-                    </Button>
+                    {showOTP ? (
+                      <div className="space-y-4">
+                        {!otpSent ? (
+                          <>
+                            <p className="text-sm text-muted-foreground">
+                              We'll send an OTP to your registered phone number.
+                            </p>
+                            <Button
+                              type="button"
+                              onClick={handleSendOTP}
+                              className="w-full h-12"
+                              disabled={isLoading}
+                            >
+                              Send OTP
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Label htmlFor="otp" className="text-xs uppercase tracking-widest font-medium">
+                              Enter OTP
+                            </Label>
+                            <Input
+                              id="otp"
+                              type="text"
+                              placeholder="Enter 6-digit OTP"
+                              value={otp}
+                              onChange={(e) => setOtp(e.target.value)}
+                              className="h-12 text-base text-center tracking-widest"
+                              maxLength={6}
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                onClick={handleVerifyOTP}
+                                className="flex-1 h-12"
+                                disabled={isLoading}
+                              >
+                                Verify & Login
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setOtpSent(false)}
+                                className="h-12"
+                              >
+                                Resend
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="w-full h-12 text-lg font-semibold shadow-xl"
+                        disabled={isLoading}
+                        data-testid="button-submit"
+                      >
+                        {isLoading ? (
+                          <span className="flex items-center gap-2">
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Signing in...
+                          </span>
+                        ) : (
+                          <>
+                            Sign In
+                            <ArrowRight className="ml-2 w-5 h-5" />
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </motion.div>
                 </form>
 

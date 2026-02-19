@@ -22,6 +22,7 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import Papa from "papaparse";
+import { sendOTP, verifyOTP, isOTPVerified, cleanupOTP } from "./otp";
 
 // Set up file upload
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -328,16 +329,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ OTP Routes ============
+  
+  // Send OTP for vendor login/registration
+  app.post("/api/auth/send-otp", async (req, res) => {
+    try {
+      const { phone, email } = req.body;
+
+      let phoneNumber = phone;
+
+      // If email is provided, get phone from user account
+      if (email && !phone) {
+        const user = await storage.getUserByEmail(email);
+        if (!user || !user.phone) {
+          return res.status(400).json({ message: "Phone number not found for this account" });
+        }
+        phoneNumber = user.phone;
+      }
+
+      if (!phoneNumber) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+
+      const result = await sendOTP(phoneNumber);
+      
+      if (result.success) {
+        res.json({ message: result.message, otpId: result.otpId });
+      } else {
+        res.status(500).json({ message: result.message });
+      }
+    } catch (error: any) {
+      console.error("Send OTP error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Verify OTP
+  app.post("/api/auth/verify-otp", async (req, res) => {
+    try {
+      const { otpId, otp } = req.body;
+
+      if (!otpId || !otp) {
+        return res.status(400).json({ message: "OTP ID and OTP are required" });
+      }
+
+      const result = verifyOTP(otpId, otp);
+      
+      if (result.success) {
+        res.json({ message: result.message, phone: result.phone });
+      } else {
+        res.status(400).json({ message: result.message });
+      }
+    } catch (error: any) {
+      console.error("Verify OTP error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ Authentication Routes ============
   
   // Register
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { email, password, fullName, phone, role, businessName, gstNumber, varietiesOfModel, varietiesOfFabric } = req.body;
+      const { email, password, fullName, phone, role, businessName, gstNumber, varietiesOfModel, varietiesOfFabric, otpId } = req.body;
 
       // Validate required fields
       if (!email || !password || !fullName || !role) {
         return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Require OTP verification for vendors
+      if (role === "vendor") {
+        if (!otpId || !isOTPVerified(otpId)) {
+          return res.status(400).json({ message: "Phone verification required for vendor registration" });
+        }
       }
 
       // Check if user already exists
@@ -369,6 +434,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           varietiesOfFabric,
           kycStatus: "pending",
         });
+        // Clean up OTP after successful registration
+        if (otpId) cleanupOTP(otpId);
       } else if (role === "buyer") {
         profileData = await storage.createBuyer({
           userId: user.id,
@@ -407,7 +474,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, otpId } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password required" });
@@ -423,10 +490,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
+      // Require OTP verification for vendors
+      if (user.role === "vendor") {
+        if (!otpId || !isOTPVerified(otpId)) {
+          return res.status(400).json({ message: "Phone verification required for vendor login", requireOTP: true });
+        }
+      }
+
       // Get role-specific data
       let profileData = null;
       if (user.role === "vendor") {
         profileData = await storage.getVendorByUserId(user.id);
+        // Clean up OTP after successful login
+        if (otpId) cleanupOTP(otpId);
       } else if (user.role === "buyer") {
         profileData = await storage.getBuyerByUserId(user.id);
       }
@@ -461,7 +537,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Login
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { username, password, otpId } = req.body;
 
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password required" });
@@ -478,6 +554,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (username !== adminUsername || password !== adminPassword) {
         return res.status(401).json({ message: "Invalid admin credentials" });
       }
+
+      // Require OTP verification for admin
+      if (!otpId || !isOTPVerified(otpId)) {
+        return res.status(400).json({ message: "Phone verification required for admin login", requireOTP: true });
+      }
+
+      // Clean up OTP after successful login
+      cleanupOTP(otpId);
 
       // Generate secure admin session token
       const token = crypto.randomBytes(32).toString("hex");
@@ -511,6 +595,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logged out successfully" });
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Send OTP for admin login
+  app.post("/api/auth/admin-send-otp", async (req, res) => {
+    try {
+      const { phone } = req.body;
+
+      if (!phone) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+
+      const result = await sendOTP(phone);
+      
+      if (result.success) {
+        res.json({ message: result.message, otpId: result.otpId });
+      } else {
+        res.status(500).json({ message: result.message });
+      }
+    } catch (error: any) {
+      console.error("Admin send OTP error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Change admin credentials
+  app.post("/api/auth/admin-change-credentials", requireAdminAuth, async (req, res) => {
+    try {
+      const { currentPassword, newUsername, newPassword } = req.body;
+
+      const adminPassword = process.env.ADMIN_PASSWORD;
+
+      if (!adminPassword) {
+        return res.status(500).json({ message: "Admin credentials not configured" });
+      }
+
+      // Verify current password
+      if (currentPassword !== adminPassword) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      // Update credentials in environment (note: this only updates runtime, not .env file)
+      if (newUsername) {
+        process.env.ADMIN_USERNAME = newUsername;
+      }
+      if (newPassword) {
+        process.env.ADMIN_PASSWORD = newPassword;
+      }
+
+      // Invalidate all admin sessions
+      adminSessions.clear();
+
+      res.json({ 
+        message: "Credentials updated successfully. Please login again.",
+        note: "Remember to update your .env file with the new credentials for persistence."
+      });
+    } catch (error: any) {
+      console.error("Change admin credentials error:", error);
       res.status(500).json({ message: error.message });
     }
   });

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -38,6 +40,148 @@ import type { Order, Vendor, Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { VendorManagementDialog } from "@/components/VendorManagementDialog";
 import { StaffManagement } from "@/components/StaffManagement";
+
+function AdminSettingsForm() {
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (newPassword && newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newUsername && !newPassword) {
+      toast({
+        title: "Error",
+        description: "Please provide at least one field to update",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/admin-change-credentials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("adminToken")}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newUsername: newUsername || undefined,
+          newPassword: newPassword || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: data.message,
+        });
+        
+        // Clear local storage and redirect to login
+        localStorage.removeItem("adminAuth");
+        localStorage.removeItem("adminAuthTime");
+        localStorage.removeItem("adminToken");
+        
+        setTimeout(() => {
+          setLocation("/admin-login");
+        }, 2000);
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to update credentials",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Important</AlertTitle>
+        <AlertDescription>
+          After changing credentials, you'll be logged out and need to update your .env file manually for persistence.
+        </AlertDescription>
+      </Alert>
+
+      <div className="space-y-2">
+        <Label htmlFor="currentPassword">Current Password *</Label>
+        <Input
+          id="currentPassword"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="newUsername">New Username (optional)</Label>
+        <Input
+          id="newUsername"
+          type="text"
+          value={newUsername}
+          onChange={(e) => setNewUsername(e.target.value)}
+          placeholder="Leave empty to keep current"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="newPassword">New Password (optional)</Label>
+        <Input
+          id="newPassword"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="Leave empty to keep current"
+        />
+      </div>
+
+      {newPassword && (
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirm New Password</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+      )}
+
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? "Updating..." : "Update Credentials"}
+      </Button>
+    </form>
+  );
+}
 
 interface AdminStats {
   totalVendors: number;
@@ -232,111 +376,111 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/products")} data-testid="card-product-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Product Management</h3>
-                  <p className="text-muted-foreground text-sm">Approve and manage all products</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Product Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Approve and manage all products</p>
                 </div>
-                <Package className="w-10 h-10 text-primary opacity-50" />
+                <Package className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/categories")} data-testid="card-category-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Category Management</h3>
-                  <p className="text-muted-foreground text-sm">Manage product categories and tags</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Category Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Manage product categories and tags</p>
                 </div>
-                <FileText className="w-10 h-10 text-primary opacity-50" />
+                <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/orders")} data-testid="card-order-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Order Management</h3>
-                  <p className="text-muted-foreground text-sm">Control and track all customer orders</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Order Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Control and track all customer orders</p>
                 </div>
-                <ShoppingCart className="w-10 h-10 text-primary opacity-50" />
+                <ShoppingCart className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/customers")} data-testid="card-customer-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Customer Management</h3>
-                  <p className="text-muted-foreground text-sm">View and manage all customers</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Customer Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">View and manage all customers</p>
                 </div>
-                <Users className="w-10 h-10 text-primary opacity-50" />
+                <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/vendors")} data-testid="card-vendor-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Vendor Management</h3>
-                  <p className="text-muted-foreground text-sm">Manage vendor accounts and KYC</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Vendor Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Manage vendor accounts and KYC</p>
                 </div>
-                <Store className="w-10 h-10 text-primary opacity-50" />
+                <Store className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/site-settings")} data-testid="card-site-settings">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Site Settings</h3>
-                  <p className="text-muted-foreground text-sm">Customize website content and appearance</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Site Settings</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Customize website content and appearance</p>
                 </div>
-                <Palette className="w-10 h-10 text-primary opacity-50" />
+                <Palette className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/coupons")} data-testid="card-coupon-management">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Coupon Management</h3>
-                  <p className="text-muted-foreground text-sm">Create and manage discount coupons</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Coupon Management</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Create and manage discount coupons</p>
                 </div>
-                <Ticket className="w-10 h-10 text-primary opacity-50" />
+                <Ticket className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/filter-settings")} data-testid="card-filter-settings">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Filter Settings</h3>
-                  <p className="text-muted-foreground text-sm">Control home page filter visibility</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Filter Settings</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Control home page filter visibility</p>
                 </div>
-                <FileText className="w-10 h-10 text-primary opacity-50" />
+                <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/dashboard/admin/vendor-cards")} data-testid="card-vendor-cards">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Vendor Page Cards</h3>
-                  <p className="text-muted-foreground text-sm">Manage vendor onboarding cards</p>
+                  <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">Vendor Page Cards</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">Manage vendor onboarding cards</p>
                 </div>
-                <Store className="w-10 h-10 text-primary opacity-50" />
+                <Store className="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-50" />
               </div>
             </CardContent>
           </Card>
@@ -559,11 +703,12 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="vendor-management" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="vendor-management" data-testid="tab-vendor-management">Vendor Management</TabsTrigger>
-            <TabsTrigger value="staff-management" data-testid="tab-staff-management">Staff Management</TabsTrigger>
-            <TabsTrigger value="pending-kyc" data-testid="tab-pending-kyc">Pending KYC</TabsTrigger>
-            <TabsTrigger value="all-orders" data-testid="tab-all-orders">All Orders</TabsTrigger>
+          <TabsList className="w-full flex-wrap h-auto">
+            <TabsTrigger value="vendor-management" data-testid="tab-vendor-management" className="flex-1 min-w-[120px]">Vendor Management</TabsTrigger>
+            <TabsTrigger value="staff-management" data-testid="tab-staff-management" className="flex-1 min-w-[120px]">Staff Management</TabsTrigger>
+            <TabsTrigger value="pending-kyc" data-testid="tab-pending-kyc" className="flex-1 min-w-[120px]">Pending KYC</TabsTrigger>
+            <TabsTrigger value="all-orders" data-testid="tab-all-orders" className="flex-1 min-w-[120px]">All Orders</TabsTrigger>
+            <TabsTrigger value="admin-settings" data-testid="tab-admin-settings" className="flex-1 min-w-[120px]">Admin Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="vendor-management">
@@ -757,6 +902,18 @@ export default function AdminDashboard() {
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="admin-settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Settings</CardTitle>
+                <CardDescription>Change your admin username and password</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AdminSettingsForm />
               </CardContent>
             </Card>
           </TabsContent>

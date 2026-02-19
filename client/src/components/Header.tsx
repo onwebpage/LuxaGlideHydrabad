@@ -137,7 +137,7 @@ export function Header() {
   };
 
   return (
-    <header className="z-[100] w-full relative overflow-hidden" style={{ backgroundImage: 'url(/golden-background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <header className="sticky top-0 z-[100] w-full" style={{ backgroundImage: 'url(/golden-background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Main Header */}
       <div className="border-b border-black/10 shadow-sm relative z-10">
         <div className="container mx-auto px-4 lg:px-6">
@@ -214,7 +214,7 @@ export function Header() {
                     initial={{ opacity: 0, y: 10, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                    className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-[60] backdrop-blur-xl"
+                    className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-background border border-gray-100 dark:border-border rounded-2xl shadow-2xl overflow-hidden z-[110] backdrop-blur-xl"
                   >
                     {/* Default Trending Suggestions when no query */}
                     {!searchQuery && (

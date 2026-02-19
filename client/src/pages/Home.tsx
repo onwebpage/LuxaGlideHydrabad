@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter, Sparkles } from "lucide-react";
+import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
@@ -34,9 +34,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import bannerImage from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
-const bannerImage2 = "/banner2.png";
-const bannerImage3 = "/banner3.png";
+import bannerImage1 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
+import bannerImage2 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125626200.png";
+import bannerImage3 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_(1)_1767125824209.png";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
 import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
@@ -72,15 +72,18 @@ export default function Home() {
   const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   const [, setLocation] = useLocation();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
 
-  const banners = [bannerImage, bannerImage2, bannerImage3];
+  const banners = [bannerImage1, bannerImage2, bannerImage3];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [banners.length]);
 
   // Fetch filter settings from CMS
   const { data: cmsSettings } = useQuery<AllCmsSettings>({
@@ -389,23 +392,50 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <section 
-        className="relative min-h-[300px] sm:min-h-[500px] h-[50vh] sm:h-[70vh] flex items-center overflow-hidden w-full"
+        className="relative min-h-[300px] sm:min-h-[500px] h-[50vh] sm:h-[70vh] flex items-center overflow-hidden w-full cursor-grab active:cursor-grabbing"
         data-testid="section-hero-with-outfit"
+        onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX); }}
+        onMouseMove={(e) => { if (isDragging) setTranslateX(e.clientX - startX); }}
+        onMouseUp={() => {
+          if (isDragging) {
+            setIsDragging(false);
+            if (translateX > 100) setCurrentSlide((p) => (p - 1 + 3) % 3);
+            else if (translateX < -100) setCurrentSlide((p) => (p + 1) % 3);
+            setTranslateX(0);
+          }
+        }}
+        onMouseLeave={() => {
+          if (isDragging) {
+            setIsDragging(false);
+            setTranslateX(0);
+          }
+        }}
       >
         {banners.map((banner, index) => (
           <div
             key={index}
-            className="absolute inset-0 transition-opacity duration-1000"
+            className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
             style={{
               backgroundImage: `url(${banner})`,
               backgroundSize: 'cover',
               backgroundPosition: 'top center',
-              opacity: currentSlide === index ? 1 : 0,
             }}
-          />
+          >
+            <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+          </div>
         ))}
-        <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
+        <button onClick={() => setCurrentSlide((p) => (p - 1 + 3) % 3)} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all">
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button onClick={() => setCurrentSlide((p) => (p + 1) % 3)} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all">
+          <ChevronRight className="w-6 h-6" />
+        </button>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+          {banners.map((_, index) => (
+            <button key={index} onClick={() => setCurrentSlide(index)} className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? 'bg-[#bf953f] w-8' : 'bg-white/50'}`} />
+          ))}
+        </div>
+        <div className="relative z-20 container mx-auto px-4 sm:px-6 flex items-center justify-start w-full h-full">
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#bf953f]/50 mb-6 w-fit">
               <Sparkles className="w-4 h-4 text-[#bf953f]" />

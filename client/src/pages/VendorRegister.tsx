@@ -14,6 +14,10 @@ export default function VendorRegister() {
   const { toast } = useToast();
   const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpId, setOtpId] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -27,6 +31,97 @@ export default function VendorRegister() {
     varietiesOfModel: "",
     varietiesOfFabric: "",
   });
+
+  const handleSendOTP = async () => {
+    if (!formData.phone) {
+      toast({
+        title: "Error",
+        description: "Please enter your phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setOtpId(data.otpId);
+        setOtpSent(true);
+        setShowOTP(true);
+        toast({
+          title: "OTP Sent",
+          description: "Please check your phone for the verification code.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to send OTP",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send OTP",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp) {
+      toast({
+        title: "Error",
+        description: "Please enter the OTP",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otpId, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Verified",
+          description: "Phone number verified successfully.",
+        });
+        // Proceed with registration
+        handleSubmit(new Event("submit") as any);
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Invalid OTP",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to verify OTP",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +141,7 @@ export default function VendorRegister() {
       const user = await register({
         ...formData,
         role: "vendor",
+        otpId,
       });
 
       toast({
@@ -265,16 +361,59 @@ export default function VendorRegister() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={isLoading}
-                data-testid="button-submit"
-              >
-                {isLoading ? "Creating vendor account..." : "Create Vendor Account"}
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
+              {!showOTP ? (
+                <Button
+                  type="button"
+                  onClick={handleSendOTP}
+                  className="w-full"
+                  size="lg"
+                  disabled={isLoading || !formData.phone}
+                  data-testid="button-send-otp"
+                >
+                  {isLoading ? "Sending OTP..." : "Send OTP to Verify Phone"}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="otp" className="text-xs uppercase tracking-wider">
+                      Enter OTP sent to {formData.phone}
+                    </Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      placeholder="Enter 6-digit OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      className="text-center tracking-widest text-lg"
+                      maxLength={6}
+                      data-testid="input-otp"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleVerifyOTP}
+                      className="flex-1"
+                      size="lg"
+                      disabled={isLoading || otp.length !== 6}
+                      data-testid="button-verify-otp"
+                    >
+                      {isLoading ? "Verifying..." : "Verify & Register"}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => { setOtpSent(false); setShowOTP(false); setOtp(""); }}
+                      size="lg"
+                      disabled={isLoading}
+                    >
+                      Resend OTP
+                    </Button>
+                  </div>
+                </div>
+              )}
             </form>
 
             <div className="mt-6 text-center text-sm">
