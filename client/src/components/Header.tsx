@@ -137,9 +137,9 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-[100] w-full" style={{ backgroundImage: 'url(/golden-background.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <header className="sticky top-0 z-[100] w-full" style={{ backgroundImage: 'url(/color.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Main Header */}
-      <div className="border-b border-black/10 shadow-sm relative z-10">
+      <div className="border-b border-black/10 shadow-sm relative z-10 bg-transparent">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
             {/* Logo - Removed Image, showing Site Name */}
@@ -617,7 +617,7 @@ export function Header() {
       </div>
 
       {/* Category Navigation Bar - Desktop Only */}
-      <div className="border-b border-black/10 hidden lg:block relative z-10">
+      <div className="border-b border-black/10 hidden lg:block relative z-10 bg-transparent">
         <div className="container mx-auto px-4 lg:px-6">
           <nav className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2 font-sans">
             <Link 

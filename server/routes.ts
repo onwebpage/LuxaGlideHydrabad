@@ -3622,6 +3622,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ Admin Ad Management Routes ============
+
+  // Get all ads
+  app.get("/api/admin/ads", requireAdminAuth, async (req, res) => {
+    try {
+      const { position, isActive } = req.query;
+      const ads = await storage.getAllAds({
+        position: position as string,
+        isActive: isActive === "true" ? true : isActive === "false" ? false : undefined,
+      });
+      res.json(ads);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get public ads by position
+  app.get("/api/ads", async (req, res) => {
+    try {
+      const { position } = req.query;
+      const ads = await storage.getActiveAds(position as string);
+      res.json(ads);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create ad
+  app.post("/api/admin/ads", requireAdminAuth, upload.single("bannerImage"), async (req, res) => {
+    try {
+      const { title, description, link, position, displayOrder, textColor } = req.body;
+
+      if (!title || !link || !position) {
+        return res.status(400).json({ message: "Title, link, and position are required" });
+      }
+
+      let bannerImage = req.body.bannerImage;
+      if (req.file) {
+        bannerImage = `/uploads/${req.file.filename}`;
+      }
+
+      if (!bannerImage) {
+        return res.status(400).json({ message: "Banner image is required" });
+      }
+
+      const ad = await storage.createAd({
+        title,
+        description: description || null,
+        bannerImage,
+        link,
+        position,
+        textColor: textColor || "#ffffff",
+        displayOrder: displayOrder ? parseInt(displayOrder) : 0,
+        isActive: true,
+      });
+
+      res.status(201).json(ad);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update ad
+  app.put("/api/admin/ads/:id", requireAdminAuth, upload.single("bannerImage"), async (req, res) => {
+    try {
+      const { title, description, link, position, displayOrder, isActive, textColor } = req.body;
+
+      const updates: any = {};
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description;
+      if (link !== undefined) updates.link = link;
+      if (position !== undefined) updates.position = position;
+      if (displayOrder !== undefined) updates.displayOrder = parseInt(displayOrder);
+      if (isActive !== undefined) updates.isActive = isActive === "true" || isActive === true;
+      if (textColor !== undefined) updates.textColor = textColor;
+
+      if (req.file) {
+        updates.bannerImage = `/uploads/${req.file.filename}`;
+      }
+
+      const ad = await storage.updateAd(req.params.id, updates);
+      if (!ad) {
+        return res.status(404).json({ message: "Ad not found" });
+      }
+
+      res.json(ad);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Toggle ad active status
+  app.patch("/api/admin/ads/:id/toggle", requireAdminAuth, async (req, res) => {
+    try {
+      const ad = await storage.getAd(req.params.id);
+      if (!ad) {
+        return res.status(404).json({ message: "Ad not found" });
+      }
+
+      const updated = await storage.updateAd(req.params.id, { isActive: !ad.isActive });
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete ad
+  app.delete("/api/admin/ads/:id", requireAdminAuth, async (req, res) => {
+    try {
+      await storage.deleteAd(req.params.id);
+      res.json({ message: "Ad deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ============ File Upload Routes ============
   
   app.post("/api/upload", upload.single("file"), (req, res) => {

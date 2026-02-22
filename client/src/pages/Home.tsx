@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ArrowRight, LayoutGrid, List, Search, ChevronDown, ChevronUp, Package, X, SlidersHorizontal, Zap, Filter, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
+import { AdBanner } from "@/components/AdBanner";
 import type { Vendor, Product, Category, AllCmsSettings } from "@shared/schema";
 import { useCategories } from "@/hooks/use-categories";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -466,6 +467,13 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Top Ad Banner */}
+      <section className="py-6 bg-background">
+        <div className="container mx-auto px-4">
+          <AdBanner position="home_top" />
+        </div>
+      </section>
+
       {/* Quick Category Icons */}
       <section className="py-12 bg-background border-b border-[#bf953f]/20">
         <div className="container mx-auto px-4">
@@ -493,6 +501,13 @@ export default function Home() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Middle Ad Banner */}
+      <section className="py-6 bg-background">
+        <div className="container mx-auto px-4">
+          <AdBanner position="home_middle" />
         </div>
       </section>
 
@@ -638,6 +653,13 @@ export default function Home() {
               )}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Bottom Ad Banner */}
+      <section className="py-6 bg-background">
+        <div className="container mx-auto px-4">
+          <AdBanner position="home_bottom" />
         </div>
       </section>
 

@@ -40,6 +40,7 @@ import type { Order, Vendor, Product } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { VendorManagementDialog } from "@/components/VendorManagementDialog";
 import { StaffManagement } from "@/components/StaffManagement";
+import AdManagement from "@/components/AdManagement";
 
 function AdminSettingsForm() {
   const { toast } = useToast();
@@ -706,6 +707,7 @@ export default function AdminDashboard() {
           <TabsList className="w-full flex-wrap h-auto">
             <TabsTrigger value="vendor-management" data-testid="tab-vendor-management" className="flex-1 min-w-[120px]">Vendor Management</TabsTrigger>
             <TabsTrigger value="staff-management" data-testid="tab-staff-management" className="flex-1 min-w-[120px]">Staff Management</TabsTrigger>
+            <TabsTrigger value="ad-management" data-testid="tab-ad-management" className="flex-1 min-w-[120px]">Ad Management</TabsTrigger>
             <TabsTrigger value="pending-kyc" data-testid="tab-pending-kyc" className="flex-1 min-w-[120px]">Pending KYC</TabsTrigger>
             <TabsTrigger value="all-orders" data-testid="tab-all-orders" className="flex-1 min-w-[120px]">All Orders</TabsTrigger>
             <TabsTrigger value="admin-settings" data-testid="tab-admin-settings" className="flex-1 min-w-[120px]">Admin Settings</TabsTrigger>
@@ -798,6 +800,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="staff-management">
             <StaffManagement />
+          </TabsContent>
+
+          <TabsContent value="ad-management">
+            <AdManagement />
           </TabsContent>
 
           <TabsContent value="pending-kyc">

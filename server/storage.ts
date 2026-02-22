@@ -17,6 +17,7 @@ import {
   newsletter,
   staffAccounts,
   userSessions,
+  ads,
   type StaffAccount,
   type InsertStaffAccount,
   type InsertUser,
@@ -53,8 +54,8 @@ import {
   type InsertCmsSetting,
   type UserSession,
   type InsertUserSession,
-  type StaffAccount,
-  type InsertStaffAccount,
+  type Ad,
+  type InsertAd,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, like, gte, lte, sql, or } from "drizzle-orm";
@@ -233,6 +234,14 @@ export interface IStorage {
   createStaffAccount(staff: InsertStaffAccount): Promise<StaffAccount>;
   updateStaffLastLogin(id: string): Promise<StaffAccount | undefined>;
   deleteStaffAccount(id: string): Promise<void>;
+
+  // Ad Management
+  getAd(id: string): Promise<Ad | undefined>;
+  getAllAds(filters?: { position?: string; isActive?: boolean }): Promise<Ad[]>;
+  getActiveAds(position?: string): Promise<Ad[]>;
+  createAd(ad: InsertAd): Promise<Ad>;
+  updateAd(id: string, data: Partial<InsertAd>): Promise<Ad | undefined>;
+  deleteAd(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1077,6 +1086,56 @@ export class DatabaseStorage implements IStorage {
   async deleteStaffAccount(id: string): Promise<void> {
     await db.delete(staffAccounts).where(eq(staffAccounts.id, id));
   }
+
+  // Ad Management
+  async getAd(id: string): Promise<Ad | undefined> {
+    const [ad] = await db.select().from(ads).where(eq(ads.id, id));
+    return ad || undefined;
+  }
+
+  async getAllAds(filters?: { position?: string; isActive?: boolean }): Promise<Ad[]> {
+    let query = db.select().from(ads);
+    
+    const conditions = [];
+    
+    if (filters?.position) {
+      conditions.push(eq(ads.position, filters.position as any));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(ads.isActive, filters.isActive));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(ads.displayOrder, desc(ads.createdAt));
+  }
+
+  async getActiveAds(position?: string): Promise<Ad[]> {
+    let query = db.select().from(ads).where(eq(ads.isActive, true));
+    
+    if (position) {
+      query = query.where(and(eq(ads.isActive, true), eq(ads.position, position as any)));
+    }
+    
+    return await query.orderBy(ads.displayOrder, desc(ads.createdAt));
+  }
+
+  async createAd(insertAd: InsertAd): Promise<Ad> {
+    const [ad] = await db.insert(ads).values(insertAd).returning();
+    return ad;
+  }
+
+  async updateAd(id: string, data: Partial<InsertAd>): Promise<Ad | undefined> {
+    const [ad] = await db.update(ads).set({ ...data, updatedAt: new Date() }).where(eq(ads.id, id)).returning();
+    return ad || undefined;
+  }
+
+  async deleteAd(id: string): Promise<void> {
+    await db.delete(ads).where(eq(ads.id, id));
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -1097,6 +1156,7 @@ export class MemStorage implements IStorage {
   private cmsSettings = new Map<string, CmsSetting>();
   private userSessions = new Map<string, UserSession>();
   private staffAccounts = new Map<string, StaffAccount>();
+  private ads = new Map<string, Ad>();
 
   // Users
   async getUser(id: string): Promise<User | undefined> {
@@ -2014,6 +2074,58 @@ export class MemStorage implements IStorage {
 
   async deleteStaffAccount(id: string): Promise<void> {
     this.staffAccounts.delete(id);
+  }
+
+  // Ad Management
+  async getAd(id: string): Promise<Ad | undefined> {
+    return this.ads.get(id);
+  }
+
+  async getAllAds(filters?: { position?: string; isActive?: boolean }): Promise<Ad[]> {
+    let ads = Array.from(this.ads.values());
+    
+    if (filters?.position) {
+      ads = ads.filter(a => a.position === filters.position);
+    }
+    
+    if (filters?.isActive !== undefined) {
+      ads = ads.filter(a => a.isActive === filters.isActive);
+    }
+    
+    return ads.sort((a, b) => a.displayOrder - b.displayOrder || b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getActiveAds(position?: string): Promise<Ad[]> {
+    let ads = Array.from(this.ads.values()).filter(a => a.isActive);
+    
+    if (position) {
+      ads = ads.filter(a => a.position === position);
+    }
+    
+    return ads.sort((a, b) => a.displayOrder - b.displayOrder || b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createAd(insertAd: InsertAd): Promise<Ad> {
+    const ad: Ad = {
+      id: nanoid(),
+      ...insertAd,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.ads.set(ad.id, ad);
+    return ad;
+  }
+
+  async updateAd(id: string, data: Partial<InsertAd>): Promise<Ad | undefined> {
+    const ad = this.ads.get(id);
+    if (!ad) return undefined;
+    const updated = { ...ad, ...data, updatedAt: new Date() };
+    this.ads.set(id, updated);
+    return updated;
+  }
+
+  async deleteAd(id: string): Promise<void> {
+    this.ads.delete(id);
   }
 }
 

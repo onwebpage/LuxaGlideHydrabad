@@ -530,6 +530,27 @@ export const vendorLifetimeOfferSchema = z.object({
 
 export type VendorLifetimeOffer = z.infer<typeof vendorLifetimeOfferSchema>;
 
+// Ads table
+export const adPositionEnum = pgEnum("ad_position", ["home_top", "home_middle", "home_bottom", "products_top", "products_sidebar", "product_detail"]);
+
+export const ads = pgTable("ads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  bannerImage: text("banner_image").notNull(),
+  link: text("link").notNull(),
+  position: adPositionEnum("position").notNull(),
+  textColor: text("text_color").default("#ffffff"),
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAdSchema = createInsertSchema(ads).omit({ id: true, createdAt: true, updatedAt: true });
+export type Ad = typeof ads.$inferSelect;
+export type InsertAd = z.infer<typeof insertAdSchema>;
+
 // CMS Setting Keys
 export const CMS_KEYS = {
   SITE_META: 'site.meta',
