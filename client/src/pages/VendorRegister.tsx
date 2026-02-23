@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Building, ArrowRight, Phone, Layers, Shirt } from "lucide-react";
@@ -18,6 +19,7 @@ export default function VendorRegister() {
   const [otp, setOtp] = useState("");
   const [otpId, setOtpId] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -362,17 +364,29 @@ export default function VendorRegister() {
               </div>
 
               {!showOTP ? (
-                <Button
-                  type="button"
-                  onClick={handleSendOTP}
-                  className="w-full"
-                  size="lg"
-                  disabled={isLoading || !formData.phone}
-                  data-testid="button-send-otp"
-                >
-                  {isLoading ? "Sending OTP..." : "Send OTP to Verify Phone"}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+                <>
+                  <div className="flex items-start space-x-2">
+                    <Checkbox 
+                      id="terms-register" 
+                      checked={agreeToTerms}
+                      onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                    />
+                    <label htmlFor="terms-register" className="text-sm text-muted-foreground leading-none cursor-pointer">
+                      I agree to the vendor terms and conditions
+                    </label>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleSendOTP}
+                    className="w-full"
+                    size="lg"
+                    disabled={isLoading || !formData.phone || !agreeToTerms}
+                    data-testid="button-send-otp"
+                  >
+                    {isLoading ? "Sending OTP..." : "Send OTP to Verify Phone"}
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </>
               ) : (
                 <div className="space-y-4">
                   <div className="space-y-2">

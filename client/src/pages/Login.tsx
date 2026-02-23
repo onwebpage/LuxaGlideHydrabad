@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -22,6 +23,7 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [otpId, setOtpId] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const getDashboardPath = (role: string): string => {
     switch (role) {
@@ -382,11 +384,21 @@ export default function Login() {
                             <p className="text-sm text-muted-foreground">
                               We'll send an OTP to your registered phone number.
                             </p>
+                            <div className="flex items-start space-x-2 mb-4">
+                              <Checkbox 
+                                id="terms-login" 
+                                checked={agreeToTerms}
+                                onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                              />
+                              <label htmlFor="terms-login" className="text-sm text-muted-foreground leading-none cursor-pointer">
+                                I agree to the vendor terms and conditions
+                              </label>
+                            </div>
                             <Button
                               type="button"
                               onClick={handleSendOTP}
                               className="w-full h-12"
-                              disabled={isLoading}
+                              disabled={isLoading || !agreeToTerms}
                             >
                               Send OTP
                             </Button>
