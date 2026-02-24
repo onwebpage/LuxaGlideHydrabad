@@ -2240,7 +2240,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/cart", async (req, res) => {
     try {
-      const { userId, productId, quantity, selectedColor, selectedSize } = req.body;
+      let { userId, productId, quantity, selectedColor, selectedSize } = req.body;
+      
+      // Apply maximum limit of 10 pieces per order
+      if (quantity > 10) {
+        quantity = 10;
+      }
       
       if (isGuestUser(userId)) {
         let guestCart = guestCarts.get(userId) || [];
@@ -2249,8 +2254,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const existingIndex = guestCart.findIndex(item => item.productId === productId);
         
         if (existingIndex >= 0) {
-          // Update quantity
-          guestCart[existingIndex].quantity += quantity;
+          // Update quantity, ensuring total doesn't exceed 10
+          const currentQty = guestCart[existingIndex].quantity;
+          guestCart[existingIndex].quantity = Math.min(10, currentQty + quantity);
           guestCart[existingIndex].updatedAt = new Date();
         } else {
           // Add new item
@@ -2258,7 +2264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             id: generateGuestCartItemId(),
             userId,
             productId,
-            quantity,
+            quantity: Math.min(10, quantity),
             selectedColor: selectedColor || null,
             selectedSize: selectedSize || null,
             createdAt: new Date(),
@@ -2271,7 +2277,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(201).json(guestCart[existingIndex >= 0 ? existingIndex : guestCart.length - 1]);
       }
       
-      const cartItem = await storage.addToCart(req.body);
+      // For registered users, we also need to enforce the limit in storage or here
+      // Let's modify the body to ensure quantity is at most 10
+      const cartData = { ...req.body, quantity: Math.min(10, quantity) };
+      const cartItem = await storage.addToCart(cartData);
       res.status(201).json(cartItem);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2280,15 +2289,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/cart/:id", async (req, res) => {
     try {
-      const { quantity } = req.body;
+      let { quantity } = req.body;
       const cartItemId = req.params.id;
+
+      // Apply maximum limit of 10 pieces per order
+      if (quantity > 10) {
+        quantity = 10;
+      }
       
       // Check if this is a guest cart item
       if (cartItemId.startsWith('gcart_')) {
         for (const [guestId, cart] of guestCarts.entries()) {
           const itemIndex = cart.findIndex(item => item.id === cartItemId);
           if (itemIndex >= 0) {
-            cart[itemIndex].quantity = quantity;
+            cart[itemIndex].quantity = Math.min(10, quantity);
             cart[itemIndex].updatedAt = new Date();
             guestCarts.set(guestId, cart);
             return res.json(cart[itemIndex]);
@@ -2297,7 +2311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Cart item not found" });
       }
       
-      const cartItem = await storage.updateCartItem(cartItemId, quantity);
+      const cartItem = await storage.updateCartItem(cartItemId, Math.min(10, quantity));
       if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }

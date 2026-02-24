@@ -68,6 +68,9 @@ export function useCart() {
     }) => {
       const authHeaders = getAuthHeaders();
       
+      // Apply maximum limit of 10 pieces per order
+      const validatedQuantity = Math.min(10, data.quantity);
+      
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: {
@@ -77,7 +80,7 @@ export function useCart() {
         body: JSON.stringify({
           userId: effectiveUserId,
           productId: data.productId,
-          quantity: data.quantity,
+          quantity: validatedQuantity,
           selectedColor: data.selectedColor,
           selectedSize: data.selectedSize,
         }),
@@ -99,13 +102,16 @@ export function useCart() {
     mutationFn: async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
       const authHeaders = getAuthHeaders();
       
+      // Apply maximum limit of 10 pieces per order
+      const validatedQuantity = Math.min(10, quantity);
+      
       const response = await fetch(`/api/cart/${cartItemId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...authHeaders,
         },
-        body: JSON.stringify({ quantity }),
+        body: JSON.stringify({ quantity: validatedQuantity }),
       });
       
       if (!response.ok) {
