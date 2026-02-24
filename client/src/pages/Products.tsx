@@ -237,34 +237,7 @@ export default function Products() {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="price" className="border-none">
-                  <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest text-[#8a6d1e] dark:text-foreground">
-                    Price Range
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-4 px-2 space-y-6">
-                    <Slider
-                      min={0}
-                      max={50000}
-                      step={500}
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      onValueCommit={setPriceRange}
-                      className="[&_[role=slider]]:bg-[#d4af37] [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
-                    />
-                    <div className="flex justify-between items-center bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white/5">
-                      <div className="text-center">
-                        <p className="text-[10px] text-gray-500 font-bold uppercase">Min</p>
-                        <p className="text-sm font-black text-[#d4af37]">₹{priceRange[0]}</p>
-                      </div>
-                      <div className="w-px h-8 bg-white/10" />
-                      <div className="text-center">
-                        <p className="text-[10px] text-gray-500 font-bold uppercase">Max</p>
-                        <p className="text-sm font-black text-[#d4af37]">₹{priceRange[1]}</p>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                <AccordionItem value="category" className="border-none mb-4">
             </div>
           </aside>
 

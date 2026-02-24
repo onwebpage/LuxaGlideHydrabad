@@ -245,12 +245,6 @@ export default function Home() {
             <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
           </Badge>
         )}
-        {(priceRange[0] > 0 || priceRange[1] < 50000) && (
-          <Badge variant="secondary" className="gap-1 px-2 py-1">
-            ₹{priceRange[0]} - ₹{priceRange[1]}
-            <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 50000])} />
-          </Badge>
-        )}
       </div>
 
       <Accordion type="multiple" defaultValue={["category", "price", "brand", "size", "height"]} className="w-full">
@@ -271,53 +265,6 @@ export default function Home() {
                   ))}
                 </SelectContent>
               </Select>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-
-        {filterSettings.priceRange && (
-          <AccordionItem value="price" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-4">
-              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Price Range</span>
-            </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-4">
-              <div className="space-y-6">
-              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                  <span>₹{priceRange[0].toLocaleString()}</span>
-                  <span>₹{priceRange[1].toLocaleString()}</span>
-                </div>
-                <div className="px-2">
-                  <Slider
-                    min={0}
-                    max={50000}
-                    step={1}
-                    value={priceRange}
-                    onValueChange={(val) => setPriceRange(val as [number, number])}
-                    onValueCommit={(val) => setPriceRange(val as [number, number])}
-                    className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                    <Input 
-                      type="number"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                    />
-                  </div>
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
-                    <Input 
-                      type="number"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
-                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
-                    />
-                  </div>
-                </div>
-              </div>
             </AccordionContent>
           </AccordionItem>
         )}
