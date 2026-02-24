@@ -601,6 +601,10 @@ export default function VendorDashboard() {
                   <Label>MOQ</Label>
                   <Input type="number" value={productMoq} onChange={e => setProductMoq(e.target.value)} placeholder="1" />
                 </div>
+                <div>
+                  <Label>Stock</Label>
+                  <Input type="number" value={productStock} onChange={e => setProductStock(e.target.value)} placeholder="0" />
+                </div>
               </div>
               <div>
                 <Label>Product Images</Label>
