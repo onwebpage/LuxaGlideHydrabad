@@ -39,7 +39,6 @@ export default function Products() {
   const initialSearch = urlParams.get('search') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFabric, setSelectedFabric] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
@@ -79,7 +78,7 @@ export default function Products() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedFabric, priceRange, sortBy]);
+  }, [searchQuery, selectedCategory, selectedFabric, sortBy]);
 
   // Transform API products
   const products = useMemo(() => {
@@ -119,7 +118,6 @@ export default function Products() {
         if (product.categoryId !== categoryId) return false;
       }
       if (selectedFabric !== "all" && product.fabric !== selectedFabric) return false;
-      if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
       return true;
     });
 
@@ -132,7 +130,7 @@ export default function Products() {
         default: return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
       }
     });
-  }, [products, searchQuery, selectedCategory, selectedFabric, priceRange, sortBy, categoryMap]);
+  }, [products, searchQuery, selectedCategory, selectedFabric, sortBy, categoryMap]);
 
   // Pagination
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
@@ -175,13 +173,12 @@ export default function Products() {
                   </div>
                   <h3 className="font-bold tracking-tight text-lg text-[#4a3700] dark:text-foreground">Filters</h3>
                 </div>
-                {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all" || priceRange[0] > 0 || priceRange[1] < 50000) && (
+                {(searchQuery || selectedCategory !== "all" || selectedFabric !== "all") && (
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={() => {
                       setSearchQuery("");
-                      setPriceRange([0, 50000]);
                       setSelectedCategory("all");
                       setSelectedFabric("all");
                     }}
@@ -201,7 +198,7 @@ export default function Products() {
                 )}
               </div>
 
-              <Accordion type="multiple" defaultValue={["search", "category", "price"]} className="w-full">
+              <Accordion type="multiple" defaultValue={["search", "category"]} className="w-full">
                 <AccordionItem value="search" className="border-none mb-4">
                   <AccordionTrigger className="hover:no-underline py-3 text-sm font-bold uppercase tracking-widest text-[#8a6d1e] dark:text-foreground">
                     Search
@@ -236,8 +233,7 @@ export default function Products() {
                     </Select>
                   </AccordionContent>
                 </AccordionItem>
-
-                <AccordionItem value="category" className="border-none mb-4">
+              </Accordion>
             </div>
           </aside>
 
@@ -288,7 +284,6 @@ export default function Products() {
                     onClick={() => {
                       setSearchQuery("");
                       setSelectedCategory("all");
-                      setPriceRange([0, 50000]);
                     }}
                   >
                     View All Collections

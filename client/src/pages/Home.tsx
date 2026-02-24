@@ -66,7 +66,6 @@ const defaultCategoryImages: Record<string, string> = {
 export default function Home() {
   const [sortBy, setSortBy] = useState("popular");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [brandSearch, setBrandSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -112,7 +111,6 @@ export default function Home() {
 
   const clearFilters = () => {
     setBrandSearch("");
-    setPriceRange([0, 50000]);
     setSelectedCategory("all");
     setSelectedSizes([]);
     setSelectedHeights([]);
@@ -152,7 +150,7 @@ export default function Home() {
   }, [homepageProductsData?.products]);
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    let result = products;
     
     if (brandSearch) {
       result = result.filter(p => p.name.toLowerCase().includes(brandSearch.toLowerCase()));
@@ -183,7 +181,7 @@ export default function Home() {
         break;
     }
     return result;
-  }, [products, priceRange, brandSearch, sortBy]);
+  }, [products, brandSearch, sortBy]);
 
   const fallbackCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
@@ -220,7 +218,7 @@ export default function Home() {
                 <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
                 <h3 className="text-lg font-bold text-[#4a3700] dark:text-foreground">Filters</h3>
               </div>
-        {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedHeights.length > 0) && (
+        {(brandSearch || selectedCategory !== "all" || selectedSizes.length > 0 || selectedHeights.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -247,7 +245,7 @@ export default function Home() {
         )}
       </div>
 
-      <Accordion type="multiple" defaultValue={["category", "price", "brand", "size", "height"]} className="w-full">
+      <Accordion type="multiple" defaultValue={["category", "brand", "size", "height"]} className="w-full">
         {filterSettings.category && (
           <AccordionItem value="category" className="border-none">
             <AccordionTrigger className="hover:no-underline py-4">
@@ -580,7 +578,7 @@ export default function Home() {
                   <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
                     <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
                     <p className="text-muted-foreground">No products match your filters</p>
-                    <Button variant="ghost" onClick={() => { setPriceRange([0, 50000]); setBrandSearch(""); }}>Clear all filters</Button>
+                    <Button variant="ghost" onClick={() => { setBrandSearch(""); }}>Clear all filters</Button>
                   </div>
                 ) : (
                   filteredProducts.slice(0, 12).map((product) => (
