@@ -88,6 +88,7 @@ export default function VendorDashboard() {
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productMoq, setProductMoq] = useState("1");
+  const [productStock, setProductStock] = useState("0");
   const [productDescription, setProductDescription] = useState("");
   const [productImages, setProductImages] = useState<File[]>([]);
   const [productSaving, setProductSaving] = useState(false);
@@ -312,8 +313,9 @@ export default function VendorDashboard() {
       formData.append('vendorId', vendorId || '');
       formData.append('name', productName);
       formData.append('description', productDescription);
-      formData.append('price', productPrice);
-      formData.append('moq', productMoq);
+      formData.append('price', productPrice || '0');
+      formData.append('moq', productMoq || '1');
+      formData.append('stock', productStock || '0');
       productImages.forEach(file => formData.append('images', file));
       const response = await fetch('/api/products', {
         method: 'POST',
