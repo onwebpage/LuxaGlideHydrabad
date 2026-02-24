@@ -194,6 +194,7 @@ export default function VendorDashboard() {
 
   const kycStatus = vendorProfile?.kycStatus || "pending";
   const isAdminApproved = vendorProfile?.adminApproved || false;
+  const canAddProducts = isAdminApproved || kycStatus === "approved";
 
   // Force clear cached profile and reload from server on mount
   useEffect(() => {
@@ -340,7 +341,7 @@ export default function VendorDashboard() {
             <h1 className="text-3xl font-serif font-bold">Vendor Dashboard</h1>
             <p className="text-muted-foreground">Manage your Queen4Feet store</p>
           </div>
-          {!isAdminApproved && kycStatus !== "approved" && kycStatus !== "submitted" && (
+          {!canAddProducts && kycStatus !== "submitted" && (
             <Button onClick={() => setIsKycDialogOpen(true)}>Complete KYC</Button>
           )}
         </div>
@@ -445,21 +446,14 @@ export default function VendorDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Product Inventory</CardTitle>
-                <Button 
-                  onClick={() => {
-                    if (!isAdminApproved && kycStatus !== "approved") {
-                      toast({
-                        title: "KYC Required",
-                        description: "Please complete your KYC verification or wait for admin approval before adding products.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    setIsAddProductOpen(true);
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" /> Add Product
-                </Button>
+                {canAddProducts && (
+                  <Button 
+                    onClick={() => setIsAddProductOpen(true)}
+                    data-testid="button-add-product"
+                  >
+                    <Plus className="w-4 h-4 mr-2" /> Add Product
+                  </Button>
+                )}
               </CardHeader>
               <CardContent>
                 <Table>
