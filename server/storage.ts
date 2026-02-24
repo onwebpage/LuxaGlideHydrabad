@@ -299,7 +299,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateVendor(id: string, data: Partial<InsertVendor>): Promise<Vendor | undefined> {
-    const [vendor] = await db.update(vendors).set(data).where(eq(vendors.id, id)).returning();
+    const updateData = { ...data, updatedAt: new Date() };
+    
+    // If adminApproved is being set to true, automatically approve KYC
+    if (updateData.adminApproved === true) {
+      updateData.kycStatus = "approved";
+    }
+    
+    const [vendor] = await db.update(vendors).set(updateData).where(eq(vendors.id, id)).returning();
     return vendor || undefined;
   }
 

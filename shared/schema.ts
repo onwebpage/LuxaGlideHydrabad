@@ -38,6 +38,7 @@ export const vendors = pgTable("vendors", {
   kycStatus: kycStatusEnum("kyc_status").notNull().default("pending"),
   kycDocuments: jsonb("kyc_documents"), // Array of document URLs
   description: text("description"),
+  adminApproved: boolean("admin_approved").default(false).notNull(),
   logo: text("logo"),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   totalSales: integer("total_sales").default(0),
