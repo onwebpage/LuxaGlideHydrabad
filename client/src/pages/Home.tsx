@@ -66,6 +66,7 @@ const defaultCategoryImages: Record<string, string> = {
 export default function Home() {
   const [sortBy, setSortBy] = useState("popular");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [brandSearch, setBrandSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -111,6 +112,7 @@ export default function Home() {
 
   const clearFilters = () => {
     setBrandSearch("");
+    setPriceRange([0, 50000]);
     setSelectedCategory("all");
     setSelectedSizes([]);
     setSelectedHeights([]);
@@ -150,7 +152,7 @@ export default function Home() {
   }, [homepageProductsData?.products]);
 
   const filteredProducts = useMemo(() => {
-    let result = products;
+    let result = products.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     
     if (brandSearch) {
       result = result.filter(p => p.name.toLowerCase().includes(brandSearch.toLowerCase()));
@@ -181,7 +183,7 @@ export default function Home() {
         break;
     }
     return result;
-  }, [products, brandSearch, sortBy]);
+  }, [products, priceRange, brandSearch, sortBy]);
 
   const fallbackCategories = [
     { name: "SUITS", image: suitImage, slug: "suits" },
@@ -218,7 +220,7 @@ export default function Home() {
                 <SlidersHorizontal className="w-4 h-4 text-[#d4af37]" />
                 <h3 className="text-lg font-bold text-[#4a3700] dark:text-foreground">Filters</h3>
               </div>
-        {(brandSearch || selectedCategory !== "all" || selectedSizes.length > 0 || selectedHeights.length > 0) && (
+        {(brandSearch || priceRange[0] > 0 || priceRange[1] < 50000 || selectedCategory !== "all" || selectedSizes.length > 0 || selectedHeights.length > 0) && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -243,9 +245,15 @@ export default function Home() {
             <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
           </Badge>
         )}
+        {(priceRange[0] > 0 || priceRange[1] < 50000) && (
+          <Badge variant="secondary" className="gap-1 px-2 py-1">
+            ₹{priceRange[0]} - ₹{priceRange[1]}
+            <X className="w-3 h-3 cursor-pointer" onClick={() => setPriceRange([0, 50000])} />
+          </Badge>
+        )}
       </div>
 
-      <Accordion type="multiple" defaultValue={["category", "brand", "size", "height"]} className="w-full">
+      <Accordion type="multiple" defaultValue={["category", "price", "brand", "size", "height"]} className="w-full">
         {filterSettings.category && (
           <AccordionItem value="category" className="border-none">
             <AccordionTrigger className="hover:no-underline py-4">
@@ -263,6 +271,53 @@ export default function Home() {
                   ))}
                 </SelectContent>
               </Select>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {filterSettings.priceRange && (
+          <AccordionItem value="price" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-4">
+              <span className="text-sm font-semibold text-[#8a6d1e] dark:text-foreground uppercase tracking-widest">Price Range</span>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-4">
+              <div className="space-y-6">
+              <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                  <span>₹{priceRange[0].toLocaleString()}</span>
+                  <span>₹{priceRange[1].toLocaleString()}</span>
+                </div>
+                <div className="px-2">
+                  <Slider
+                    min={0}
+                    max={50000}
+                    step={1}
+                    value={priceRange}
+                    onValueChange={(val) => setPriceRange(val as [number, number])}
+                    onValueCommit={(val) => setPriceRange(val as [number, number])}
+                    className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                    <Input 
+                      type="number"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                    />
+                  </div>
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">₹</span>
+                    <Input 
+                      type="number"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 50000])}
+                      className="bg-muted/30 border-none pl-7 pr-2 h-10 text-sm font-medium"
+                    />
+                  </div>
+                </div>
+              </div>
             </AccordionContent>
           </AccordionItem>
         )}
@@ -578,7 +633,7 @@ export default function Home() {
                   <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
                     <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
                     <p className="text-muted-foreground">No products match your filters</p>
-                    <Button variant="ghost" onClick={() => { setBrandSearch(""); }}>Clear all filters</Button>
+                    <Button variant="ghost" onClick={() => { setPriceRange([0, 50000]); setBrandSearch(""); }}>Clear all filters</Button>
                   </div>
                 ) : (
                   filteredProducts.slice(0, 12).map((product) => (
