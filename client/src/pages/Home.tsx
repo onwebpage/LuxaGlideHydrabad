@@ -293,6 +293,7 @@ export default function Home() {
                     step={1}
                     value={priceRange}
                     onValueChange={(val) => setPriceRange(val as [number, number])}
+                    onValueCommit={(val) => setPriceRange(val as [number, number])}
                     className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"
                   />
                 </div>

@@ -248,6 +248,7 @@ export default function Products() {
                       step={500}
                       value={priceRange}
                       onValueChange={setPriceRange}
+                      onValueCommit={setPriceRange}
                       className="[&_[role=slider]]:bg-[#d4af37] [&_[role=slider]]:border-white [&_[role=slider]]:shadow-lg"
                     />
                     <div className="flex justify-between items-center bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white/5">
