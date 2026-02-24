@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ShoppingAssistant } from "@/components/ShoppingAssistant";
+import { AIChatbot } from "@/components/AIChatbot";
 import { AuthProvider } from "./lib/auth-context";
 import { ThemeProvider } from "./lib/theme-context";
 
@@ -22,6 +23,8 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import VendorRegister from "@/pages/VendorRegister";
+import VendorTerms from "@/pages/VendorTerms";
+import VendorPrivacy from "@/pages/VendorPrivacy";
 import VendorManagement from "@/pages/VendorManagement";
 import BuyerDashboard from "@/pages/BuyerDashboard";
 import VendorDashboard from "@/pages/VendorDashboard";
@@ -63,6 +66,8 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/vendor-register" component={VendorRegister} />
+      <Route path="/vendor-terms" component={VendorTerms} />
+      <Route path="/vendor-privacy" component={VendorPrivacy} />
       <Route path="/vendor-management" component={VendorManagement} />
       <Route path="/admin-login" component={AdminLogin} />
       <Route path="/dashboard/buyer" component={BuyerDashboard} />
@@ -92,7 +97,7 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
-  const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/vendor-register") || location.includes("/vendor-management") || location.includes("/admin-login");
+  const isAuthPage = location.includes("/login") || location.includes("/register") || location.includes("/vendor-register") || location.includes("/vendor-terms") || location.includes("/vendor-privacy") || location.includes("/vendor-management") || location.includes("/admin-login");
   const isDashboardPage = location.includes("/dashboard");
 
   return (
@@ -101,6 +106,7 @@ function AppContent() {
       {!isAuthPage && <Header />}
       <Router />
       {!isAuthPage && <ShoppingAssistant />}
+      {!isAuthPage && <AIChatbot />}
       {!isAuthPage && !isDashboardPage && <Footer />}
       <Toaster />
     </TooltipProvider>

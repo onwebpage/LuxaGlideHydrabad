@@ -230,6 +230,61 @@ function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // ============ AI Chatbot Route ============
+  
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message, conversationHistory = [] } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      const githubToken = process.env.GITHUB_TOKEN;
+      if (!githubToken) {
+        console.error("GITHUB_TOKEN not configured");
+        return res.status(500).json({ message: "AI service not configured" });
+      }
+
+      const messages = [
+        {
+          role: "system",
+          content: "You are Queen4Feet AI shopping assistant. Guide users about products, vendors, sizes, prices, categories and checkout. Be helpful, friendly, and concise."
+        },
+        ...conversationHistory,
+        { role: "user", content: message }
+      ];
+
+      const response = await fetch("https://models.inference.ai.azure.com/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${githubToken}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages,
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("GitHub Models API error:", error);
+        return res.status(response.status).json({ message: "AI service error" });
+      }
+
+      const data = await response.json();
+      const assistantMessage = data.choices[0]?.message?.content || "I'm sorry, I couldn't process that.";
+
+      res.json({ reply: assistantMessage });
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      res.status(500).json({ message: error.message || "Failed to process chat" });
+    }
+  });
+
   // ============ AI Smart Search & Recommendations ============
   
   // Natural Query Search
@@ -819,6 +874,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ============ Profile Routes ============
 
+  // Get vendor's own profile
+  app.get("/api/profile/vendor/me", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || user.role !== "vendor") {
+        return res.status(403).json({ message: "Only vendors can access this endpoint" });
+      }
+
+      const vendor = await storage.getVendorByUserId(userId);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor profile not found" });
+      }
+
+      res.json(vendor);
+    } catch (error: any) {
+      console.error("Get vendor profile error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Update buyer profile
   app.patch("/api/profile/buyer", async (req, res) => {
     try {
@@ -1090,16 +1170,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         couponId
       } = req.body;
 
-      // Check if vendor exists and has approved KYC
+      // Check if vendor exists
       const vendor = await storage.getVendor(vendorId);
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
-      }
-      
-      if (vendor.kycStatus !== "approved" && vendor.kycStatus !== "submitted") {
-        return res.status(403).json({ 
-          message: "KYC verification required. Please complete your KYC verification before adding products." 
-        });
       }
 
       // Generate slug from name
@@ -3618,6 +3692,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Staff login error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ============ Admin Ad Management Routes ============
+
+  // TEMPORARY: Fix vendor KYC status
+  app.post("/api/admin/fix-vendor-kyc", requireAdminAuth, async (req, res) => {
+    try {
+      const { businessName } = req.body;
+      
+      if (!businessName) {
+        return res.status(400).json({ message: "Business name is required" });
+      }
+
+      const vendors = await storage.getAllVendors({});
+      const vendor = vendors.find(v => v.businessName === businessName);
+
+      if (!vendor) {
+        return res.status(404).json({ message: `Vendor '${businessName}' not found` });
+      }
+
+      console.log("Current vendor status:", {
+        id: vendor.id,
+        businessName: vendor.businessName,
+        kycStatus: vendor.kycStatus,
+        isActive: vendor.isActive
+      });
+
+      // Force update to approved
+      const updated = await storage.updateVendor(vendor.id, {
+        kycStatus: "approved"
+      });
+
+      res.json({
+        message: "Vendor KYC status updated",
+        before: { kycStatus: vendor.kycStatus },
+        after: { kycStatus: updated?.kycStatus }
+      });
+    } catch (error: any) {
+      console.error("Fix vendor KYC error:", error);
       res.status(500).json({ message: error.message });
     }
   });

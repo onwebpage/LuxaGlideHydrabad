@@ -290,7 +290,7 @@ export default function Home() {
                   <Slider
                     min={0}
                     max={50000}
-                    step={500}
+                    step={1}
                     value={priceRange}
                     onValueChange={(val) => setPriceRange(val as [number, number])}
                     className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-white"

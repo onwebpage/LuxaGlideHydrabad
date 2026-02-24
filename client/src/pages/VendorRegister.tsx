@@ -444,13 +444,17 @@ export default function VendorRegister() {
         <div className="mt-6 text-center text-xs text-muted-foreground">
           <p>
             By continuing, you agree to our{" "}
-            <a href="#" className="text-primary hover:underline">
-              Terms of Service
-            </a>{" "}
+            <Link href="/vendor-terms">
+              <a className="text-primary hover:underline">
+                Terms of Service
+              </a>
+            </Link>{" "}
             and{" "}
-            <a href="#" className="text-primary hover:underline">
-              Privacy Policy
-            </a>
+            <Link href="/vendor-privacy">
+              <a className="text-primary hover:underline">
+                Privacy Policy
+              </a>
+            </Link>
           </p>
         </div>
       </motion.div>

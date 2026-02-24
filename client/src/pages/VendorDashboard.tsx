@@ -130,6 +130,36 @@ export default function VendorDashboard() {
   const vendorProfile = profile as Vendor | null;
   const vendorId = vendorProfile?.id;
 
+  // Periodically refresh vendor profile to check for KYC approval
+  useEffect(() => {
+    if (!user || user.role !== "vendor") return;
+
+    const refreshVendorProfile = async () => {
+      try {
+        const authToken = getAuthToken();
+        const response = await fetch(`/api/profile/vendor/me`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (response.ok) {
+          const updatedVendor = await response.json();
+          if (updatedVendor.kycStatus !== vendorProfile?.kycStatus) {
+            refreshProfile(user, updatedVendor);
+            queryClient.invalidateQueries({ queryKey: ["/api/vendor/my-products"] });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to refresh vendor profile:", error);
+      }
+    };
+
+    // Check immediately on mount
+    refreshVendorProfile();
+
+    // Then check every 30 seconds
+    const interval = setInterval(refreshVendorProfile, 30000);
+    return () => clearInterval(interval);
+  }, [user, vendorProfile?.kycStatus, refreshProfile]);
+
   const { data: stats, isLoading: statsLoading } = useQuery<{
     totalProducts: number;
     activeOrders: number;
@@ -164,6 +194,30 @@ export default function VendorDashboard() {
 
   const kycStatus = vendorProfile?.kycStatus || "pending";
 
+  // Force clear cached profile and reload from server on mount
+  useEffect(() => {
+    const clearCacheAndReload = async () => {
+      if (!user || user.role !== "vendor") return;
+      
+      try {
+        const authToken = getAuthToken();
+        const response = await fetch(`/api/profile/vendor/me`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (response.ok) {
+          const freshVendor = await response.json();
+          // Force update localStorage with fresh data
+          localStorage.setItem("profile", JSON.stringify(freshVendor));
+          refreshProfile(user, freshVendor);
+        }
+      } catch (error) {
+        console.error("Failed to refresh profile:", error);
+      }
+    };
+    
+    clearCacheAndReload();
+  }, []);
+
   const gstValidationResult = useMemo(() => {
     if (!gstNumber || gstNumber.length === 0) {
       return { valid: false, message: "Incorrect - GST number is required" };
@@ -194,6 +248,30 @@ export default function VendorDashboard() {
       setLocation("/login");
     }
   }, [user, authLoading, setLocation]);
+
+  // Force immediate profile refresh on mount to get latest KYC status
+  useEffect(() => {
+    if (!user || user.role !== "vendor") return;
+
+    const forceRefreshProfile = async () => {
+      try {
+        const authToken = getAuthToken();
+        const response = await fetch(`/api/profile/vendor/me`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (response.ok) {
+          const updatedVendor = await response.json();
+          if (updatedVendor.kycStatus !== vendorProfile?.kycStatus) {
+            refreshProfile(user, updatedVendor);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to refresh vendor profile:", error);
+      }
+    };
+
+    forceRefreshProfile();
+  }, []);
 
   const handleKycSubmit = async () => {
     if (!gstValidationResult.valid || !addressValidationResult.valid || kycFiles.length === 0) {
@@ -261,7 +339,7 @@ export default function VendorDashboard() {
             <h1 className="text-3xl font-serif font-bold">Vendor Dashboard</h1>
             <p className="text-muted-foreground">Manage your Queen4Feet store</p>
           </div>
-          {kycStatus !== "approved" && (
+          {kycStatus !== "approved" && kycStatus !== "submitted" && (
             <Button onClick={() => setIsKycDialogOpen(true)}>Complete KYC</Button>
           )}
         </div>
@@ -357,7 +435,7 @@ export default function VendorDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Product Inventory</CardTitle>
-                <Button onClick={() => setIsAddProductOpen(true)} disabled={kycStatus !== "approved"}>
+                <Button onClick={() => setIsAddProductOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" /> Add Product
                 </Button>
               </CardHeader>
@@ -480,6 +558,45 @@ export default function VendorDashboard() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add New Product</DialogTitle>
+              <DialogDescription>Fill in the product details</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Product Name</Label>
+                <Input value={productName} onChange={e => setProductName(e.target.value)} placeholder="Enter product name" />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea value={productDescription} onChange={e => setProductDescription(e.target.value)} placeholder="Enter product description" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Price (₹)</Label>
+                  <Input type="number" value={productPrice} onChange={e => setProductPrice(e.target.value)} placeholder="0" />
+                </div>
+                <div>
+                  <Label>MOQ</Label>
+                  <Input type="number" value={productMoq} onChange={e => setProductMoq(e.target.value)} placeholder="1" />
+                </div>
+              </div>
+              <div>
+                <Label>Product Images</Label>
+                <Input type="file" multiple accept="image/*" ref={productImageInputRef} onChange={e => setProductImages(Array.from(e.target.files || []))} />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleProductSubmit} disabled={productSaving || !productName || !productPrice}>
+                  {productSaving ? "Adding..." : "Add Product"}
+                </Button>
+                <Button variant="outline" onClick={() => setIsAddProductOpen(false)}>Cancel</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

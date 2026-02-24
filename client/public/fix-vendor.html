@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Vendor KYC</title>
+</head>
+<body>
+    <h1>Fix Vendor KYC Status</h1>
+    <button onclick="fixVendor()">Fix Hamd_codes KYC Status</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function fixVendor() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = 'Fixing...';
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/admin/fix-vendor-kyc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ businessName: 'Hamd_codes' })
+                });
+                
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultEl.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

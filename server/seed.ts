@@ -433,6 +433,7 @@ async function seed() {
     },
   ];
 
+
   let productCount = 0;
   for (const prod of productsData) {
     const vendorId = vendorIds[Math.floor(Math.random() * vendorIds.length)];
