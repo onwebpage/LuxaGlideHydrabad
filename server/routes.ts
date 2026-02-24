@@ -899,6 +899,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin approval for vendors
+  app.post("/api/admin/vendors/:id/approve", requireAdminAuth, async (req, res) => {
+    try {
+      const { approved } = req.body;
+      const vendor = await storage.updateVendor(req.params.id, { adminApproved: approved });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.json({ message: "Vendor approval status updated", vendor });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Update buyer profile
   app.patch("/api/profile/buyer", async (req, res) => {
     try {

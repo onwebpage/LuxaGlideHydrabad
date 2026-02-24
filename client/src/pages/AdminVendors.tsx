@@ -54,7 +54,8 @@ import {
   Building,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  ShieldCheck
 } from "lucide-react";
 import type { Vendor, User, Product } from "@shared/schema";
 
@@ -117,6 +118,42 @@ export default function AdminVendors() {
       toast({
         title: "Error",
         description: error.message || "Failed to delete vendor",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleApproveMutation = useMutation({
+    mutationFn: async ({ vendorId, approved }: { vendorId: string; approved: boolean }) => {
+      const token = getAuthToken();
+      const response = await fetch(`/api/admin/vendors/${vendorId}/approve`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ approved }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update approval status');
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/vendors"] });
+      if (selectedVendorId) {
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/vendors", "detail", selectedVendorId] });
+      }
+      toast({
+        title: data.vendor.adminApproved ? "Vendor Approved" : "Approval Revoked",
+        description: `Vendor ${data.vendor.businessName} has been ${data.vendor.adminApproved ? 'approved' : 'unapproved'}.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -280,7 +317,15 @@ export default function AdminVendors() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {getKycStatusBadge(vendor.kycStatus || "pending")}
+                          <div className="flex items-center gap-2">
+                            {getKycStatusBadge(vendor.kycStatus || "pending")}
+                            {vendor.adminApproved && (
+                              <Badge variant="outline" className="border-green-500 text-green-600">
+                                <ShieldCheck className="w-3 h-3 mr-1" />
+                                Admin Approved
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -391,10 +436,41 @@ export default function AdminVendors() {
                       )}
                       <div>
                         <p className="text-sm text-muted-foreground mb-1">KYC Status</p>
-                        {getKycStatusBadge(vendorDetails.kycStatus || "pending")}
+                        <div className="flex items-center gap-2">
+                          {getKycStatusBadge(vendorDetails.kycStatus || "pending")}
+                          {vendorDetails.adminApproved && (
+                            <Badge variant="outline" className="border-green-500 text-green-600">
+                              <ShieldCheck className="w-3 h-3 mr-1" />
+                              Admin Approved
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg border">
+                  <div>
+                    <h4 className="font-medium flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      Administrator Approval
+                    </h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Pre-approved vendors can bypass KYC and add products directly.
+                    </p>
+                  </div>
+                  <Button
+                    variant={vendorDetails.adminApproved ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => toggleApproveMutation.mutate({ 
+                      vendorId: vendorDetails.id, 
+                      approved: !vendorDetails.adminApproved 
+                    })}
+                    disabled={toggleApproveMutation.isPending}
+                  >
+                    {vendorDetails.adminApproved ? "Revoke Approval" : "Approve Vendor"}
+                  </Button>
                 </div>
 
                 {vendorDetails.kycDocuments && vendorDetails.kycDocuments.length > 0 && (

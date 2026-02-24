@@ -193,6 +193,7 @@ export default function VendorDashboard() {
   });
 
   const kycStatus = vendorProfile?.kycStatus || "pending";
+  const isAdminApproved = vendorProfile?.adminApproved || false;
 
   // Force clear cached profile and reload from server on mount
   useEffect(() => {
@@ -339,7 +340,7 @@ export default function VendorDashboard() {
             <h1 className="text-3xl font-serif font-bold">Vendor Dashboard</h1>
             <p className="text-muted-foreground">Manage your Queen4Feet store</p>
           </div>
-          {kycStatus !== "approved" && kycStatus !== "submitted" && (
+          {!isAdminApproved && kycStatus !== "approved" && kycStatus !== "submitted" && (
             <Button onClick={() => setIsKycDialogOpen(true)}>Complete KYC</Button>
           )}
         </div>
@@ -365,6 +366,15 @@ export default function VendorDashboard() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {isAdminApproved && (
+          <Alert className="mb-8 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertDescription className="text-green-700 dark:text-green-300">
+              Your account has been pre-approved by the administrator. You can add products directly.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="mb-8">
           <CardHeader>
@@ -435,7 +445,19 @@ export default function VendorDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Product Inventory</CardTitle>
-                <Button onClick={() => setIsAddProductOpen(true)}>
+                <Button 
+                  onClick={() => {
+                    if (!isAdminApproved && kycStatus !== "approved") {
+                      toast({
+                        title: "KYC Required",
+                        description: "Please complete your KYC verification or wait for admin approval before adding products.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    setIsAddProductOpen(true);
+                  }}
+                >
                   <Plus className="w-4 h-4 mr-2" /> Add Product
                 </Button>
               </CardHeader>
