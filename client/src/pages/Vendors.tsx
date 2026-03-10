@@ -35,7 +35,7 @@ export default function Vendors() {
     {
       icon: TrendingUp,
       title: "10x Sales Boost",
-      description: "Queen4feet is an established platform, trusted by thousands of genuine customers. We can help you boost sales and increase revenue."
+      description: "mahanaari is an established platform, trusted by thousands of genuine customers. We can help you boost sales and increase revenue."
     },
     {
       icon: Users,
@@ -105,7 +105,7 @@ export default function Vendors() {
     {
       icon: Gavel,
       title: "Quality Standards",
-      description: "Products must meet Queen4feet quality benchmarks. Vendors must maintain a minimum 4-star rating to remain on the platform."
+      description: "Products must meet mahanaari quality benchmarks. Vendors must maintain a minimum 4-star rating to remain on the platform."
     },
     {
       icon: Scale,
@@ -176,7 +176,7 @@ export default function Vendors() {
                   <h3 className="text-3xl font-serif font-bold mb-4 text-center">100-4-100 Offer</h3>
                   <p className="text-center font-bold text-primary mb-6">Register Now, First 100 get 100 Products added 4 Free!</p>
                   <p className="text-muted-foreground mb-8 text-center">
-                    The first 100 sellers who register on Queen4feet will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!
+                    The first 100 sellers who register on mahanaari will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!
                   </p>
                   <div className="space-y-4 mb-8">
                     {lifetimePerks.slice(3).map((perk) => (
@@ -203,7 +203,7 @@ export default function Vendors() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-4">
-              Why On-Board Queen4feet?
+              Why On-Board mahanaari?
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Super-Charge your Sales with our established B2B platform
@@ -300,7 +300,7 @@ export default function Vendors() {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-6">
-              Join Queen4feet Today
+              Join mahanaari Today
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
               Become a part of the premium wholesale segment. Connect with verified vendors and grow your business.

@@ -21,7 +21,7 @@ export default function VendorPrivacy() {
           <CardContent className="space-y-6 text-sm leading-relaxed">
             <section>
               <h2 className="text-xl font-semibold mb-4">Information We Collect</h2>
-              <p className="mb-3">When you register as a vendor on Queen4Feet, we collect the following information:</p>
+              <p className="mb-3">When you register as a vendor on mahanaari, we collect the following information:</p>
               <ul className="space-y-2 list-disc pl-6">
                 <li>Personal information (name, email, phone number)</li>
                 <li>Business information (business name, GST number, tax IDs)</li>
@@ -91,7 +91,7 @@ export default function VendorPrivacy() {
             <section>
               <h2 className="text-xl font-semibold mb-4">Contact Us</h2>
               <p>If you have any questions or concerns about this privacy policy or how we handle your data, please contact us at:</p>
-              <p className="mt-2">Email: privacy@queen4feet.com</p>
+              <p className="mt-2">Email: privacy@mahanaari.com</p>
               <p>Phone: +91-94926 34166</p>
             </section>
           </CardContent>

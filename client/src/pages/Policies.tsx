@@ -32,7 +32,7 @@ export function PrivacyPolicy() {
         <div>
           <h3 className="text-xl font-bold mb-4">1. Information We Collect</h3>
           <p className="text-muted-foreground leading-relaxed">
-            Queen4Feet collects personal information when you register, place an order, or interact with our platform. This includes your name, email address, phone number, shipping address, and business details for vendors. We also collect technical data such as IP addresses and browsing behavior to improve our services.
+            mahanaari collects personal information when you register, place an order, or interact with our platform. This includes your name, email address, phone number, shipping address, and business details for vendors. We also collect technical data such as IP addresses and browsing behavior to improve our services.
           </p>
         </div>
         <div>
@@ -64,49 +64,49 @@ export function TermsOfService() {
       <section className="space-y-8">
         <div className="bg-[#bf953f]/5 p-4 rounded-lg border border-[#bf953f]/20 mb-8">
           <p className="text-sm font-medium italic text-[#8a6d1e]">
-            Last Updated: January 2026. By accessing or using the Queen4Feet platform, you agree to be bound by these Terms and Conditions.
+            Last Updated: January 2026. By accessing or using the mahanaari platform, you agree to be bound by these Terms and Conditions.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">1. Acceptance of Terms</h3>
           <p className="text-muted-foreground leading-relaxed">
-            These Terms and Conditions govern your use of the Queen4Feet B2B marketplace. Whether you are a buyer or a verified vendor, your continued use of our services constitutes full acceptance of these terms. If you do not agree with any part of these terms, you must discontinue use immediately.
+            These Terms and Conditions govern your use of the mahanaari B2B marketplace. Whether you are a buyer or a verified vendor, your continued use of our services constitutes full acceptance of these terms. If you do not agree with any part of these terms, you must discontinue use immediately.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">2. Account Registration & Security</h3>
           <p className="text-muted-foreground leading-relaxed">
-            Users must provide accurate, current, and complete information during the registration process. You are solely responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Queen4Feet reserves the right to suspend accounts providing false information.
+            Users must provide accurate, current, and complete information during the registration process. You are solely responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. mahanaari reserves the right to suspend accounts providing false information.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">3. Vendor Obligations & KYC</h3>
           <p className="text-muted-foreground leading-relaxed">
-            Vendors must undergo a mandatory KYC (Know Your Customer) verification process. You agree to provide genuine business documentation, including GST details and address proof. Queen4Feet acts as a facilitator; vendors are responsible for product quality, inventory accuracy, and legal compliance of their listings.
+            Vendors must undergo a mandatory KYC (Know Your Customer) verification process. You agree to provide genuine business documentation, including GST details and address proof. mahanaari acts as a facilitator; vendors are responsible for product quality, inventory accuracy, and legal compliance of their listings.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">4. B2B Transactions & Pricing</h3>
           <p className="text-muted-foreground leading-relaxed">
-            All prices are listed in Indian Rupees (INR) unless specified otherwise. As a wholesale marketplace, bulk pricing tiers and Minimum Order Quantities (MOQ) apply. Queen4Feet reserves the right to correct pricing errors and cancel orders resulting from such inaccuracies.
+            All prices are listed in Indian Rupees (INR) unless specified otherwise. As a wholesale marketplace, bulk pricing tiers and Minimum Order Quantities (MOQ) apply. mahanaari reserves the right to correct pricing errors and cancel orders resulting from such inaccuracies.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">5. Intellectual Property</h3>
           <p className="text-muted-foreground leading-relaxed">
-            All content on the Queen4Feet platform, including logos, designs, text, and graphics, is the property of Queen4Feet or its content suppliers and is protected by intellectual property laws. Unauthorized use of any materials is strictly prohibited.
+            All content on the mahanaari platform, including logos, designs, text, and graphics, is the property of mahanaari or its content suppliers and is protected by intellectual property laws. Unauthorized use of any materials is strictly prohibited.
           </p>
         </div>
 
         <div>
           <h3 className="text-xl font-bold mb-4">6. Limitation of Liability</h3>
           <p className="text-muted-foreground leading-relaxed">
-            Queen4Feet shall not be liable for any indirect, incidental, or consequential damages arising from the use of our platform or products purchased through it. Our total liability is limited to the amount paid for the specific transaction in question.
+            mahanaari shall not be liable for any indirect, incidental, or consequential damages arising from the use of our platform or products purchased through it. Our total liability is limited to the amount paid for the specific transaction in question.
           </p>
         </div>
       </section>
@@ -154,7 +154,7 @@ export function ShippingPolicy() {
         <div>
           <h3 className="text-xl font-bold mb-4">2. Shipping Methods & Delivery</h3>
           <p className="text-muted-foreground leading-relaxed">
-            We partner with reliable logistics providers to ensure safe delivery across India. Estimated delivery times range from 5-10 business days depending on the destination. While vendors may handle physical shipping, Queen4Feet provides tracking support and customer coordination.
+            We partner with reliable logistics providers to ensure safe delivery across India. Estimated delivery times range from 5-10 business days depending on the destination. While vendors may handle physical shipping, mahanaari provides tracking support and customer coordination.
           </p>
         </div>
         <div>

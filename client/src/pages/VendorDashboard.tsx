@@ -341,7 +341,7 @@ export default function VendorDashboard() {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-serif font-bold">Vendor Dashboard</h1>
-            <p className="text-muted-foreground">Manage your Queen4Feet store</p>
+            <p className="text-muted-foreground">Manage your mahanaari store</p>
           </div>
           {!canAddProducts && kycStatus !== "submitted" && (
             <Button onClick={() => setIsKycDialogOpen(true)}>Complete KYC</Button>
@@ -353,7 +353,7 @@ export default function VendorDashboard() {
             <DialogHeader>
               <DialogTitle>Complete KYC Verification</DialogTitle>
               <DialogDescription>
-                Please upload your business documents to verify your account. This is required to start selling on Queen4Feet.
+                Please upload your business documents to verify your account. This is required to start selling on mahanaari.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -381,7 +381,7 @@ export default function VendorDashboard() {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Welcome to Queen4Feet Vendor Suite</CardTitle>
+            <CardTitle>Welcome to mahanaari Vendor Suite</CardTitle>
             <CardDescription>Track your sales, manage inventory, and grow your brand.</CardDescription>
           </CardHeader>
         </Card>

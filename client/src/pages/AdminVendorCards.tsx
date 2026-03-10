@@ -36,7 +36,7 @@ export default function AdminVendorCards() {
   const [lifetimeOffer, setLifetimeOffer] = useState({
     title: "100-4-100 Offer",
     subtitle: "Register Now, First 100 get 100 Products added 4 Free!",
-    description: "The first 100 sellers who register on Queen4feet will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
+    description: "The first 100 sellers who register on mahanaari will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
     perks: [
       "100 Products added for FREE!",
       "PRO-Onboarding Service",
@@ -207,7 +207,7 @@ export default function AdminVendorCards() {
 
       {/* Why On-Board Cards Section */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Why On-Board Queen4feet? Cards</h2>
+        <h2 className="text-2xl font-bold">Why On-Board mahanaari? Cards</h2>
         <Button onClick={addCard}>
           <Plus className="w-4 h-4 mr-2" />
           Add Card

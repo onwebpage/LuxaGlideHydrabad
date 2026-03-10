@@ -229,7 +229,7 @@ export default function Login() {
                   Welcome Back to
                   <br />
                   <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                    Queen4Feet
+                    mahanaari
                   </span>
                 </h1>
                 <p className="text-muted-foreground text-xl leading-relaxed mb-8">
@@ -266,7 +266,7 @@ export default function Login() {
                 <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20">
                   <CardContent className="p-8">
                     <p className="text-lg italic mb-4">
-                      "Queen4Feet has transformed how I shop for fashion. The platform is intuitive and the vendor network is exceptional."
+                      "mahanaari has transformed how I shop for fashion. The platform is intuitive and the vendor network is exceptional."
                     </p>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">

@@ -12,8 +12,8 @@ export function Footer() {
   const { toast } = useToast();
   const { data: cmsSettings } = useCmsSettings();
   
-  const siteName = cmsSettings?.siteMeta?.siteName || "Queen4Feet";
-  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@queen4feet.com";
+  const siteName = cmsSettings?.siteMeta?.siteName || "mahanaari";
+  const contactEmail = cmsSettings?.siteMeta?.contactEmail || "connect@mahanaari.com";
   const contactPhone = cmsSettings?.siteMeta?.contactPhone || "+91-94926 34166";
   const address = cmsSettings?.siteMeta?.address || "Mumbai, India";
   const copyrightText = cmsSettings?.footer?.copyrightText || `${new Date().getFullYear()} ${siteName}. All rights reserved.`;
@@ -54,7 +54,7 @@ export function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4" data-testid="link-footer-home">
               <h3 className="text-2xl font-serif font-black tracking-tighter text-[#bf953f] drop-shadow-sm">
-                {siteName.toUpperCase()}
+                mahanaari
               </h3>
             </Link>
             <p className="text-[#bf953f] font-serif italic text-lg mb-6 tracking-wide drop-shadow-sm">

@@ -249,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messages = [
         {
           role: "system",
-          content: "You are Queen4Feet AI shopping assistant. Guide users about products, vendors, sizes, prices, categories and checkout. Be helpful, friendly, and concise."
+          content: "You are mahanaari AI shopping assistant. Guide users about products, vendors, sizes, prices, categories and checkout. Be helpful, friendly, and concise."
         },
         ...conversationHistory,
         { role: "user", content: message }
@@ -363,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { message } = req.body;
       const query = message.toLowerCase();
       
-      let response = "I'm your Queen4Feet assistant! ";
+      let response = "I'm your mahanaari assistant! ";
       let suggestedProducts: any[] = [];
       
       if (query.includes("party") || query.includes("wedding") || query.includes("dress")) {
@@ -3195,12 +3195,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Default CMS settings
   const defaultCmsSettings: AllCmsSettings = {
     siteMeta: {
-      siteName: "Queen4feet",
+      siteName: "mahanaari",
       tagline: "Your Style, Your Way",
-      contactEmail: "connect@queen4feet.com",
+      contactEmail: "connect@mahanaari.com",
       contactPhone: "+91-94926 34166",
       address: "Mumbai, India",
-      seoTitle: "Queen 4feet - Shop Premium Fashion Online",
+      seoTitle: "mahanaari - Shop Premium Fashion Online",
       seoDescription: "Shop the latest height-specific women's fashion trends from multiple trusted sellers. Discover casual, traditional, and ethnic women's wear with fast delivery.",
     },
     hero: {
@@ -3233,7 +3233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       showNewsletter: true,
       newsletterTitle: "Subscribe to Our Newsletter",
       newsletterDescription: "Get the latest updates on new arrivals and exclusive offers",
-      copyrightText: "© 2024 Queen 4feet. All rights reserved.",
+      copyrightText: "© 2024 mahanaari. All rights reserved.",
       socialLinks: [
         { platform: "facebook", url: "https://facebook.com", isVisible: true },
         { platform: "instagram", url: "https://instagram.com", isVisible: true },
@@ -3257,7 +3257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
     vendorPageCards: {
       cards: [
-        { id: "1", icon: "TrendingUp", title: "10x Sales Boost", description: "Queen4feet is an established platform, trusted by thousands of genuine customers. We can help you boost sales and increase revenue.", displayOrder: 0, isVisible: true },
+        { id: "1", icon: "TrendingUp", title: "10x Sales Boost", description: "mahanaari is an established platform, trusted by thousands of genuine customers. We can help you boost sales and increase revenue.", displayOrder: 0, isVisible: true },
         { id: "2", icon: "Users", title: "Brand Visibility", description: "Boost your brand visibility by showing your products to the right audience at the right time. Branding via our platform increases authenticity.", displayOrder: 1, isVisible: true },
         { id: "3", icon: "Gem", title: "More Profit", description: "In this competitive market, high commission is a burden. We assure low commission rates, so you profit more from sales. We always charge fairly!", displayOrder: 2, isVisible: true },
         { id: "4", icon: "Zap", title: "Zero Marketing Cost", description: "Worry no more about marketing teams! We take care of all marketing needs, ensuring your brands and products reach the right people.", displayOrder: 3, isVisible: true },
@@ -3268,7 +3268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     vendorLifetimeOffer: {
       title: "100-4-100 Offer",
       subtitle: "Register Now, First 100 get 100 Products added 4 Free!",
-      description: "The first 100 sellers who register on Queen4feet will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
+      description: "The first 100 sellers who register on mahanaari will get 100 products added for free! Avoid the hassle of adding products. Hurry, get registered now and avail this offer!",
       perks: [
         "100 Products added for FREE!",
         "PRO-Onboarding Service",

@@ -148,7 +148,7 @@ export default function VendorRegister() {
 
       toast({
         title: "Vendor account created!",
-        description: "Welcome to Queen4Feet! Please complete your KYC verification.",
+        description: "Welcome to mahanaari! Please complete your KYC verification.",
       });
       setLocation("/dashboard/vendor");
     } catch (error: any) {
@@ -176,7 +176,7 @@ export default function VendorRegister() {
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">Become a Vendor</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Join Queen4Feet as a vendor and start selling your products
+            Join mahanaari as a vendor and start selling your products
           </p>
         </div>
 

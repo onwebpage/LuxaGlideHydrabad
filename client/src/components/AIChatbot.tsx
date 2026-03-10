@@ -12,7 +12,7 @@ interface Message {
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm Queen4Feet AI assistant. How can I help you today?" }
+    { role: "assistant", content: "Hi! I'm mahanaari AI assistant. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +80,7 @@ export function AIChatbot() {
           <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              <h3 className="font-semibold">Queen4Feet AI Assistant</h3>
+              <h3 className="font-semibold">mahanaari AI Assistant</h3>
             </div>
             <Button
               variant="ghost"

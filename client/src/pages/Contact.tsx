@@ -23,7 +23,7 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email Us",
-      detail: "connect@queen4feet.com",
+      detail: "connect@mahanaari.com",
       description: "We'll respond within 24 hours"
     },
     {

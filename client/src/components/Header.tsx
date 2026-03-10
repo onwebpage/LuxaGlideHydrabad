@@ -142,10 +142,10 @@ export function Header() {
       <div className="border-b border-black/10 shadow-sm relative z-10 bg-transparent">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="flex items-center justify-between h-20 lg:h-24 gap-4">
-            {/* Logo - Removed Image, showing Site Name */}
+            {/* Logo - Text Name Only */}
             <Link href="/" className="flex-shrink-0 flex items-center z-10" data-testid="link-home">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-white drop-shadow-lg truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: "'Tagesschrift', system-ui", textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-                {cmsSettings?.siteMeta?.siteName || "Queen4Feet"}
+                mahanaari
               </h1>
             </Link>
 
