@@ -419,7 +419,7 @@ export default function Home() {
             className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
             style={{
               backgroundImage: `url(${banner})`,
-              backgroundSize: 'cover',
+              backgroundSize: '80%',
               backgroundPosition: 'top center',
             }}
           >
