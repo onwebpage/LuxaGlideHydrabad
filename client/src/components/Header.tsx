@@ -137,7 +137,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-[100] w-full" style={{ backgroundImage: 'url(/color.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <header className="sticky top-0 z-[100] w-full" style={{ backgroundImage: 'url(/theme4.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Main Header */}
       <div className="border-b border-black/10 shadow-sm relative z-10 bg-transparent">
         <div className="container mx-auto px-4 lg:px-6">

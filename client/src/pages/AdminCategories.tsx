@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -36,6 +36,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { FolderTree, Plus, ArrowLeft, Trash2, Edit, Upload, ImageIcon } from "lucide-react";
 import type { Category } from "@shared/schema";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 export default function AdminCategories() {
   const [, setLocation] = useLocation();
@@ -51,6 +52,9 @@ export default function AdminCategories() {
     description: "",
     image: "",
   });
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState("category.jpg");
+  const imageUploadInputRef = useRef<HTMLInputElement>(null);
 
   const { data: categories = [], isLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -157,13 +161,18 @@ export default function AdminCategories() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setCropFileName(file.name);
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
 
+  const handleCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
     const formDataUpload = new FormData();
-    formDataUpload.append("file", file);
-
+    formDataUpload.append("file", croppedFile);
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch("/api/upload", {
@@ -171,27 +180,23 @@ export default function AdminCategories() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formDataUpload,
       });
-
       if (!response.ok) throw new Error("Upload failed");
-
       const data = await response.json();
       setFormData(prev => ({ ...prev, image: data.url }));
-      toast({
-        title: "Image Uploaded",
-        description: "Image has been uploaded successfully",
-      });
+      toast({ title: "Image Uploaded", description: "Image has been uploaded successfully" });
     } catch (error: any) {
-      toast({
-        title: "Upload Failed",
-        description: error.message || "Failed to upload image",
-        variant: "destructive",
-      });
+      toast({ title: "Upload Failed", description: error.message || "Failed to upload image", variant: "destructive" });
     }
-    e.target.value = "";
   };
 
   return (
     <div className="min-h-screen py-8">
+      <ImageCropModal
+        imageSrc={cropSrc}
+        originalFileName={cropFileName}
+        onComplete={handleCropComplete}
+        onCancel={() => setCropSrc(null)}
+      />
       <div className="container mx-auto px-6">
         <div className="mb-8">
           <Button 

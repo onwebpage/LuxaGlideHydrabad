@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { ImageCropModal } from "@/components/ImageCropModal";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -93,6 +94,8 @@ export default function VendorDashboard() {
   const [productImages, setProductImages] = useState<File[]>([]);
   const [productSaving, setProductSaving] = useState(false);
   const productImageInputRef = useRef<HTMLInputElement>(null);
+  const [cropQueue, setCropQueue] = useState<{ src: string; name: string }[]>([]);
+  const [croppedImages, setCroppedImages] = useState<File[]>([]);
   
   const [isEditProductOpen, setIsEditProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -316,7 +319,8 @@ export default function VendorDashboard() {
       formData.append('price', productPrice || '0');
       formData.append('moq', productMoq || '1');
       formData.append('stock', productStock || '0');
-      productImages.forEach(file => formData.append('images', file));
+      const imagesToUpload = croppedImages.length > 0 ? croppedImages : productImages;
+      imagesToUpload.forEach(file => formData.append('images', file));
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${authToken}` },
@@ -337,6 +341,18 @@ export default function VendorDashboard() {
 
   return (
     <div className="min-h-screen py-8">
+      {/* Image Crop Modal */}
+      {cropQueue.length > 0 && (
+        <ImageCropModal
+          imageSrc={cropQueue[0].src}
+          originalFileName={cropQueue[0].name}
+          onComplete={(croppedFile) => {
+            setCroppedImages(prev => [...prev, croppedFile]);
+            setCropQueue(prev => prev.slice(1));
+          }}
+          onCancel={() => setCropQueue(prev => prev.slice(1))}
+        />
+      )}
       <div className="container mx-auto px-6">
         <div className="mb-8 flex justify-between items-center">
           <div>
@@ -608,7 +624,32 @@ export default function VendorDashboard() {
               </div>
               <div>
                 <Label>Product Images</Label>
-                <Input type="file" multiple accept="image/*" ref={productImageInputRef} onChange={e => setProductImages(Array.from(e.target.files || []))} />
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  ref={productImageInputRef}
+                  onChange={e => {
+                    const files = Array.from(e.target.files || []);
+                    if (files.length === 0) return;
+                    setCroppedImages([]);
+                    setCropQueue(files.map(f => ({ src: URL.createObjectURL(f), name: f.name })));
+                  }}
+                />
+                {croppedImages.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {croppedImages.map((f, i) => (
+                      <div key={i} className="relative w-16 h-16 rounded overflow-hidden border border-[#bf953f]/40">
+                        <img src={URL.createObjectURL(f)} alt={`preview-${i}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setCroppedImages(prev => prev.filter((_, idx) => idx !== i))}
+                          className="absolute top-0 right-0 bg-black/60 text-white text-xs px-1"
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleProductSubmit} disabled={productSaving || !productName || !productPrice}>
