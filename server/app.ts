@@ -81,9 +81,8 @@ export default async function runApp(
   // the catch-all route doesn't interfere with the other routes
   await setup(app, server);
 
-  // ALWAYS serve the app on port 5000 for Replit compatibility.
-  // Port 5000 is the standard Replit webview port.
-  const port = 5000;
+  // Use process.env.PORT for Render/production, fallback to 5000 for local dev
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
