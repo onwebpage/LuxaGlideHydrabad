@@ -346,6 +346,7 @@ export default function VendorDashboard() {
         <ImageCropModal
           imageSrc={cropQueue[0].src}
           originalFileName={cropQueue[0].name}
+          aspectRatio={1}
           onComplete={(croppedFile) => {
             setCroppedImages(prev => [...prev, croppedFile]);
             setCropQueue(prev => prev.slice(1));

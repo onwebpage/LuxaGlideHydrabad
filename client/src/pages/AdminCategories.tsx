@@ -194,6 +194,7 @@ export default function AdminCategories() {
       <ImageCropModal
         imageSrc={cropSrc}
         originalFileName={cropFileName}
+        aspectRatio={1}
         onComplete={handleCropComplete}
         onCancel={() => setCropSrc(null)}
       />

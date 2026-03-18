@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
+import { ImageCropModal } from "@/components/ImageCropModal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -363,22 +364,31 @@ export default function AdminSiteSettings() {
     }));
   };
 
-  const handleImageUpload = async (
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState("image.jpg");
+  const pendingUploadRef = useRef<((url: string) => void) | null>(null);
+
+  const handleImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
     onUpload: (url: string) => void
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    pendingUploadRef.current = onUpload;
+    setCropFileName(file.name);
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
 
+  const handleCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
+    const onUpload = pendingUploadRef.current;
+    pendingUploadRef.current = null;
+    if (!onUpload) return;
     const formData = new FormData();
-    formData.append("file", file);
-
+    formData.append("file", croppedFile);
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
       if (response.ok) {
         const data = await response.json();
         onUpload(data.url);
@@ -386,7 +396,7 @@ export default function AdminSiteSettings() {
       } else {
         toast({ title: "Error", description: "Failed to upload image", variant: "destructive" });
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to upload image", variant: "destructive" });
     }
   };
@@ -401,6 +411,12 @@ export default function AdminSiteSettings() {
 
   return (
     <div className="min-h-screen py-8">
+      <ImageCropModal
+        imageSrc={cropSrc}
+        originalFileName={cropFileName}
+        onComplete={handleCropComplete}
+        onCancel={() => setCropSrc(null)}
+      />
       <div className="container mx-auto px-6">
         <div className="mb-8 flex items-center gap-4">
           <Button variant="outline" onClick={() => setLocation("/dashboard/admin")} data-testid="button-back">
