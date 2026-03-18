@@ -34,7 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { FolderTree, Plus, ArrowLeft, Trash2, Edit, Upload, ImageIcon } from "lucide-react";
+import { FolderTree, Plus, ArrowLeft, Trash2, Edit, Upload, ImageIcon, Crop } from "lucide-react";
 import type { Category } from "@shared/schema";
 import { ImageCropModal } from "@/components/ImageCropModal";
 
@@ -47,107 +47,70 @@ export default function AdminCategories() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    image: "",
-  });
+  const [formData, setFormData] = useState({ name: "", description: "", image: "" });
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropFileName, setCropFileName] = useState("category.jpg");
-  const imageUploadInputRef = useRef<HTMLInputElement>(null);
+  const [loadingExistingImage, setLoadingExistingImage] = useState(false);
+
+  const createFileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: categories = [], isLoading } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
 
   const createCategoryMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string; image?: string }) => {
-      return await apiRequest("POST", "/api/categories", data);
-    },
+    mutationFn: async (data: { name: string; description: string; image?: string }) =>
+      apiRequest("POST", "/api/categories", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      toast({
-        title: "Category Created",
-        description: "Category has been created successfully",
-      });
+      toast({ title: "Category Created", description: "Category has been created successfully" });
       setCreateDialogOpen(false);
       setFormData({ name: "", description: "", image: "" });
     },
     onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create category",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to create category", variant: "destructive" });
     },
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Category> }) => {
-      return await apiRequest("PUT", `/api/categories/${id}`, data);
-    },
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Category> }) =>
+      apiRequest("PUT", `/api/categories/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      toast({
-        title: "Category Updated",
-        description: "Category has been updated successfully",
-      });
+      toast({ title: "Category Updated", description: "Category has been updated successfully" });
       setEditDialogOpen(false);
       setSelectedCategory(null);
       setFormData({ name: "", description: "", image: "" });
     },
     onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update category",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to update category", variant: "destructive" });
     },
   });
 
   const deleteCategoryMutation = useMutation({
-    mutationFn: async (categoryId: string) => {
-      return await apiRequest("DELETE", `/api/categories/${categoryId}`);
-    },
+    mutationFn: async (categoryId: string) => apiRequest("DELETE", `/api/categories/${categoryId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
-      toast({
-        title: "Category Deleted",
-        description: "Category has been deleted successfully",
-      });
+      toast({ title: "Category Deleted", description: "Category has been deleted successfully" });
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete category",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "Failed to delete category", variant: "destructive" });
     },
   });
 
-  const handleCreate = () => {
-    createCategoryMutation.mutate(formData);
-  };
+  const handleCreate = () => createCategoryMutation.mutate(formData);
 
   const handleEdit = (category: Category) => {
     setSelectedCategory(category);
-    setFormData({
-      name: category.name,
-      description: category.description || "",
-      image: category.image || "",
-    });
+    setFormData({ name: category.name, description: category.description || "", image: category.image || "" });
     setEditDialogOpen(true);
   };
 
   const handleUpdate = () => {
-    if (selectedCategory) {
-      updateCategoryMutation.mutate({
-        id: selectedCategory.id,
-        data: formData,
-      });
-    }
+    if (selectedCategory) updateCategoryMutation.mutate({ id: selectedCategory.id, data: formData });
   };
 
   const handleDeleteClick = (categoryId: string) => {
@@ -156,52 +119,98 @@ export default function AdminCategories() {
   };
 
   const handleConfirmDelete = () => {
-    if (categoryToDelete) {
-      deleteCategoryMutation.mutate(categoryToDelete);
-    }
+    if (categoryToDelete) deleteCategoryMutation.mutate(categoryToDelete);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const openFileForCrop = (file: File) => {
     setCropFileName(file.name);
     setCropSrc(URL.createObjectURL(file));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    openFileForCrop(file);
     e.target.value = "";
+  };
+
+  /** Load an existing hosted image URL into the cropper by fetching it as a Blob */
+  const handleEditExistingImage = async (imageUrl: string) => {
+    setLoadingExistingImage(true);
+    try {
+      const res = await fetch(imageUrl, { credentials: "include" });
+      if (!res.ok) throw new Error("Could not load image");
+      const blob = await res.blob();
+      const ext = imageUrl.split(".").pop()?.split("?")[0] || "jpg";
+      const name = `category.${ext}`;
+      setCropFileName(name);
+      setCropSrc(URL.createObjectURL(blob));
+    } catch {
+      toast({ title: "Error", description: "Could not load image for editing", variant: "destructive" });
+    } finally {
+      setLoadingExistingImage(false);
+    }
   };
 
   const handleCropComplete = async (croppedFile: File) => {
     setCropSrc(null);
-    const formDataUpload = new FormData();
-    formDataUpload.append("file", croppedFile);
+    const fd = new FormData();
+    fd.append("file", croppedFile);
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch("/api/upload", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formDataUpload,
+        body: fd,
       });
       if (!response.ok) throw new Error("Upload failed");
       const data = await response.json();
-      setFormData(prev => ({ ...prev, image: data.url }));
+      setFormData((prev) => ({ ...prev, image: data.url }));
       toast({ title: "Image Uploaded", description: "Image has been uploaded successfully" });
     } catch (error: any) {
       toast({ title: "Upload Failed", description: error.message || "Failed to upload image", variant: "destructive" });
     }
   };
 
+  const ImagePreview = ({ url }: { url: string }) => (
+    <div className="mt-2 relative group w-fit">
+      <img
+        src={url}
+        alt="Category preview"
+        className="h-32 rounded-md object-cover border"
+        style={{ maxWidth: "100%" }}
+      />
+      <button
+        type="button"
+        onClick={() => handleEditExistingImage(url)}
+        disabled={loadingExistingImage}
+        className="
+          absolute inset-0 flex items-center justify-center gap-1.5
+          bg-black/50 text-white text-xs font-medium rounded-md
+          opacity-0 group-hover:opacity-100 transition-opacity
+          disabled:cursor-not-allowed
+        "
+        data-testid="button-edit-existing-image"
+      >
+        <Crop className="w-4 h-4" />
+        {loadingExistingImage ? "Loading…" : "Edit Image"}
+      </button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen py-8">
       <ImageCropModal
         imageSrc={cropSrc}
         originalFileName={cropFileName}
-        aspectRatio={1}
         onComplete={handleCropComplete}
         onCancel={() => setCropSrc(null)}
       />
+
       <div className="container mx-auto px-6">
         <div className="mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => setLocation("/dashboard/admin")}
             className="mb-4"
             data-testid="button-back"
@@ -214,14 +223,9 @@ export default function AdminCategories() {
               <h1 className="font-serif text-4xl font-semibold mb-2" data-testid="text-title">
                 Category Management
               </h1>
-              <p className="text-muted-foreground">
-                Manage product categories and tags
-              </p>
+              <p className="text-muted-foreground">Manage product categories and tags</p>
             </div>
-            <Button
-              onClick={() => setCreateDialogOpen(true)}
-              data-testid="button-create-category"
-            >
+            <Button onClick={() => setCreateDialogOpen(true)} data-testid="button-create-category">
               <Plus className="w-4 h-4 mr-2" />
               Create Category
             </Button>
@@ -259,8 +263,8 @@ export default function AdminCategories() {
                       <TableRow key={category.id} data-testid={`row-category-${category.id}`}>
                         <TableCell>
                           {category.image ? (
-                            <img 
-                              src={category.image} 
+                            <img
+                              src={category.image}
                               alt={category.name}
                               className="w-12 h-12 object-cover rounded-md"
                             />
@@ -308,6 +312,7 @@ export default function AdminCategories() {
         </Card>
       </div>
 
+      {/* ── Create Dialog ── */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -336,37 +341,33 @@ export default function AdminCategories() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="image">Category Image</Label>
+              <Label>Category Image</Label>
               <div className="flex gap-2">
                 <Input
-                  id="image"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="https://example.com/image.jpg"
                   data-testid="input-category-image"
                 />
-                <label className="cursor-pointer">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    data-testid="input-image-upload"
-                  />
-                  <Button type="button" variant="outline" size="icon" asChild>
-                    <span><Upload className="w-4 h-4" /></span>
-                  </Button>
-                </label>
+                <input
+                  ref={createFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  data-testid="input-image-upload-create"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => createFileInputRef.current?.click()}
+                  title="Upload image"
+                >
+                  <Upload className="w-4 h-4" />
+                </Button>
               </div>
-              {formData.image && (
-                <div className="mt-2 relative">
-                  <img 
-                    src={formData.image} 
-                    alt="Category preview" 
-                    className="max-h-32 rounded-md object-cover"
-                  />
-                </div>
-              )}
+              {formData.image && <ImagePreview url={formData.image} />}
             </div>
           </div>
           <DialogFooter>
@@ -388,6 +389,7 @@ export default function AdminCategories() {
         </DialogContent>
       </Dialog>
 
+      {/* ── Edit Dialog ── */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -416,37 +418,33 @@ export default function AdminCategories() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-image">Category Image</Label>
+              <Label>Category Image</Label>
               <div className="flex gap-2">
                 <Input
-                  id="edit-image"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="https://example.com/image.jpg"
                   data-testid="input-edit-image"
                 />
-                <label className="cursor-pointer">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    data-testid="input-edit-image-upload"
-                  />
-                  <Button type="button" variant="outline" size="icon" asChild>
-                    <span><Upload className="w-4 h-4" /></span>
-                  </Button>
-                </label>
+                <input
+                  ref={editFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  data-testid="input-image-upload-edit"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => editFileInputRef.current?.click()}
+                  title="Upload new image"
+                >
+                  <Upload className="w-4 h-4" />
+                </Button>
               </div>
-              {formData.image && (
-                <div className="mt-2 relative">
-                  <img 
-                    src={formData.image} 
-                    alt="Category preview" 
-                    className="max-h-32 rounded-md object-cover"
-                  />
-                </div>
-              )}
+              {formData.image && <ImagePreview url={formData.image} />}
             </div>
           </div>
           <DialogFooter>
@@ -468,6 +466,7 @@ export default function AdminCategories() {
         </DialogContent>
       </Dialog>
 
+      {/* ── Delete Confirm ── */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
