@@ -360,3 +360,83 @@ h1, h2, h3, h4, h5, h6 {
     inset: -1px;
   }
 }
+
+/* ── Cropper.js overrides ──────────────────────────────────────────────────
+   Prevent Tailwind's base (preflight) resets from breaking Cropper.js layout.
+   Cropper.js absolutely positions its internal elements; any Tailwind override
+   on position, display, max-width, or box-sizing will break the crop box.
+───────────────────────────────────────────────────────────────────────────── */
+.cropper-container {
+  position: relative !important;
+  overflow: hidden !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  touch-action: none !important;
+  display: block !important;
+}
+
+.cropper-container img {
+  display: block !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  image-orientation: 0deg !important;
+}
+
+.cropper-wrap-box,
+.cropper-canvas,
+.cropper-drag-box,
+.cropper-crop-box,
+.cropper-modal {
+  position: absolute !important;
+}
+
+.cropper-view-box {
+  display: block !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  height: 100% !important;
+  outline: 1px solid #39f !important;
+  outline-color: rgba(51, 153, 255, 0.75) !important;
+}
+
+.cropper-view-box img {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.cropper-face {
+  background-color: #fff !important;
+  opacity: 0.1 !important;
+}
+
+.cropper-line {
+  position: absolute !important;
+  display: block !important;
+  background-color: #39f !important;
+  opacity: 0.1 !important;
+}
+
+.cropper-point {
+  position: absolute !important;
+  display: block !important;
+  width: 5px !important;
+  height: 5px !important;
+  background-color: #39f !important;
+  opacity: 0.75 !important;
+}
+
+.cropper-hidden {
+  display: none !important;
+}
+
+.cropper-move {
+  cursor: move !important;
+}
+
+.cropper-crop {
+  cursor: crosshair !important;
+}
