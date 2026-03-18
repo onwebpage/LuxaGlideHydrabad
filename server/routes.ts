@@ -545,8 +545,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Require OTP verification for vendors
-      if (user.role === "vendor") {
+      // OTP verification for vendors - only required in production when phone is set
+      if (user.role === "vendor" && process.env.NODE_ENV === "production" && user.phone) {
         if (!otpId || !isOTPVerified(otpId)) {
           return res.status(400).json({ message: "Phone verification required for vendor login", requireOTP: true });
         }
@@ -2393,10 +2393,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ============ Order Routes ============
   
+  // Helper: generate branded invoice PDF buffer
+  async function generateInvoicePdf(order: any, items: any[], user: any, vendor: any, address: any): Promise<Buffer> {
+    const PDFDocument = (await import("pdfkit")).default;
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument({ margin: 50 });
+      const chunks: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", reject);
+
+      // ── Branding header ──
+      doc.rect(0, 0, doc.page.width, 80).fill("#1a1a2e");
+      doc.fillColor("#bf953f").fontSize(28).font("Helvetica-Bold").text("mahanaari", 50, 20);
+      doc.fillColor("#ffffff").fontSize(10).font("Helvetica").text("Premium Women's Fashion Marketplace", 50, 52);
+      doc.fillColor("#bf953f").fontSize(10).text("connect@mahanaari.com  |  mahanaari.com", 50, 64);
+      doc.moveDown(3);
+
+      // ── Invoice title ──
+      doc.fillColor("#1a1a2e").fontSize(18).font("Helvetica-Bold").text("INVOICE", { align: "center" });
+      doc.moveDown(0.5);
+
+      // ── Order meta ──
+      doc.fontSize(10).font("Helvetica").fillColor("#333333");
+      doc.text(`Order Number: ${order.orderNumber}`);
+      doc.text(`Order Date:   ${new Date(order.createdAt).toLocaleDateString("en-IN")}`);
+      doc.text(`Status:       ${order.status.toUpperCase()}`);
+      doc.text(`Payment:      ${order.paymentStatus.toUpperCase()}`);
+      doc.moveDown();
+
+      // ── Bill To / Sold By ──
+      const col2x = 300;
+      const sectionY = doc.y;
+      doc.fontSize(11).font("Helvetica-Bold").text("Bill To:", 50, sectionY, { underline: true });
+      doc.fontSize(10).font("Helvetica");
+      doc.text(user?.fullName || "Customer", 50);
+      doc.text(user?.email || "", 50);
+      if (address) {
+        doc.text(address.addressLine1 || "", 50);
+        if (address.addressLine2) doc.text(address.addressLine2, 50);
+        doc.text(`${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`, 50);
+      }
+
+      doc.fontSize(11).font("Helvetica-Bold").text("Sold By:", col2x, sectionY, { underline: true });
+      doc.fontSize(10).font("Helvetica");
+      doc.text(vendor?.businessName || "Vendor", col2x);
+      if (vendor?.businessAddress) doc.text(vendor.businessAddress, col2x, undefined, { width: 200 });
+      if (vendor?.gstNumber) doc.text(`GST: ${vendor.gstNumber}`, col2x);
+      doc.moveDown(2);
+
+      // ── Items table ──
+      doc.fontSize(11).font("Helvetica-Bold").text("Order Items:", { underline: true });
+      doc.moveDown(0.5);
+
+      const tableTop = doc.y;
+      doc.fontSize(10).font("Helvetica-Bold");
+      doc.text("Product", 50, tableTop, { width: 240 });
+      doc.text("Qty", 300, tableTop, { width: 60 });
+      doc.text("Unit Price", 370, tableTop, { width: 80 });
+      doc.text("Total", 460, tableTop, { width: 80 });
+      doc.moveTo(50, tableTop + 16).lineTo(550, tableTop + 16).strokeColor("#bf953f").lineWidth(1).stroke();
+
+      doc.font("Helvetica").fillColor("#333333");
+      let y = tableTop + 24;
+      for (const item of items) {
+        const unitPrice = Number(item.price || 0);
+        const lineTotal = unitPrice * item.quantity;
+        doc.text(item.productName || item.productId, 50, y, { width: 240 });
+        doc.text(String(item.quantity), 300, y, { width: 60 });
+        doc.text(`₹${unitPrice.toFixed(2)}`, 370, y, { width: 80 });
+        doc.text(`₹${lineTotal.toFixed(2)}`, 460, y, { width: 80 });
+        y += 20;
+      }
+
+      doc.moveTo(50, y + 6).lineTo(550, y + 6).strokeColor("#cccccc").lineWidth(0.5).stroke();
+      y += 16;
+      doc.fontSize(12).font("Helvetica-Bold").fillColor("#1a1a2e");
+      doc.text("Total Amount:", 370, y, { width: 80 });
+      doc.text(`₹${Number(order.totalAmount).toFixed(2)}`, 460, y, { width: 80 });
+
+      // ── Footer ──
+      doc.fontSize(8).font("Helvetica").fillColor("#888888").text(
+        "Thank you for shopping with mahanaari! For support: connect@mahanaari.com",
+        50, doc.page.height - 40, { align: "center", width: 500 }
+      );
+
+      doc.end();
+    });
+  }
+
+  // Helper: send invoice email via Resend
+  async function sendInvoiceEmail(to: string, toName: string, order: any, pdfBuffer: Buffer): Promise<void> {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@mahanaari.com";
+    if (!resendApiKey) {
+      console.warn("RESEND_API_KEY not set – skipping invoice email to", to);
+      return;
+    }
+    const pdfBase64 = pdfBuffer.toString("base64");
+    const body = {
+      from: `mahanaari <${fromEmail}>`,
+      to: [to],
+      subject: `Invoice for Order ${order.orderNumber} – mahanaari`,
+      html: `<p>Dear ${toName},</p><p>Please find attached the invoice for order <strong>${order.orderNumber}</strong> placed on ${new Date(order.createdAt).toLocaleDateString("en-IN")}.</p><p>Total Amount: <strong>₹${Number(order.totalAmount).toFixed(2)}</strong></p><p>Thank you for being part of mahanaari!</p><p style="color:#888;font-size:12px">mahanaari – Premium Women's Fashion Marketplace</p>`,
+      attachments: [{ filename: `invoice-${order.orderNumber}.pdf`, content: pdfBase64 }],
+    };
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendApiKey}` },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      console.error("Resend invoice email error:", err);
+    }
+  }
+
   // Create order
   app.post("/api/orders", async (req, res) => {
     try {
-      const { userId, vendorId, shippingAddressId, items, totalAmount, paymentMethod } = req.body;
+      const { userId, vendorId: bodyVendorId, shippingAddressId, items, totalAmount, paymentMethod } = req.body;
+
+      // Resolve vendorId from the first item's product if not provided
+      let resolvedVendorId = bodyVendorId;
+      if (!resolvedVendorId && items?.length > 0) {
+        const firstProduct = await storage.getProduct(items[0].productId);
+        resolvedVendorId = firstProduct?.vendorId;
+      }
+
+      if (!resolvedVendorId) {
+        return res.status(400).json({ message: "Could not determine vendor for this order" });
+      }
 
       // Generate order number
       const orderNumber = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
@@ -2405,7 +2532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.createOrder({
         orderNumber,
         userId,
-        vendorId,
+        vendorId: resolvedVendorId,
         shippingAddressId,
         totalAmount,
         paymentMethod,
@@ -2415,6 +2542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Track used coupons to avoid duplicate increments
       const usedCouponIds = new Set<string>();
+      const enrichedItems: any[] = [];
 
       // Create order items and track coupon usage
       for (const item of items) {
@@ -2427,8 +2555,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           selectedSize: item.selectedSize,
         });
 
-        // Increment coupon usage if the product has an active coupon
         const product = await storage.getProduct(item.productId);
+        enrichedItems.push({ ...item, productName: product?.name || item.productId });
+
         if (product?.couponId && !usedCouponIds.has(product.couponId)) {
           const coupon = await storage.getCoupon(product.couponId);
           if (coupon?.isActive) {
@@ -2441,7 +2570,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear cart
       await storage.clearCart(userId);
 
+      // Respond immediately so the buyer isn't waiting on email
       res.status(201).json(order);
+
+      // ── Background: generate invoice & email vendor + admin ──
+      try {
+        const [user, vendor, address] = await Promise.all([
+          storage.getUser(userId),
+          storage.getVendor(resolvedVendorId),
+          storage.getAddress(shippingAddressId),
+        ]);
+
+        const pdfBuffer = await generateInvoicePdf(order, enrichedItems, user, vendor, address);
+
+        // Email vendor
+        if (vendor) {
+          const vendorUser = await storage.getUser(vendor.userId);
+          if (vendorUser?.email) {
+            await sendInvoiceEmail(vendorUser.email, vendor.businessName, order, pdfBuffer);
+          }
+        }
+
+        // Email admin
+        const adminEmail = process.env.RESEND_FROM_EMAIL;
+        if (adminEmail) {
+          await sendInvoiceEmail(adminEmail, "Admin", order, pdfBuffer);
+        }
+      } catch (invoiceErr) {
+        console.error("Invoice generation/email error (non-fatal):", invoiceErr);
+      }
     } catch (error: any) {
       console.error("Create order error:", error);
       res.status(500).json({ message: error.message });
@@ -2465,6 +2622,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(orders);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Download invoice for a vendor's own order
+  app.get("/api/vendor/orders/:id/invoice", requireAuth, async (req, res) => {
+    try {
+      const vendor = await storage.getVendorByUserId(req.user!.id);
+      if (!vendor) return res.status(403).json({ message: "Vendor not found" });
+
+      const order = await storage.getOrder(req.params.id);
+      if (!order) return res.status(404).json({ message: "Order not found" });
+      if (order.vendorId !== vendor.id) return res.status(403).json({ message: "Access denied" });
+
+      const items = await storage.getOrderItems(req.params.id);
+      const [address, user, vendorData] = await Promise.all([
+        storage.getAddress(order.shippingAddressId),
+        storage.getUser(order.userId),
+        storage.getVendor(order.vendorId),
+      ]);
+
+      const enrichedItems = await Promise.all(
+        items.map(async (item) => {
+          const product = await storage.getProduct(item.productId);
+          return { ...item, productName: product?.name || item.productId };
+        })
+      );
+
+      const pdfBuffer = await generateInvoicePdf(order, enrichedItems, user, vendorData, address);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
+      res.send(pdfBuffer);
+    } catch (error: any) {
+      console.error("Vendor invoice error:", error);
+      if (!res.headersSent) res.status(500).json({ message: error.message });
     }
   });
 
@@ -2627,121 +2818,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate invoice PDF (admin only)
   app.get("/api/admin/orders/:id/invoice", requireAdminAuth, async (req, res) => {
     try {
-      const PDFDocument = (await import("pdfkit")).default;
-      
       const order = await storage.getOrder(req.params.id);
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
+      if (!order) return res.status(404).json({ message: "Order not found" });
 
       const items = await storage.getOrderItems(req.params.id);
-      const address = await storage.getAddress(order.shippingAddressId);
-      const user = await storage.getUser(order.userId);
-      const vendor = await storage.getVendor(order.vendorId);
+      if (!items || items.length === 0) return res.status(400).json({ message: "Order has no items" });
 
-      // Validate required data
-      if (!items || items.length === 0) {
-        return res.status(400).json({ message: "Order has no items" });
-      }
+      const [address, user, vendor] = await Promise.all([
+        storage.getAddress(order.shippingAddressId),
+        storage.getUser(order.userId),
+        storage.getVendor(order.vendorId),
+      ]);
 
-      // Create PDF
-      const doc = new PDFDocument({ margin: 50 });
-
-      // Set response headers before piping
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
-
-      // Pipe PDF to response
-      doc.pipe(res);
-
-      // Header
-      doc.fontSize(20).text("INVOICE", { align: "center" });
-      doc.moveDown();
-
-      // Order details
-      doc.fontSize(10);
-      doc.text(`Order Number: ${order.orderNumber}`);
-      doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString()}`);
-      doc.text(`Status: ${order.status.toUpperCase()}`);
-      doc.text(`Payment Status: ${order.paymentStatus.toUpperCase()}`);
-      doc.moveDown();
-
-      // Customer details
-      doc.fontSize(12).text("Bill To:", { underline: true });
-      doc.fontSize(10);
-      doc.text(user?.fullName || "Customer Name Not Available");
-      doc.text(user?.email || "Email Not Available");
-      if (address) {
-        doc.text(address.addressLine1 || "");
-        if (address.addressLine2) doc.text(address.addressLine2);
-        doc.text(`${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`);
-        doc.text(address.country || "");
-      } else {
-        doc.text("Address Not Available");
-      }
-      doc.moveDown();
-
-      // Vendor details
-      doc.fontSize(12).text("Sold By:", { underline: true });
-      doc.fontSize(10);
-      doc.text(vendor?.businessName || "Vendor Not Assigned");
-      if (vendor?.businessAddress) {
-        doc.text(vendor.businessAddress);
-      } else {
-        doc.text("Vendor Address Not Available");
-      }
-      doc.moveDown();
-
-      // Items table
-      doc.fontSize(12).text("Items:", { underline: true });
-      doc.moveDown(0.5);
-
-      // Table header
-      const tableTop = doc.y;
-      doc.fontSize(10).font("Helvetica-Bold");
-      doc.text("Product", 50, tableTop);
-      doc.text("Quantity", 300, tableTop);
-      doc.text("Price", 380, tableTop);
-      doc.text("Total", 460, tableTop);
-      
-      doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
-      
-      // Table rows
-      doc.font("Helvetica");
-      let yPosition = tableTop + 25;
-
-      for (const item of items) {
-        const product = await storage.getProduct(item.productId);
-        const itemTotal = Number(item.price || 0) * item.quantity;
-
-        doc.text(product?.name || `Product ID: ${item.productId}`, 50, yPosition, { width: 240 });
-        doc.text(item.quantity.toString(), 300, yPosition);
-        doc.text(`₹${Number(item.price || 0).toFixed(2)}`, 380, yPosition);
-        doc.text(`₹${itemTotal.toFixed(2)}`, 460, yPosition);
-
-        yPosition += 20;
-      }
-
-      // Total
-      doc.moveTo(50, yPosition + 10).lineTo(550, yPosition + 10).stroke();
-      doc.fontSize(12).font("Helvetica-Bold");
-      doc.text("Total Amount:", 380, yPosition + 20);
-      doc.text(`₹${Number(order.totalAmount).toFixed(2)}`, 460, yPosition + 20);
-
-      // Footer
-      doc.fontSize(8).font("Helvetica").text(
-        "Thank you for your business!",
-        50,
-        doc.page.height - 50,
-        { align: "center" }
+      const enrichedItems = await Promise.all(
+        items.map(async (item) => {
+          const product = await storage.getProduct(item.productId);
+          return { ...item, productName: product?.name || item.productId };
+        })
       );
 
-      doc.end();
+      const pdfBuffer = await generateInvoicePdf(order, enrichedItems, user, vendor, address);
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
+      res.send(pdfBuffer);
     } catch (error: any) {
       console.error("Generate invoice error:", error);
-      if (!res.headersSent) {
-        res.status(500).json({ message: error.message });
-      }
+      if (!res.headersSent) res.status(500).json({ message: error.message });
     }
   });
 

@@ -26,10 +26,12 @@ import {
   Upload,
   Star,
   AlertCircle,
+  CheckCircle,
   Receipt,
   Ticket,
   Switch,
   X,
+  Download,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -539,16 +541,17 @@ export default function VendorDashboard() {
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Invoice</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {ordersLoading ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                        <TableCell colSpan={6} className="text-center">Loading...</TableCell>
                       </TableRow>
                     ) : orders.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">No orders yet</TableCell>
+                        <TableCell colSpan={6} className="text-center">No orders yet</TableCell>
                       </TableRow>
                     ) : (
                       orders.map((order) => (
@@ -560,6 +563,32 @@ export default function VendorDashboard() {
                             <Badge>{order.status}</Badge>
                           </TableCell>
                           <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const token = getAuthToken();
+                                const link = document.createElement("a");
+                                link.href = `/api/vendor/orders/${order.id}/invoice`;
+                                // attach token via fetch + blob since it's auth-protected
+                                fetch(`/api/vendor/orders/${order.id}/invoice`, {
+                                  headers: { Authorization: `Bearer ${token}` },
+                                })
+                                  .then(res => res.blob())
+                                  .then(blob => {
+                                    const url = URL.createObjectURL(blob);
+                                    link.href = url;
+                                    link.download = `invoice-${order.orderNumber}.pdf`;
+                                    link.click();
+                                    URL.revokeObjectURL(url);
+                                  })
+                                  .catch(() => toast({ title: "Failed to download invoice", variant: "destructive" }));
+                              }}
+                            >
+                              <Download className="w-4 h-4 mr-1" /> Invoice
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}

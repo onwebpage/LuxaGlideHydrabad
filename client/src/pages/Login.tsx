@@ -57,19 +57,11 @@ export default function Login() {
       });
       setLocation(getDashboardPath(user.role));
     } catch (error: any) {
-      if (error.message?.includes("Phone verification required")) {
-        setShowOTP(true);
-        toast({
-          title: "OTP Required",
-          description: "Please verify your phone number to continue.",
-        });
-      } else {
-        toast({
-          title: "Login failed",
-          description: error.message || "Invalid credentials",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

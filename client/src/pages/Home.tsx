@@ -36,8 +36,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import bannerImage1 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125962914.png";
-import bannerImage2 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_1767125626200.png";
-import bannerImage3 from "@assets/Brown_Women_Clothing_Review_Youtube_Thumbnail_(1)_1767125824209.png";
+import heroModel1 from "@assets/stock_images/professional_model_w_b2a111b5.jpg";
+import heroModel2 from "@assets/stock_images/professional_model_w_d65cdd43.jpg";
+import heroModel3 from "@assets/stock_images/professional_model_w_ecdc0a0c.jpg";
+import heroModel4 from "@assets/stock_images/professional_model_w_decc3e22.jpg";
 import suitImage from "@assets/stock_images/woman_wearing_formal_0b5c0cca.jpg";
 import newArrivalsImage from "@assets/stock_images/woman_wearing_new_tr_9ad6e643.jpg";
 import kurtaImage from "@assets/stock_images/indian_woman_wearing_838e84e3.jpg";
@@ -77,7 +79,7 @@ export default function Home() {
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
 
-  const banners = [bannerImage1, bannerImage2, bannerImage3];
+  const banners = [bannerImage1, heroModel1, heroModel2];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -394,7 +396,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <section 
-        className="relative min-h-[300px] sm:min-h-[500px] h-[50vh] sm:h-[70vh] flex items-center overflow-hidden w-full cursor-grab active:cursor-grabbing"
+        className="relative min-h-[500px] sm:min-h-[600px] h-[75vh] sm:h-[85vh] flex items-center overflow-hidden w-full cursor-grab active:cursor-grabbing"
         data-testid="section-hero-with-outfit"
         onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX); }}
         onMouseMove={(e) => { if (isDragging) setTranslateX(e.clientX - startX); }}
@@ -413,19 +415,57 @@ export default function Home() {
           }
         }}
       >
-        {banners.map((banner, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-            style={{
-              backgroundImage: `url(${banner})`,
-              backgroundSize: '80%',
-              backgroundPosition: 'top center',
-            }}
-          >
-            <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+        {/* Slide 1 - existing banner image */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          style={{ backgroundImage: `url(${bannerImage1})`, backgroundSize: 'cover', backgroundPosition: 'top center' }}
+        >
+          <div className="absolute inset-0 bg-black/30 dark:bg-black/50" />
+        </div>
+
+        {/* Slide 2 - New Arrivals */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === 1 ? 'opacity-100 z-10' : 'opacity-0 z-0'} overflow-hidden`}>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1a0e00 0%, #2d1a00 40%, #3d2400 100%)' }} />
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #bf953f 0, #bf953f 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
+          <div className="absolute right-0 top-0 h-full w-1/2 md:w-[45%]">
+            <img src={heroModel1} alt="New Arrivals" className="w-full h-full object-cover object-top" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, #1a0e00 0%, transparent 40%)' }} />
           </div>
-        ))}
+          <div className="absolute top-6 right-6 md:right-[46%] flex flex-col gap-2 items-end md:items-start">
+            {['Sarees', 'Lehengas', 'Anarkalis'].map((tag) => (
+              <span key={tag} className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#bf953f]/60 text-[#bf953f] bg-black/30 backdrop-blur-sm">{tag}</span>
+            ))}
+          </div>
+          <div className="absolute bottom-8 left-6 md:left-12 flex items-center gap-3">
+            <div className="w-8 h-[1px] bg-[#bf953f]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#bf953f]">New Season 2025</span>
+          </div>
+        </div>
+
+        {/* Slide 3 - Ethnic Collection */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${currentSlide === 2 ? 'opacity-100 z-10' : 'opacity-0 z-0'} overflow-hidden`}>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #0d0d0d 0%, #1c1000 50%, #2a1800 100%)' }} />
+          <div className="absolute left-0 top-0 h-full w-1/2 md:w-[48%] flex">
+            <div className="w-1/2 h-full">
+              <img src={heroModel2} alt="Ethnic 1" className="w-full h-full object-cover" style={{objectPosition:"50% 10%"}} />
+            </div>
+            <div className="w-1/2 h-full">
+              <img src={heroModel3} alt="Ethnic 2" className="w-full h-full object-cover" style={{objectPosition:"50% 10%"}} />
+            </div>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to left, #0d0d0d 0%, transparent 40%)' }} />
+          </div>
+          <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-10 flex flex-col gap-3">
+            {[{ label: 'Silk', val: '200+' }, { label: 'Designs', val: '500+' }, { label: 'Vendors', val: '50+' }].map((s) => (
+              <div key={s.label} className="text-right">
+                <div className="text-xl md:text-3xl font-black text-[#bf953f]" style={{ fontFamily: "'Playfair Display', serif" }}>{s.val}</div>
+                <div className="text-[9px] uppercase tracking-[0.25em] text-white/60">{s.label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="absolute bottom-8 right-6 md:right-12 flex items-center gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#bf953f]">Ethnic Elegance</span>
+            <div className="w-8 h-[1px] bg-[#bf953f]" />
+          </div>
+        </div>
         <button onClick={() => setCurrentSlide((p) => (p - 1 + 3) % 3)} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm transition-all">
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -441,14 +481,10 @@ export default function Home() {
           <div className="max-w-lg flex flex-col justify-center text-white text-left overflow-hidden">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#bf953f]/50 mb-6 w-fit">
               <Sparkles className="w-4 h-4 text-[#bf953f]" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white">AI-Powered Fashion</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white">{currentSlide===0?"AI-Powered Fashion":currentSlide===1?"New Season 2025":"Ethnic Elegance"}</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4 sm:mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Feel Like a Queen, Every Day
-            </h1>
-            <h2 className="text-xs sm:text-base max-w-xs sm:max-w-sm leading-relaxed mb-6 sm:mb-8 font-medium text-white drop-shadow-md">
-              Discover Height Specific stunning Casual, Traditional, Ethnic Women’s Wear and trendy fashion from India's most trusted vendors.
-            </h2>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-4 sm:mb-8 luxury-gold-text drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>{currentSlide===0?"Feel Like a Queen, Every Day":currentSlide===1?"New Arrivals Are Here":"Ethnic Elegance Awaits"}</h1>
+            <h2 className="text-xs sm:text-base max-w-xs sm:max-w-sm leading-relaxed mb-6 sm:mb-8 font-medium text-white drop-shadow-md">{currentSlide===0?"Discover Height Specific stunning Casual, Traditional, Ethnic Women's Wear and trendy fashion from India's most trusted vendors.":currentSlide===1?"Explore the latest Sarees, Lehengas & Anarkalis curated for the modern Indian woman. Fresh styles, every week.":"200+ silk varieties, 500+ ethnic designs from 50+ verified vendors. Your perfect ethnic look is just a click away."}</h2>
             <Button 
               className="w-full sm:w-fit px-8 py-3 rounded-full text-sm sm:text-base bg-[#bf953f] hover:bg-[#b8962d] text-white shadow-xl shadow-[#bf953f]/20 btn-shiny"
               data-testid="button-shop-now"

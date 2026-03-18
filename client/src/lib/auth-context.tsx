@@ -56,30 +56,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string, otpId?: string): Promise<User> => {
-    try {
-      const res = await apiRequest("POST", "/api/auth/login", { email, password, otpId });
-      const response = await res.json() as {
-        user: User;
-        profile: UserProfile;
-        token: string;
-        message: string;
-      };
-      
-      if (response.user) {
-        setUser(response.user);
-        setProfile(response.profile);
-        setToken(response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        localStorage.setItem("authToken", response.token);
-        if (response.profile) {
-          localStorage.setItem("profile", JSON.stringify(response.profile));
-        }
-        return response.user;
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, otpId }),
+      credentials: "include",
+    });
+
+    const response = await res.json() as any;
+
+    if (!res.ok) {
+      // If server asks for OTP but we have no otpId, throw a clear message
+      if (response.requireOTP) {
+        throw new Error("Phone verification required");
       }
-      throw new Error("Login failed - no user data received");
-    } catch (error: any) {
-      throw new Error(error.message || "Login failed");
+      throw new Error(response.message || "Login failed");
     }
+
+    if (response.user) {
+      setUser(response.user);
+      setProfile(response.profile);
+      setToken(response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      localStorage.setItem("authToken", response.token);
+      if (response.profile) {
+        localStorage.setItem("profile", JSON.stringify(response.profile));
+      }
+      return response.user;
+    }
+    throw new Error("Login failed - no user data received");
   };
 
   const register = async (data: any): Promise<User> => {

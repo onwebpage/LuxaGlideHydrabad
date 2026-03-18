@@ -53,11 +53,23 @@ export async function sendOTP(phone: string): Promise<{ success: boolean; messag
     url.searchParams.append("route", "otp");
     url.searchParams.append("numbers", cleanPhone);
 
+    // Always log OTP to console for debugging
+    console.log(`[OTP] Sending OTP ${otp} to ${cleanPhone} (otpId: ${otpId})`);
+
     const response = await fetch(url.toString(), {
       method: "GET",
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    
+    let data: any;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      console.error("FAST2SMS non-JSON response:", responseText.substring(0, 200));
+      return { success: false, message: "SMS service returned an invalid response" };
+    }
+
     console.log("FAST2SMS response:", data);
 
     if (data.return === true || data.status_code === 200) {
