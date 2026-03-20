@@ -1,25 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import Cropper from "cropperjs";
-import "cropperjs/dist/cropper.min.css";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import {
-  ZoomIn,
-  ZoomOut,
-  Check,
-  X,
-  RotateCcw,
-  FlipHorizontal,
-  FlipVertical,
-} from "lucide-react";
+import { Check, X } from "lucide-react";
 
 interface ImageCropModalProps {
   imageSrc: string | null;
@@ -29,6 +11,38 @@ interface ImageCropModalProps {
   aspectRatio?: number;
 }
 
+// 8 handle positions
+type Handle = "tl" | "tc" | "tr" | "ml" | "mr" | "bl" | "bc" | "br";
+
+interface CropBox { x: number; y: number; w: number; h: number }
+
+const MIN_SIZE = 30;
+
+const HANDLE_SIZE = 10; // px, half-size for hit area
+
+function getHandlePositions(box: CropBox): Record<Handle, { cx: number; cy: number }> {
+  const { x, y, w, h } = box;
+  return {
+    tl: { cx: x,         cy: y         },
+    tc: { cx: x + w / 2, cy: y         },
+    tr: { cx: x + w,     cy: y         },
+    ml: { cx: x,         cy: y + h / 2 },
+    mr: { cx: x + w,     cy: y + h / 2 },
+    bl: { cx: x,         cy: y + h     },
+    bc: { cx: x + w / 2, cy: y + h     },
+    br: { cx: x + w,     cy: y + h     },
+  };
+}
+
+function cursorForHandle(h: Handle): string {
+  const map: Record<Handle, string> = {
+    tl: "nw-resize", tc: "n-resize",  tr: "ne-resize",
+    ml: "w-resize",                   mr: "e-resize",
+    bl: "sw-resize", bc: "s-resize",  br: "se-resize",
+  };
+  return map[h];
+}
+
 export function ImageCropModal({
   imageSrc,
   onComplete,
@@ -36,294 +50,272 @@ export function ImageCropModal({
   originalFileName = "image.jpg",
   aspectRatio,
 }: ImageCropModalProps) {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const cropperRef = useRef<Cropper | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef    = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const [zoomVal, setZoomVal] = useState(1);
+  // Displayed image dimensions inside the canvas
+  const displayRef = useRef({ offX: 0, offY: 0, w: 0, h: 0 });
+
+  const [box, setBox]       = useState<CropBox>({ x: 0, y: 0, w: 0, h: 0 });
   const [saving, setSaving] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [scaleX, setScaleX] = useState(1);
-  const [scaleY, setScaleY] = useState(1);
+  const [loaded, setLoaded] = useState(false);
 
-  /* ── Helpers ─────────────────────────────────────────────────────────── */
+  const dragRef = useRef<{
+    handle: Handle;
+    startX: number; startY: number;
+    origBox: CropBox;
+  } | null>(null);
 
-  const destroyCropper = useCallback(() => {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    if (cropperRef.current) { cropperRef.current.destroy(); cropperRef.current = null; }
-    setReady(false);
-    setZoomVal(1);
-    setScaleX(1);
-    setScaleY(1);
+  // ── Draw ──────────────────────────────────────────────────────────────
+  const draw = useCallback((currentBox: CropBox) => {
+    const canvas = canvasRef.current;
+    const img    = imgRef.current;
+    const d      = displayRef.current;
+    if (!canvas || !img || !d.w) return;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw image
+    ctx.drawImage(img, d.offX, d.offY, d.w, d.h);
+
+    // Dark overlay outside crop
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    const { x, y, w, h } = currentBox;
+    ctx.fillRect(0,   0,            canvas.width, y);           // top
+    ctx.fillRect(0,   y + h,        canvas.width, canvas.height - y - h); // bottom
+    ctx.fillRect(0,   y,            x,            h);           // left
+    ctx.fillRect(x + w, y,          canvas.width - x - w, h);  // right
+
+    // Crop border
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth   = 1.5;
+    ctx.strokeRect(x, y, w, h);
+
+    // 8 handles
+    const handles = getHandlePositions(currentBox);
+    for (const pos of Object.values(handles)) {
+      ctx.fillStyle   = "#ffffff";
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth   = 1;
+      ctx.fillRect(pos.cx - HANDLE_SIZE / 2, pos.cy - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+      ctx.strokeRect(pos.cx - HANDLE_SIZE / 2, pos.cy - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+    }
   }, []);
 
-  const buildCropper = useCallback(() => {
-    const img = imgRef.current;
-    if (!img || cropperRef.current) return; // already exists
-
-    const cropper = new Cropper(img, {
-      aspectRatio: aspectRatio ?? NaN,
-      viewMode: 1,          // canvas stays inside container
-      dragMode: "move",     // drag moves the image, not creates a new crop
-      autoCropArea: 0.85,
-      cropBoxResizable: true,
-      cropBoxMovable: true,
-      movable: true,
-      zoomable: true,
-      zoomOnWheel: true,
-      wheelZoomRatio: 0.1,
-      responsive: true,
-      restore: true,
-      guides: true,
-      center: true,
-      highlight: false,
-      background: true,
-      toggleDragModeOnDblclick: false,
-      minCropBoxWidth: 20,
-      minCropBoxHeight: 20,
-      ready() {
-        setReady(true);
-        // Read initial zoom from Cropper to sync slider
-        const data = (this as any).imageData;
-        if (data?.ratio != null) setZoomVal(data.ratio);
-      },
-      zoom(e) {
-        const r = parseFloat(e.detail.ratio.toFixed(4));
-        const clamped = Math.min(Math.max(r, 0.1), 5);
-        if (r !== clamped) { e.preventDefault(); cropper.zoomTo(clamped); }
-        setZoomVal(clamped);
-      },
-    });
-
-    cropperRef.current = cropper;
-  }, [aspectRatio]);
-
-  /* Wait for the Dialog open-animation to finish (≈200 ms in shadcn/ui),
-     THEN check whether the image is already loaded (blob / cache) or
-     wait for onLoad. A 300 ms buffer comfortably covers the animation. */
-  const scheduleBuild = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      timerRef.current = null;
-      const img = imgRef.current;
-      if (!img) return;
-      if (img.complete && img.naturalWidth > 0) {
-        buildCropper();
-      }
-      // Otherwise onLoad will call buildCropper directly
-    }, 300);
-  }, [buildCropper]);
-
-  /* ── Effects ─────────────────────────────────────────────────────────── */
-
+  // ── Init image ────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!imageSrc) {
-      destroyCropper();
+    if (!imageSrc) { setLoaded(false); return; }
+
+    const img = new Image();
+    img.onload = () => {
+      imgRef.current = img;
+      const canvas    = canvasRef.current;
+      const container = containerRef.current;
+      if (!canvas || !container) return;
+
+      const maxW = container.clientWidth  || 600;
+      const maxH = container.clientHeight || 420;
+
+      // Scale image to fit container
+      const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+      const dw    = Math.round(img.naturalWidth  * scale);
+      const dh    = Math.round(img.naturalHeight * scale);
+      const offX  = Math.round((maxW - dw) / 2);
+      const offY  = Math.round((maxH - dh) / 2);
+
+      canvas.width  = maxW;
+      canvas.height = maxH;
+      displayRef.current = { offX, offY, w: dw, h: dh };
+
+      // Center crop box at 85% of displayed image
+      const cw = Math.round(dw * 0.85);
+      const ch = aspectRatio ? Math.round(cw / aspectRatio) : Math.round(dh * 0.85);
+      const cx = offX + Math.round((dw - cw) / 2);
+      const cy = offY + Math.round((dh - ch) / 2);
+
+      const initBox = { x: cx, y: cy, w: cw, h: ch };
+      setBox(initBox);
+      setLoaded(true);
+      draw(initBox);
+    };
+    img.src = imageSrc;
+  }, [imageSrc, aspectRatio, draw]);
+
+  // Redraw whenever box changes
+  useEffect(() => { if (loaded) draw(box); }, [box, loaded, draw]);
+
+  // ── Hit test ──────────────────────────────────────────────────────────
+  const hitHandle = (mx: number, my: number, b: CropBox): Handle | null => {
+    const positions = getHandlePositions(b);
+    for (const [key, pos] of Object.entries(positions) as [Handle, { cx: number; cy: number }][]) {
+      if (
+        mx >= pos.cx - HANDLE_SIZE && mx <= pos.cx + HANDLE_SIZE &&
+        my >= pos.cy - HANDLE_SIZE && my <= pos.cy + HANDLE_SIZE
+      ) return key;
+    }
+    return null;
+  };
+
+  // ── Mouse events ──────────────────────────────────────────────────────
+  const getCanvasXY = (e: React.MouseEvent | MouseEvent) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    return { mx: e.clientX - rect.left, my: e.clientY - rect.top };
+  };
+
+  const onMouseMove = useCallback((e: MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const { mx, my } = getCanvasXY(e);
+
+    if (!dragRef.current) {
+      // Update cursor
+      const h = hitHandle(mx, my, box);
+      canvas.style.cursor = h ? cursorForHandle(h) : "default";
       return;
     }
-    // Destroy any previous instance, then schedule a fresh build
-    destroyCropper();
-    scheduleBuild();
-  }, [imageSrc]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => () => destroyCropper(), []); // eslint-disable-line react-hooks/exhaustive-deps
+    const { handle, startX, startY, origBox } = dragRef.current;
+    const dx = mx - startX;
+    const dy = my - startY;
+    const d  = displayRef.current;
 
-  /* ── Control handlers ────────────────────────────────────────────────── */
+    // Bounds: crop box must stay within displayed image
+    const minX = d.offX, minY = d.offY;
+    const maxX = d.offX + d.w, maxY = d.offY + d.h;
 
-  const handleZoomChange = (val: number[]) => {
-    const v = val[0];
-    setZoomVal(v);
-    cropperRef.current?.zoomTo(v);
-  };
+    let { x, y, w, h } = origBox;
 
-  const handleReset = () => {
-    cropperRef.current?.reset();
-    setZoomVal(1);
-    setScaleX(1);
-    setScaleY(1);
-  };
-
-  const handleFlipH = () => {
-    const next = scaleX * -1;
-    setScaleX(next);
-    cropperRef.current?.scaleX(next);
-  };
-
-  const handleFlipV = () => {
-    const next = scaleY * -1;
-    setScaleY(next);
-    cropperRef.current?.scaleY(next);
-  };
-
-  const handleSave = async () => {
-    if (!cropperRef.current || !ready) return;
-    setSaving(true);
-    try {
-      const canvas = cropperRef.current.getCroppedCanvas({
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: "high",
-      });
-      await new Promise<void>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { reject(new Error("toBlob failed")); return; }
-            onComplete(new File([blob], originalFileName, { type: "image/jpeg" }));
-            resolve();
-          },
-          "image/jpeg",
-          0.92,
-        );
-      });
-    } catch {
-      setSaving(false);
+    // Apply delta per handle
+    if (handle === "tl" || handle === "ml" || handle === "bl") {
+      const nx = Math.min(x + w - MIN_SIZE, Math.max(minX, x + dx));
+      w = w + (x - nx); x = nx;
     }
+    if (handle === "tr" || handle === "mr" || handle === "br") {
+      w = Math.min(maxX - x, Math.max(MIN_SIZE, w + dx));
+    }
+    if (handle === "tl" || handle === "tc" || handle === "tr") {
+      const ny = Math.min(y + h - MIN_SIZE, Math.max(minY, y + dy));
+      h = h + (y - ny); y = ny;
+    }
+    if (handle === "bl" || handle === "bc" || handle === "br") {
+      h = Math.min(maxY - y, Math.max(MIN_SIZE, h + dy));
+    }
+
+    // Enforce aspect ratio if set
+    if (aspectRatio) {
+      if (["tl","tr","bl","br","tc","bc"].includes(handle)) {
+        w = Math.round(h * aspectRatio);
+        if (x + w > maxX) { w = maxX - x; h = Math.round(w / aspectRatio); }
+      }
+    }
+
+    setBox({ x, y, w, h });
+  }, [box, aspectRatio]);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    const { mx, my } = getCanvasXY(e);
+    const h = hitHandle(mx, my, box);
+    if (!h) return;
+    dragRef.current = { handle: h, startX: mx, startY: my, origBox: { ...box } };
+  }, [box]);
+
+  const onMouseUp = useCallback(() => { dragRef.current = null; }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup",   onMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup",   onMouseUp);
+    };
+  }, [onMouseMove, onMouseUp]);
+
+  // ── Apply crop ────────────────────────────────────────────────────────
+  const handleSave = async () => {
+    const img = imgRef.current;
+    const d   = displayRef.current;
+    if (!img || !d.w) return;
+    setSaving(true);
+
+    // Map canvas crop coords back to original image coords
+    const scaleX = img.naturalWidth  / d.w;
+    const scaleY = img.naturalHeight / d.h;
+    const srcX   = Math.round((box.x - d.offX) * scaleX);
+    const srcY   = Math.round((box.y - d.offY) * scaleY);
+    const srcW   = Math.round(box.w * scaleX);
+    const srcH   = Math.round(box.h * scaleY);
+
+    const out = document.createElement("canvas");
+    out.width  = srcW;
+    out.height = srcH;
+    out.getContext("2d")!.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+
+    out.toBlob(
+      (blob) => {
+        if (!blob) { setSaving(false); return; }
+        onComplete(new File([blob], originalFileName, { type: "image/jpeg" }));
+      },
+      "image/jpeg",
+      0.92,
+    );
   };
 
-  /* ── Render ──────────────────────────────────────────────────────────── */
-
+  // ── Render ────────────────────────────────────────────────────────────
   return (
     <Dialog
       open={!!imageSrc}
-      onOpenChange={(open) => { if (!open) { destroyCropper(); onCancel(); } }}
+      onOpenChange={(open) => { if (!open) onCancel(); }}
     >
       <DialogContent
-        className="max-w-2xl w-full p-0 gap-0"
+        className="max-w-2xl w-full p-0 gap-0 bg-[#111] border-[#333]"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <DialogHeader className="px-5 pt-4 pb-3 border-b">
-          <DialogTitle className="text-sm font-semibold tracking-wide">
+        <DialogHeader className="px-5 pt-4 pb-3 border-b border-[#333]">
+          <DialogTitle className="text-sm font-semibold text-white tracking-wide">
             Crop Image
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Drag image to reposition · Drag handles to resize crop · Scroll to zoom
-          </DialogDescription>
         </DialogHeader>
 
-        {/*
-          Cropper container.
-          • No overflow:hidden — Cropper.js manages its own clipping internally.
-          • position:relative is required so Cropper.js can absolute-position
-            its canvas, drag-box, crop-box, and modal overlay correctly.
-          • The explicit height gives Cropper.js a stable bounding box to
-            fill. Without it, Cropper.js falls back to the image's intrinsic
-            height which can be unexpectedly large or small.
-        */}
+        {/* Canvas area */}
         <div
-          id="cropper-host"
-          style={{
-            width: "100%",
-            height: 420,
-            background: "#111",
-            position: "relative",
-          }}
+          ref={containerRef}
+          style={{ width: "100%", height: 420, background: "#111", position: "relative" }}
         >
-          {imageSrc && (
-            <img
-              /*
-                key=imageSrc ensures a fresh DOM node each time the source
-                changes, so Cropper.js always receives an un-initialized
-                <img> element.
-              */
-              key={imageSrc}
-              ref={imgRef}
-              src={imageSrc}
-              alt="Crop source"
-              /*
-                onLoad fires once the browser has decoded the pixels.
-                We pair it with the 300 ms timer so whichever happens
-                last (image load vs animation end) triggers the build.
-              */
-              onLoad={buildCropper}
-              style={{ display: "block" }}
-            />
-          )}
-
-          {/* Shown until Cropper.js calls its ready() callback */}
-          {!ready && imageSrc && (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#777",
-                fontSize: 13,
-                pointerEvents: "none",
-                zIndex: 10,
-              }}
-            >
-              Initializing cropper…
+          <canvas
+            ref={canvasRef}
+            onMouseDown={onMouseDown}
+            style={{ display: "block", userSelect: "none" }}
+          />
+          {!loaded && imageSrc && (
+            <div style={{
+              position: "absolute", inset: 0, display: "flex",
+              alignItems: "center", justifyContent: "center",
+              color: "#666", fontSize: 13, pointerEvents: "none",
+            }}>
+              Loading image…
             </div>
           )}
         </div>
 
-        {/* ── Controls ── */}
-        <div className="px-5 py-3 bg-background space-y-3 border-t">
-          {/* Zoom */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => cropperRef.current?.zoom(-0.1)}
-              disabled={!ready}
-              title="Zoom out"
-              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
-            >
-              <ZoomOut className="w-5 h-5" />
-            </button>
-            <Slider
-              min={0.1}
-              max={5}
-              step={0.01}
-              value={[zoomVal]}
-              onValueChange={handleZoomChange}
-              disabled={!ready}
-              className="flex-1"
-            />
-            <button
-              type="button"
-              onClick={() => cropperRef.current?.zoom(0.1)}
-              disabled={!ready}
-              title="Zoom in"
-              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
-            >
-              <ZoomIn className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Button type="button" variant="ghost" size="sm" onClick={handleReset}
-                disabled={!ready} className="gap-1 text-xs h-7 px-2">
-                <RotateCcw className="w-3.5 h-3.5" /> Reset
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={handleFlipH}
-                disabled={!ready} className="gap-1 text-xs h-7 px-2">
-                <FlipHorizontal className="w-3.5 h-3.5" /> Flip H
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={handleFlipV}
-                disabled={!ready} className="gap-1 text-xs h-7 px-2">
-                <FlipVertical className="w-3.5 h-3.5" /> Flip V
-              </Button>
-            </div>
-            <p className="text-[10px] text-muted-foreground hidden sm:block">
-              Drag corners / edges to resize crop box
-            </p>
-          </div>
-        </div>
-
-        <DialogFooter className="px-5 pb-4 pt-3 gap-2 border-t">
-          <Button type="button" variant="outline"
-            onClick={() => { destroyCropper(); onCancel(); }} className="gap-1">
+        <DialogFooter className="px-5 py-4 border-t border-[#333] bg-[#1a1a1a] gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="border-[#444] text-white hover:bg-[#333] gap-1"
+          >
             <X className="w-4 h-4" /> Cancel
           </Button>
-          <Button type="button" onClick={handleSave}
-            disabled={saving || !ready}
-            className="gap-1 bg-[#bf953f] hover:bg-[#a67c2e] text-white">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || !loaded}
+            className="bg-[#bf953f] hover:bg-[#a67c2e] text-white gap-1"
+          >
             <Check className="w-4 h-4" />
             {saving ? "Saving…" : "Apply Crop"}
           </Button>

@@ -23,6 +23,7 @@ import {
   RefreshCcw,
   Loader2,
   Zap,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -46,6 +47,33 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderDbId, setOrderDbId] = useState<string | null>(null);
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+
+  const handleDownloadInvoice = async () => {
+    if (!orderDbId) return;
+    setDownloadingInvoice(true);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`/api/orders/${orderDbId}/invoice`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to generate invoice");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch {
+      toast({ title: "Failed to download invoice", variant: "destructive" });
+    } finally {
+      setDownloadingInvoice(false);
+    }
+  };
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -152,6 +180,7 @@ export default function Checkout() {
 
       const order = await orderRes.json();
       setOrderId(order.orderNumber);
+      setOrderDbId(order.id);
       clearCart();
       setIsDone(true);
       window.scrollTo(0, 0);
@@ -165,19 +194,37 @@ export default function Checkout() {
   if (isDone) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <CheckCircle2 className="w-20 h-20 text-primary mb-6" />
-        <h1 className="text-3xl font-serif font-bold mb-2">Order Placed Successfully!</h1>
-        {orderId && <p className="text-muted-foreground mb-2 text-sm">Order ID: <span className="font-mono font-semibold">{orderId}</span></p>}
-        <p className="text-muted-foreground mb-8 max-w-md">
-          Thank you for your purchase. Your order has been confirmed and will be delivered within 3–5 business days.
-        </p>
-        <div className="flex gap-4">
-          <Link href="/products">
-            <Button size="lg">Continue Shopping</Button>
-          </Link>
-          <Link href="/dashboard/buyer">
-            <Button size="lg" variant="outline">View Orders</Button>
-          </Link>
+        <div className="w-full max-w-md">
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadInvoice}
+              disabled={downloadingInvoice}
+              className="gap-2"
+            >
+              {downloadingInvoice ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {downloadingInvoice ? "Generating..." : "Download Invoice"}
+            </Button>
+          </div>
+          <CheckCircle2 className="w-20 h-20 text-primary mb-6 mx-auto" />
+          <h1 className="text-3xl font-serif font-bold mb-2">Order Placed Successfully!</h1>
+          {orderId && <p className="text-muted-foreground mb-2 text-sm">Order ID: <span className="font-mono font-semibold">{orderId}</span></p>}
+          <p className="text-muted-foreground mb-8 max-w-md">
+            Thank you for your purchase. Your order has been confirmed and will be delivered within 3–5 business days.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/products">
+              <Button size="lg">Continue Shopping</Button>
+            </Link>
+            <Link href="/dashboard/buyer">
+              <Button size="lg" variant="outline">View Orders</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );

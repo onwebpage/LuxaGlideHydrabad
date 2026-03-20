@@ -2482,33 +2482,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Helper: send invoice email via Resend
-  async function sendInvoiceEmail(to: string, toName: string, order: any, pdfBuffer: Buffer): Promise<void> {
-    const resendApiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@mahanaari.com";
-    if (!resendApiKey) {
-      console.warn("RESEND_API_KEY not set – skipping invoice email to", to);
-      return;
-    }
-    const pdfBase64 = pdfBuffer.toString("base64");
-    const body = {
-      from: `mahanaari <${fromEmail}>`,
-      to: [to],
-      subject: `Invoice for Order ${order.orderNumber} – mahanaari`,
-      html: `<p>Dear ${toName},</p><p>Please find attached the invoice for order <strong>${order.orderNumber}</strong> placed on ${new Date(order.createdAt).toLocaleDateString("en-IN")}.</p><p>Total Amount: <strong>₹${Number(order.totalAmount).toFixed(2)}</strong></p><p>Thank you for being part of mahanaari!</p><p style="color:#888;font-size:12px">mahanaari – Premium Women's Fashion Marketplace</p>`,
-      attachments: [{ filename: `invoice-${order.orderNumber}.pdf`, content: pdfBase64 }],
-    };
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendApiKey}` },
-      body: JSON.stringify(body),
-    });
-    if (!resp.ok) {
-      const err = await resp.text();
-      console.error("Resend invoice email error:", err);
-    }
-  }
-
   // Create order
   app.post("/api/orders", async (req, res) => {
     try {
@@ -2570,35 +2543,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear cart
       await storage.clearCart(userId);
 
-      // Respond immediately so the buyer isn't waiting on email
+      // Respond immediately
       res.status(201).json(order);
-
-      // ── Background: generate invoice & email vendor + admin ──
-      try {
-        const [user, vendor, address] = await Promise.all([
-          storage.getUser(userId),
-          storage.getVendor(resolvedVendorId),
-          storage.getAddress(shippingAddressId),
-        ]);
-
-        const pdfBuffer = await generateInvoicePdf(order, enrichedItems, user, vendor, address);
-
-        // Email vendor
-        if (vendor) {
-          const vendorUser = await storage.getUser(vendor.userId);
-          if (vendorUser?.email) {
-            await sendInvoiceEmail(vendorUser.email, vendor.businessName, order, pdfBuffer);
-          }
-        }
-
-        // Email admin
-        const adminEmail = process.env.RESEND_FROM_EMAIL;
-        if (adminEmail) {
-          await sendInvoiceEmail(adminEmail, "Admin", order, pdfBuffer);
-        }
-      } catch (invoiceErr) {
-        console.error("Invoice generation/email error (non-fatal):", invoiceErr);
-      }
     } catch (error: any) {
       console.error("Create order error:", error);
       res.status(500).json({ message: error.message });
@@ -2655,6 +2601,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.send(pdfBuffer);
     } catch (error: any) {
       console.error("Vendor invoice error:", error);
+      if (!res.headersSent) res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Download invoice for a buyer's own order
+  app.get("/api/orders/:id/invoice", requireAuth, async (req, res) => {
+    try {
+      const order = await storage.getOrder(req.params.id);
+      if (!order) return res.status(404).json({ message: "Order not found" });
+      if (order.userId !== req.user!.id) return res.status(403).json({ message: "Access denied" });
+
+      const items = await storage.getOrderItems(req.params.id);
+      const [address, user, vendor] = await Promise.all([
+        storage.getAddress(order.shippingAddressId),
+        storage.getUser(order.userId),
+        storage.getVendor(order.vendorId),
+      ]);
+
+      const enrichedItems = await Promise.all(
+        items.map(async (item) => {
+          const product = await storage.getProduct(item.productId);
+          return { ...item, productName: product?.name || item.productId };
+        })
+      );
+
+      const pdfBuffer = await generateInvoicePdf(order, enrichedItems, user, vendor, address);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderNumber}.pdf`);
+      res.send(pdfBuffer);
+    } catch (error: any) {
+      console.error("Buyer invoice error:", error);
       if (!res.headersSent) res.status(500).json({ message: error.message });
     }
   });

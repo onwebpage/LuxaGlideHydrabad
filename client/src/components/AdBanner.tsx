@@ -47,7 +47,7 @@ export function AdBanner({ position }: AdBannerProps) {
             <img 
               src={ad.bannerImage} 
               alt={ad.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
             />
             {(ad.title || ad.description) && (
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">

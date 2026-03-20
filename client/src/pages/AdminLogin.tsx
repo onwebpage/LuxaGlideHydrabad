@@ -18,8 +18,12 @@ export default function AdminLogin() {
   const [otp, setOtp] = useState("");
   const [otpId, setOtpId] = useState("");
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!username || !password) {
+      toast({ title: "Error", description: "Username and password required", variant: "destructive" });
+      return;
+    }
     setStep("phone");
   };
 
@@ -141,9 +145,9 @@ export default function AdminLogin() {
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl font-serif">Admin Login</CardTitle>
-          <CardDescription>
-            {step === "credentials" && "Enter your credentials"}
-            {step === "phone" && "Enter your mobile number"}
+            <CardDescription>
+            {step === "credentials" && "Enter your admin credentials"}
+            {step === "phone" && "Enter your phone number for OTP verification"}
             {step === "otp" && "Enter the OTP sent to your phone"}
           </CardDescription>
         </CardHeader>
@@ -154,12 +158,10 @@ export default function AdminLogin() {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  type="text"
-                  placeholder="Enter username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Admin username"
                   required
-                  data-testid="input-username"
                 />
               </div>
               <div className="space-y-2">
@@ -167,15 +169,14 @@ export default function AdminLogin() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Admin password"
                   required
-                  data-testid="input-password"
                 />
               </div>
-              <Button type="submit" className="w-full" data-testid="button-next">
-                Next
+              <Button type="submit" className="w-full">
+                Continue
               </Button>
             </form>
           )}
@@ -184,78 +185,43 @@ export default function AdminLogin() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Mobile Number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <div className="flex gap-2">
+                  <Phone className="w-5 h-5 mt-2.5 text-muted-foreground" />
                   <Input
                     id="phone"
-                    type="tel"
-                    placeholder="+91XXXXXXXXXX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="pl-10"
-                    data-testid="input-phone"
+                    placeholder="10-digit mobile number"
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep("credentials")}
-                  className="flex-1"
-                >
-                  Back
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSendOTP}
-                  disabled={isLoading}
-                  className="flex-1"
-                  data-testid="button-send-otp"
-                >
-                  {isLoading ? "Sending..." : "Send OTP"}
-                </Button>
-              </div>
+              <Button onClick={handleSendOTP} className="w-full" disabled={isLoading}>
+                {isLoading ? "Sending OTP..." : "Send OTP"}
+              </Button>
+              <Button variant="ghost" className="w-full" onClick={() => setStep("credentials")}>
+                Back
+              </Button>
             </div>
           )}
 
           {step === "otp" && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="otp">Enter OTP</Label>
+                <Label htmlFor="otp">Verification Code</Label>
                 <Input
                   id="otp"
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="text-center tracking-widest text-lg"
+                  placeholder="Enter 6-digit OTP"
                   maxLength={6}
-                  data-testid="input-otp"
                 />
               </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setStep("phone");
-                    setOtp("");
-                  }}
-                  className="flex-1"
-                >
-                  Resend
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleVerifyAndLogin}
-                  disabled={isLoading}
-                  className="flex-1"
-                  data-testid="button-verify-login"
-                >
-                  {isLoading ? "Verifying..." : "Verify & Login"}
-                </Button>
-              </div>
+              <Button onClick={handleVerifyAndLogin} className="w-full" disabled={isLoading}>
+                {isLoading ? "Verifying..." : "Verify & Login"}
+              </Button>
+              <Button variant="ghost" className="w-full" onClick={() => setStep("phone")}>
+                Resend OTP
+              </Button>
             </div>
           )}
         </CardContent>

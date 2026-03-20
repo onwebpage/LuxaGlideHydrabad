@@ -35,6 +35,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import type { Order, Address, Product, Buyer } from "@shared/schema";
 
+function downloadBlob(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
 interface DashboardStats {
   totalOrders: number;
   pendingOrders: number;
@@ -48,6 +59,25 @@ export default function BuyerDashboard() {
   const { toast } = useToast();
   const userId = user?.id;
   const buyerProfile = profile as Buyer | null;
+
+  const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
+
+  const handleDownloadInvoice = async (orderId: string, orderNumber: string) => {
+    setDownloadingInvoice(orderId);
+    try {
+      const token = localStorage.getItem("authToken");
+      const res = await fetch(`/api/orders/${orderId}/invoice`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to download invoice");
+      downloadBlob(await res.blob(), `invoice-${orderNumber}.pdf`);
+      toast({ title: "Invoice downloaded" });
+    } catch {
+      toast({ title: "Error", description: "Failed to download invoice", variant: "destructive" });
+    } finally {
+      setDownloadingInvoice(null);
+    }
+  };
 
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/dashboard/buyer', userId],
@@ -292,7 +322,13 @@ export default function BuyerDashboard() {
                               <Button variant="ghost" size="sm" data-testid={`button-view-order-${order.id}`}>
                                 View
                               </Button>
-                              <Button variant="ghost" size="sm" data-testid={`button-download-invoice-${order.id}`}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDownloadInvoice(order.id, order.orderNumber)}
+                                disabled={downloadingInvoice === order.id}
+                                data-testid={`button-download-invoice-${order.id}`}
+                              >
                                 <Download className="w-4 h-4" />
                               </Button>
                             </div>

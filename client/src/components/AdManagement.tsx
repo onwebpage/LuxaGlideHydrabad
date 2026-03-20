@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 interface Ad {
   id: string;
@@ -28,6 +29,11 @@ export default function AdManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Ad | null>(null);
   const { toast } = useToast();
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState("banner.jpg");
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [croppedPreview, setCroppedPreview] = useState<string | null>(null);
+  const pendingFormRef = useRef<HTMLFormElement | null>(null);
 
   const { data: ads = [], isLoading } = useQuery<Ad[]>({
     queryKey: ["/api/admin/ads"],
@@ -122,17 +128,32 @@ export default function AdManagement() {
     }
   });
 
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCropFileName(file.name);
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
+
+  const handleCropComplete = (file: File) => {
+    setCroppedFile(file);
+    setCroppedPreview(URL.createObjectURL(file));
+    setCropSrc(null);
+  };
+
+  const buildFormData = (form: HTMLFormElement): FormData => {
+    const formData = new FormData(form);
+    const positionSelect = form.querySelector('select[name="position"]') as HTMLSelectElement;
+    if (positionSelect?.value) formData.set('position', positionSelect.value);
+    if (croppedFile) formData.set('bannerImage', croppedFile, croppedFile.name);
+    return formData;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    // Ensure position is included (Select component doesn't add to FormData automatically)
-    const positionSelect = form.querySelector('select[name="position"]') as HTMLSelectElement;
-    if (positionSelect && positionSelect.value) {
-      formData.set('position', positionSelect.value);
-    }
-
+    const formData = buildFormData(form);
     if (editingAd) {
       updateMutation.mutate({ id: editingAd.id, formData });
     } else {
@@ -142,11 +163,17 @@ export default function AdManagement() {
 
   return (
     <div className="space-y-6">
+      <ImageCropModal
+        imageSrc={cropSrc}
+        originalFileName={cropFileName}
+        onComplete={handleCropComplete}
+        onCancel={() => setCropSrc(null)}
+      />
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Ad Management</h2>
         <Dialog open={isOpen} onOpenChange={(open) => {
           setIsOpen(open);
-          if (!open) setEditingAd(null);
+          if (!open) { setEditingAd(null); setCroppedFile(null); setCroppedPreview(null); }
         }}>
           <DialogTrigger asChild>
             <Button>
@@ -234,16 +261,21 @@ export default function AdManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="bannerImage">Banner Image</Label>
-                <Input 
-                  id="bannerImage" 
-                  name="bannerImage" 
-                  type="file" 
+                <Input
+                  id="bannerImage"
+                  type="file"
                   accept="image/*"
-                  required={!editingAd}
+                  required={!editingAd && !croppedFile}
+                  onChange={handleBannerFileChange}
                 />
-                {editingAd?.bannerImage && (
+                {(croppedPreview || editingAd?.bannerImage) && (
                   <div className="mt-2">
-                    <img src={editingAd.bannerImage} alt="Current banner" className="h-20 object-cover rounded" />
+                    <img
+                      src={croppedPreview || editingAd?.bannerImage}
+                      alt="Banner preview"
+                      className="h-20 object-cover rounded"
+                    />
+                    {croppedPreview && <p className="text-xs text-muted-foreground mt-1">Cropped image ready</p>}
                   </div>
                 )}
               </div>
@@ -313,6 +345,8 @@ export default function AdManagement() {
                         size="icon"
                         onClick={() => {
                           setEditingAd(ad);
+                          setCroppedFile(null);
+                          setCroppedPreview(null);
                           setIsOpen(true);
                         }}
                       >
